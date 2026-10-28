@@ -16,16 +16,20 @@ en el cuerpo del 200 y se anota en el log (así se prueba todo sin credenciales)
 Configuración: variables de entorno o un fichero .env junto a este script
 (ver .env.example). Los secretos NUNCA se escriben en el log.
 """
+import base64
 import hashlib
 import hmac
 import json
 import os
 import subprocess
 import sys
+import threading
 import time
 import urllib.request
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from urllib.parse import parse_qs, urlencode
+from xml.sax.saxutils import escape
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 LOG_PATH = os.path.join(BASE_DIR, "logs", "webhook.log")
@@ -52,6 +56,16 @@ VERIFY_TOKEN = os.environ.get("WHATSAPP_VERIFY_TOKEN", "")
 APP_SECRET = os.environ.get("WHATSAPP_APP_SECRET", "")
 WA_TOKEN = os.environ.get("WHATSAPP_TOKEN", "")
 PHONE_NUMBER_ID = os.environ.get("WHATSAPP_PHONE_NUMBER_ID", "")
+TWILIO_AUTH_TOKEN = os.environ.get("TWILIO_AUTH_TOKEN", "")
+TWILIO_ACCOUNT_SID = os.environ.get("TWILIO_ACCOUNT_SID", "")
+TWILIO_WHATSAPP_FROM = os.environ.get("TWILIO_WHATSAPP_FROM", "whatsapp:+14155238886")
+TWILIO_WEBHOOK_PUBLIC_URL = os.environ.get("TWILIO_WEBHOOK_PUBLIC_URL", "")
+# Modo de respuesta para la ruta de Twilio: "api" (confirmación inmediata y
+# envío posterior por la API) o "twiml" (la respuesta viaja en la propia
+# respuesta HTTP del webhook). En las cuentas trial de Twilio la API REST
+# rechaza los envíos de texto libre (error 21654) y la Content API no está
+# disponible (error 20003), así que allí debe usarse "twiml".
+TWILIO_REPLY_MODE = os.environ.get("TWILIO_REPLY_MODE", "api")
 PORT = int(os.environ.get("PORT", "8080"))
 HERMES_BIN = os.environ.get("HERMES_BIN", os.path.expanduser("~/.local/bin/hermes"))
 HERMES_TIMEOUT = int(os.environ.get("HERMES_TIMEOUT_S", "240"))
@@ -124,6 +138,64 @@ def enviar_whatsapp(para, cuerpo):
         return json.loads(resp.read().decode("utf-8"))
 
 
+def enviar_twilio(para, cuerpo):
+    """Envía un WhatsApp por la API de Twilio y devuelve el SID del mensaje."""
+    url = (
+        "https://api.twilio.com/2010-04-01/Accounts/"
+        f"{TWILIO_ACCOUNT_SID}/Messages.json"
+    )
+    datos = urlencode({
+        "From": TWILIO_WHATSAPP_FROM,
+        "To": f"whatsapp:+{para}",
+        "Body": cuerpo,
+    }).encode("utf-8")
+    credenciales = base64.b64encode(
+        f"{TWILIO_ACCOUNT_SID}:{TWILIO_AUTH_TOKEN}".encode("utf-8")
+    ).decode("utf-8")
+    req = urllib.request.Request(
+        url,
+        data=datos,
+        headers={
+            "Authorization": f"Basic {credenciales}",
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+        method="POST",
+    )
+    with urllib.request.urlopen(req, timeout=30) as resp:
+        resultado = json.loads(resp.read().decode("utf-8"))
+    return resultado.get("sid", "")
+
+
+def procesar_twilio(telefono, nombre, texto, enviar_por_api):
+    """Ejecuta un turno de Hermes y, si procede, envía la respuesta por Twilio."""
+    t0 = time.time()
+    try:
+        texto_respuesta, latencia = preguntar_a_hermes(telefono, texto)
+    except Exception as exc:
+        log({"evento": "twilio_error_hermes", "telefono": telefono, "error": str(exc)[:300]})
+        texto_respuesta, latencia = (
+            "Perdona, ahora mismo no puedo responder. Lo revisamos y te escribimos enseguida. 🙏",
+            time.time() - t0,
+        )
+    envio = None
+    if enviar_por_api:
+        try:
+            envio = enviar_twilio(telefono, texto_respuesta)
+        except Exception as exc:
+            log({"evento": "twilio_error_envio", "telefono": telefono, "error": str(exc)[:300]})
+    log({
+        "evento": "mensaje_twilio",
+        "telefono": telefono,
+        "nombre_perfil": nombre,
+        "entrante": texto,
+        "respuesta": texto_respuesta,
+        "latencia_hermes_s": round(latencia, 2),
+        "modo": "twilio-api" if enviar_por_api else "twilio-twiml-local",
+        "envio_twilio_sid": envio,
+    })
+    return texto_respuesta
+
+
 def extraer_mensajes(payload):
     """Saca los mensajes de texto del payload de WhatsApp Cloud API."""
     salida = []
@@ -157,6 +229,37 @@ def firma_valida(raw, cabecera):
     return cabecera is not None and hmac.compare_digest(esperada, cabecera)
 
 
+def firma_twilio_valida(params, cabecera):
+    """Valida X-Twilio-Signature cuando están configurados el token y la URL pública.
+
+    Twilio firma la URL pública exacta seguida de los pares clave/valor
+    ordenados por clave, con HMAC-SHA1 y codificación Base64. Si falta el
+    token o la URL pública no se puede validar y se devuelve None.
+    """
+    if not TWILIO_AUTH_TOKEN or not TWILIO_WEBHOOK_PUBLIC_URL:
+        return None
+    datos = TWILIO_WEBHOOK_PUBLIC_URL + "".join(
+        f"{clave}{params[clave]}" for clave in sorted(params)
+    )
+    esperada = base64.b64encode(
+        hmac.new(
+            TWILIO_AUTH_TOKEN.encode("utf-8"),
+            datos.encode("utf-8"),
+            hashlib.sha1,
+        ).digest()
+    ).decode("utf-8")
+    return cabecera is not None and hmac.compare_digest(esperada, cabecera)
+
+
+def twiml_respuesta(texto=None):
+    if not texto:
+        return '<?xml version="1.0" encoding="UTF-8"?><Response/>'
+    return (
+        '<?xml version="1.0" encoding="UTF-8"?>'
+        f"<Response><Message>{escape(texto)}</Message></Response>"
+    )
+
+
 class Handler(BaseHTTPRequestHandler):
     protocol_version = "HTTP/1.1"
 
@@ -167,6 +270,55 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Content-Length", str(len(datos)))
         self.end_headers()
         self.wfile.write(datos)
+
+    def _post_twilio(self, raw):
+        try:
+            campos = parse_qs(raw.decode("utf-8"), keep_blank_values=True)
+        except Exception:
+            return self._responder(400, twiml_respuesta(), "text/xml; charset=utf-8")
+        params = {clave: valores[0] if valores else "" for clave, valores in campos.items()}
+        firma = firma_twilio_valida(params, self.headers.get("X-Twilio-Signature"))
+        if firma is False:
+            log({"evento": "twilio_post", "resultado": "firma_invalida"})
+            return self._responder(403, twiml_respuesta(), "text/xml; charset=utf-8")
+
+        sid = params.get("MessageSid", "")
+        if sid and sid in VISTOS:
+            log({"evento": "twilio_duplicado_ignorado", "sid": sid})
+            return self._responder(200, twiml_respuesta(), "text/xml; charset=utf-8")
+        if sid:
+            VISTOS.add(sid)
+            guardar_vistos(VISTOS)
+
+        remitente = params.get("From", "")
+        telefono = remitente.removeprefix("whatsapp:").lstrip("+")
+        nombre = params.get("ProfileName", "")
+        texto = params.get("Body", "").strip()
+        if not telefono or not texto:
+            return self._responder(200, twiml_respuesta(), "text/xml; charset=utf-8")
+
+        # Twilio espera una respuesta rápida (15 s por defecto) y Hermes puede
+        # tardar más. Con credenciales de Twilio configuradas y modo "api" se
+        # confirma el webhook al instante y la respuesta se envía después por
+        # la API. En modo "twiml" (cuentas trial: la API no acepta texto
+        # libre) se espera a Hermes y la respuesta viaja en el TwiML.
+        if TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN and TWILIO_REPLY_MODE != "twiml":
+            hilo = threading.Thread(
+                target=procesar_twilio,
+                args=(telefono, nombre, texto, True),
+                daemon=True,
+            )
+            hilo.start()
+            return self._responder(200, twiml_respuesta(), "text/xml; charset=utf-8")
+
+        # Sin credenciales (prueba local) o en modo "twiml": la respuesta se
+        # devuelve dentro del propio TwiML de la respuesta HTTP.
+        texto_respuesta = procesar_twilio(telefono, nombre, texto, False)
+        return self._responder(
+            200,
+            twiml_respuesta(texto_respuesta),
+            "text/xml; charset=utf-8",
+        )
 
     def do_GET(self):
         from urllib.parse import urlparse, parse_qs
@@ -186,10 +338,13 @@ class Handler(BaseHTTPRequestHandler):
         return self._responder(403, json.dumps({"error": "verify token incorrecto"}))
 
     def do_POST(self):
-        if self.path.split("?")[0] != "/webhook":
-            return self._responder(404, json.dumps({"error": "ruta no encontrada"}))
+        ruta = self.path.split("?")[0]
         largo = int(self.headers.get("Content-Length") or 0)
         raw = self.rfile.read(largo)
+        if ruta == "/twilio/webhook":
+            return self._post_twilio(raw)
+        if ruta != "/webhook":
+            return self._responder(404, json.dumps({"error": "ruta no encontrada"}))
         firma = firma_valida(raw, self.headers.get("X-Hub-Signature-256"))
         if firma is False:
             log({"evento": "post", "resultado": "firma_invalida"})

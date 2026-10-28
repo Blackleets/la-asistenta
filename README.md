@@ -12,18 +12,26 @@ en la documentación y las pruebas son **personas ficticias de
 simulación** (Carmen, Lucía, Marta, Elena…), generados en sesiones de
 prueba locales.
 
-## Estado honesto (27/10/2026)
+## Estado honesto (28/10/2026)
 
 | Pieza | Estado |
 |---|---|
-| Cerebro: Hermes Agent + Muse Spark (Baseten) | ✅ Operativo, conversación completa probada |
+| Cerebro: Hermes Agent + Muse Spark (Baseten) | ✅ Operativo, conversación completa probada; también DENTRO de la máquina InstaBox |
 | Agenda real (SQLite) con herramientas registrar/consultar/cancelar | ✅ Operativa, con guarda anti-solape probada |
-| Receptor de WhatsApp (webhook Cloud API) | ✅ Construido y probado en local con payloads forma-Meta |
-| Canal WhatsApp real (número de prueba de Meta) | ⏳ Pendiente del paso de vinculación en el panel de Meta |
+| Receptor de WhatsApp (webhook Cloud API + ruta Twilio) | ✅ Corriendo en InstaBox tras URL pública; probado con payloads forma-Meta y forma-Twilio en local |
+| **Web de la clienta** (consentimiento → foto → análisis → reserva) | ✅ Operativa en https://8090-agqyfjnmnvcrrnfraerzrpu5ye.instabox.tech — QA visual 412×915 y batería E2E 11/11 |
+| Canal WhatsApp directo de Meta | ⛔ Bloqueado en la cuenta (permiso temporal denegado + límite de portfolios) |
+| Canal WhatsApp vía Twilio Sandbox | ⏳ Todo cableado en el servidor; falta pegar la URL del webhook en la consola web de Twilio (paso manual del titular) |
 | App Android de la dueña (panel) | ✅ APK construido y firmado; cara verificada con capturas |
-| Análisis de cejas con foto (Spark visión) | ✅ Probado en local |
-| Vista previa generada (Muse Image) | ⛔ Sin acceso verificado a ningún modelo de imagen |
+| Análisis de cejas con foto (Spark visión) | ✅ Probado en local, en la máquina y desde la web (34,28 s medidos) |
+| Vista previa generada (Muse Image) | ⛔ Sin acceso verificado a ningún modelo de imagen (falta la clave de equipo de la Meta Model API) |
 | Segmentación (SAM 3.1) | ⛔ Sin ruta de acceso verificada |
+
+El estado vivo y detallado está en `ESTADO_PROYECTO.md`; la migración a la
+máquina, en `MIGRACION_INSTABOX.md`, y la ruta de Twilio, en
+`RUTA_C_TWILIO.md`. La web de la clienta vive en `web/` (servidor stdlib +
+página mobile-first) y comparte la MISMA agenda real que el canal de
+WhatsApp: una cita hecha en la web se ve en la app de la dueña.
 
 El detalle, con evidencias y límites, está en los informes del repo:
 `H0_INFORME.md`, `H3_TECNICO.md`, `PRUEBAS_ROBUSTEZ.md`, `H2_PREP.md`,
@@ -145,17 +153,3 @@ Código propio bajo licencia MIT (ver `LICENSE`). Hermes Agent es un
 proyecto de terceros con su propia licencia (Nous Research). Según las
 reglas del hackathon, el material entregado no es confidencial y los
 organizadores reciben una licencia de uso sobre la entrega.
-
-## Nota sobre esta copia pública
-
-Esta copia se publicó sin 30 ficheros binarios: las pantallas de
-arranque y los iconos por defecto que genera Capacitor
-(`app/android/app/src/main/res/**`), el envoltorio de Gradle
-(`app/android/gradle/wrapper/gradle-wrapper.jar`) y las tres fuentes
-tipográficas de la app en formato woff2 (`app/www/fonts/`), porque el
-canal de publicación utilizado solo admite ficheros de texto. Son
-recursos regenerables: los iconos y pantallas se generan desde el
-propio proyecto de Capacitor, el envoltorio de Gradle se descarga al
-compilar, y las fuentes (Fraunces y Montserrat, ambas de licencia
-abierta) se descargan de sus fuentes oficiales. El código, la
-configuración y la documentación están completos.

@@ -19,7 +19,12 @@ Endpoints:
   GET  /citas?fecha=YYYY-MM-DD     → citas de ese día (sin fecha: todas)
   POST /citas                      → alta {nombre, servicio, fecha, hora,
                                        telefono?, notas?} (precio y duración
-                                       salen de la carta, no del cliente)
+                                       salen de la carta, no del cliente).
+                                       Con guarda en el propio endpoint:
+                                       horario del salón y anti-solape →
+                                       409 con «alternativas» si el hueco
+                                       no es reservable (mismo patrón que
+                                       el servidor web de la clienta).
   POST /citas/<id>/cancelar        → estado = «cancelada»
 """
 
@@ -48,6 +53,15 @@ POR_NOMBRE = {s["nombre"]: s for s in SERVICIOS}
 
 HORARIO = {"lunes_viernes": "10:00–20:00", "sabado": "10:00–14:00", "domingo": "Cerrado"}
 
+# Ventana de apertura en minutos del día por día de semana
+# (date.weekday(): lunes=0 … domingo=6; None = cerrado). Misma semántica
+# que web/web_server.py (HORARIO): la cita es válida si empieza a la
+# apertura o después y TERMINA a la hora de cierre o antes, es decir,
+# el intervalo [hora, hora+duración) queda dentro de la ventana.
+VENTANA = {0: (600, 1200), 1: (600, 1200), 2: (600, 1200), 3: (600, 1200),
+           4: (600, 1200), 5: (600, 840), 6: None}
+PASO_MIN = 15  # rejilla de las horas alternativas (la misma que la web)
+
 FECHA_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 HORA_RE = re.compile(r"^([01]\d|2[0-3]):[0-5]\d$")
 
@@ -74,6 +88,43 @@ def conectar():
     conn.row_factory = sqlite3.Row
     conn.execute(ESQUEMA)
     return conn
+
+
+def _a_minutos(hora):
+    h, m = hora.split(":")
+    return int(h) * 60 + int(m)
+
+
+def _a_hora(minutos):
+    return f"{minutos // 60:02d}:{minutos % 60:02d}"
+
+
+def _confirmadas(conn, fecha):
+    """Intervalos (id, ini, fin) ocupados por las citas confirmadas del día.
+
+    Semántica del MCP (registrar_cita): solo bloquean las 'confirmada';
+    las canceladas no ocupan el hueco.
+    """
+    filas = conn.execute(
+        "SELECT id, hora, duracion_min FROM citas "
+        "WHERE fecha = ? AND estado = 'confirmada' ORDER BY hora",
+        (fecha,),
+    ).fetchall()
+    return [
+        (f["id"], _a_minutos(f["hora"]), _a_minutos(f["hora"]) + int(f["duracion_min"]))
+        for f in filas
+    ]
+
+
+def _alternativas(ocupados, apertura, cierre, duracion):
+    """Inicios libres en rejilla de 15 min (hasta 8), como ofrece la web."""
+    libres = []
+    t = apertura
+    while t + duracion <= cierre and len(libres) < 8:
+        if all(t + duracion <= o_ini or t >= o_fin for _, o_ini, o_fin in ocupados):
+            libres.append(_a_hora(t))
+        t += PASO_MIN
+    return libres
 
 
 def fila_a_cita(row):
@@ -185,7 +236,46 @@ class Handler(BaseHTTPRequestHandler):
             if not HORA_RE.match(hora):
                 return self._json(400, {"error": "hora debe ser HH:MM (24 h)"})
             carta = POR_NOMBRE[servicio]
+            duracion = int(carta["duracion_min"])
+            # --- Guarda de la agenda (la misma para todos los canales) ---
+            # Fecha real (no basta el patrón: hacen falta el día de semana).
+            try:
+                dia = datetime.strptime(fecha, "%Y-%m-%d").date()
+            except ValueError:
+                return self._json(400, {"error": "fecha no válida"})
+            ventana = VENTANA[dia.weekday()]
+            if ventana is None:
+                return self._json(409, {
+                    "error": "el salón cierra los domingos",
+                    "alternativas": [],
+                })
+            apertura, cierre = ventana
+            inicio = _a_minutos(hora)
+            fin = inicio + duracion
             conn = conectar()
+            ocupados = _confirmadas(conn, fecha)
+            if inicio < apertura or fin > cierre:
+                alternativas = _alternativas(ocupados, apertura, cierre, duracion)
+                conn.close()
+                return self._json(409, {
+                    "error": "esa hora queda fuera del horario del salón "
+                             "(L–V 10:00–20:00 · S 10:00–14:00)",
+                    "alternativas": alternativas,
+                })
+            # Solape: misma condición que el MCP de Hermes — el intervalo
+            # [inicio, fin) se cruza con el de una cita confirmada si
+            # inicio < su_fin y su_inicio < fin. Los bordes exactos no chocan.
+            conflictos = [o for o in ocupados if inicio < o[2] and o[1] < fin]
+            if conflictos:
+                alternativas = _alternativas(ocupados, apertura, cierre, duracion)
+                libre_desde = _a_hora(max(o[2] for o in conflictos))
+                conn.close()
+                return self._json(409, {
+                    "error": "Conflicto de agenda: ese hueco se solapa con "
+                             "otra cita confirmada; la agenda queda libre a "
+                             f"partir de las {libre_desde}",
+                    "alternativas": alternativas,
+                })
             cur = conn.execute(
                 """INSERT INTO citas
                    (creado_en, nombre, servicio, fecha, hora, precio_eur,

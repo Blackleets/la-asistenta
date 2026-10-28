@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LA ASISTENTA — Tu belleza, mejor entendida</title>
+<meta name="description" content="Analiza tus cejas con IA, recibe una recomendación honesta y reserva en la agenda real del salón.">
+<style>
+@font-face{font-family:'Fraunces';src:url('/fonts/fraunces-normal.woff2') format('woff2');font-weight:400 700;font-style:normal;font-display:swap}
+@font-face{font-family:'Fraunces';src:url('/fonts/fraunces-italic.woff2') format('woff2');font-weight:400 700;font-style:italic;font-display:swap}
+@font-face{font-family:'Montserrat';src:url('/fonts/montserrat.woff2') format('woff2');font-weight:400 800;font-display:swap}
+:root{
+  --carbon:#252533; --lavanda:#C5B4F2; --lavanda-suave:#E9E2FB; --fondo:#FAF7F2;
+  --verde:#7AB7A7; --verde-oscuro:#3E7C6B; --tinta:#2B2B36; --gris:#6E6E7E;
+  --borde:#E7DFD2; --error:#B3402E; --radio:20px;
+  --sombra:0 10px 30px rgba(37,37,51,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:'Montserrat',system-ui,sans-serif;background:var(--fondo);color:var(--tinta);
+  min-height:100dvh;display:flex;flex-direction:column;align-items:center}
+.wrap{width:100%;max-width:480px;padding:0 18px 40px;margin:0 auto}
+header{width:100%;background:var(--carbon);color:var(--fondo);border-radius:0 0 28px 28px;
+  padding:26px 22px 22px;margin-bottom:20px;position:relative;overflow:hidden}
+header::after{content:'';position:absolute;right:-50px;top:-50px;width:170px;height:170px;
+  border-radius:50%;background:radial-gradient(circle,var(--lavanda) 0%,transparent 70%);opacity:.45}
+.marca{font-size:11px;letter-spacing:.34em;font-weight:700;color:var(--lavanda)}
+header h1{font-family:'Fraunces',serif;font-weight:600;font-size:31px;line-height:1.12;margin-top:8px}
+header h1 em{color:var(--lavanda)}
+header p{margin-top:8px;font-size:13.5px;color:#D9D4E8;line-height:1.45;max-width:34ch}
+.pantalla{display:none;animation:sube .35s ease both}
+.pantalla.activa{display:block}
+@keyframes sube{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.tarjeta{background:#fff;border:1px solid var(--borde);border-radius:var(--radio);
+  padding:20px;box-shadow:var(--sombra);margin-bottom:16px}
+.tarjeta h2{font-family:'Fraunces',serif;font-size:22px;font-weight:600;margin-bottom:8px}
+.tarjeta p{font-size:14px;line-height:1.55;color:var(--tinta)}
+.tarjeta p+p{margin-top:8px}
+.mini{font-size:12.5px;color:var(--gris);line-height:1.5}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
+  border:none;border-radius:16px;padding:16px 18px;font-family:inherit;font-size:15.5px;
+  font-weight:700;cursor:pointer;transition:transform .12s ease,opacity .2s;text-align:center}
+.btn:active{transform:scale(.985)}
+.btn-primario{background:var(--carbon);color:var(--fondo)}
+.btn-primario:hover{background:#33334A}
+.btn-verde{background:var(--verde);color:#12362C}
+.btn-lavanda{background:var(--lavanda);color:var(--carbon)}
+.btn-fantasma{background:transparent;color:var(--carbon);border:1.5px solid var(--carbon)}
+.btn[disabled]{opacity:.38;pointer-events:none}
+.btn-peq{padding:11px 14px;font-size:13.5px;border-radius:12px;width:auto}
+.fila-botones{display:flex;gap:10px;flex-wrap:wrap}
+.fila-botones .btn{flex:1}
+.enlace{background:none;border:none;color:var(--verde-oscuro);font:inherit;font-size:13.5px;
+  font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:6px 0}
+.carta-lista{display:flex;flex-direction:column}
+.carta-item{display:flex;align-items:baseline;gap:8px;padding:11px 0;border-bottom:1px dashed var(--borde)}
+.carta-item:last-child{border-bottom:none}
+.carta-item .nombre{font-weight:600;font-size:14.5px}
+.carta-item .puntos{flex:1;border-bottom:2px dotted #CFC6AE;transform:translateY(-3px)}
+.carta-item .precio{font-family:'Fraunces',serif;font-weight:700;font-size:16px;color:var(--carbon)}
+.carta-item .dur{font-size:11.5px;color:var(--gris);white-space:nowrap}
+.check{display:flex;gap:12px;align-items:flex-start;background:var(--lavanda-suave);
+  border-radius:14px;padding:14px;cursor:pointer}
+.check input{width:22px;height:22px;accent-color:var(--carbon);flex:none;margin-top:1px}
+.check span{font-size:13.5px;line-height:1.5}
+.zona-foto{border:2px dashed var(--lavanda);border-radius:var(--radio);padding:18px;
+  text-align:center;background:#fff}
+.zona-foto img{max-width:100%;max-height:300px;border-radius:14px;display:none;margin:0 auto 10px}
+.zona-foto.con-foto img{display:block}
+.grupo-pref{margin-top:16px}
+.grupo-pref h3{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gris);margin-bottom:8px}
+.segmentos{display:flex;gap:8px;flex-wrap:wrap}
+.seg{flex:1;min-width:fit-content;border:1.5px solid var(--borde);background:#fff;color:var(--tinta);
+  border-radius:999px;padding:9px 12px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.seg.sel{background:var(--carbon);color:var(--fondo);border-color:var(--carbon)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.chip{background:var(--lavanda-suave);border-radius:999px;padding:7px 12px;font-size:12.5px;font-weight:600}
+.chip b{color:var(--carbon)}
+.reco{border:2px solid var(--verde);background:#F2F8F5}
+.reco .etiqueta{font-size:11px;letter-spacing:.2em;font-weight:800;color:var(--verde-oscuro)}
+.reco h3{font-family:'Fraunces',serif;font-size:24px;margin:6px 0 4px}
+.reco .datos{font-weight:700;color:var(--verde-oscuro);font-size:14px}
+.aviso{background:#FFF6E8;border:1px solid #EBD9AE;border-radius:14px;padding:13px 14px;
+  font-size:13px;line-height:1.55;margin-bottom:16px}
+.error-caja{background:#FDECE8;border:1px solid #EFC0B4;color:var(--error);border-radius:14px;
+  padding:13px 14px;font-size:13.5px;line-height:1.5;margin-bottom:14px;display:none}
+.error-caja.visible{display:block}
+label.campo{display:block;font-size:12px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--gris);font-weight:700;margin:16px 0 7px}
+input[type=text],input[type=tel],input[type=date],select,textarea{
+  width:100%;border:1.5px solid var(--borde);border-radius:13px;padding:13px 14px;
+  font:inherit;font-size:15px;background:#fff;color:var(--tinta)}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--lavanda);border-color:var(--lavanda)}
+.huecos{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:6px}
+.hueco{border:1.5px solid var(--borde);background:#fff;border-radius:12px;padding:10px 2px;
+  font:inherit;font-size:14px;font-weight:700;cursor:pointer}
+.hueco.sel{background:var(--verde);border-color:var(--verde);color:#12362C}
+.resumen{background:var(--lavanda-suave);border-radius:14px;padding:14px;font-size:14px;line-height:1.6}
+.confirmada{text-align:center;padding:12px 0 4px}
+.confirmada .tick{width:74px;height:74px;margin:0 auto 14px;border-radius:50%;
+  background:var(--verde);display:flex;align-items:center;justify-content:center;
+  font-size:36px;color:#fff}
+.confirmada h2{font-family:'Fraunces',serif;font-size:26px;margin-bottom:8px}
+.cargando{display:none;text-align:center;padding:34px 16px}
+.cargando.visible{display:block}
+.rueda{width:44px;height:44px;margin:0 auto 16px;border-radius:50%;
+  border:4px solid var(--lavanda-suave);border-top-color:var(--carbon);
+  animation:gira 0.9s linear infinite}
+@keyframes gira{to{transform:rotate(360deg)}}
+footer{margin-top:auto;padding:18px;text-align:center;font-size:11.5px;color:var(--gris);line-height:1.6;max-width:480px}
+.progreso{display:flex;gap:6px;margin-bottom:16px}
+.progreso i{flex:1;height:5px;border-radius:99px;background:var(--borde)}
+.progreso i.on{background:var(--lavanda)}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap" style="padding:0">
+    <div class="marca">LA ASISTENTA</div>
+    <h1>Tu belleza,<br><em>mejor entendida</em></h1>
+    <p>Cuéntanos qué buscas, analiza tus cejas con IA y reserva en la agenda real del salón.</p>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="progreso" id="progreso"><i></i><i></i><i></i><i></i></div>
+
+  <!-- 1 · INICIO -->
+  <section class="pantalla activa" id="p-inicio">
+    <div class="tarjeta">
+      <h2>¿Empezamos por tus cejas?</h2>
+      <p>Sube una foto y la IA de La Asistenta — Muse Spark — la analiza y te
+      recomienda el servicio de la carta que mejor encaja contigo. Después
+      reservas en el momento, con huecos reales.</p>
+      <p class="mini">Sin registro. Tu foto no se guarda: se procesa para el
+      análisis y se descarta.</p>
+    </div>
+    <div class="tarjeta">
+      <h2>La carta del salón</h2>
+      <div class="carta-lista" id="carta-inicio"><p class="mini">Cargando la carta real…</p></div>
+      <p class="mini" id="horario-txt" style="margin-top:10px"></p>
+    </div>
+    <button class="btn btn-primario" id="btn-ir-consentimiento">Analizar mis cejas con una foto</button>
+    <div style="height:10px"></div>
+    <button class="btn btn-fantasma" id="btn-ir-reserva-directa">Prefiero reservar directamente</button>
+  </section>
+
+  <!-- 2 · CONSENTIMIENTO -->
+  <section class="pantalla" id="p-consentimiento">
+    <div class="tarjeta">
+      <h2>Antes de la foto, claro y corto</h2>
+      <p>Tu foto se envía al modelo de IA (Muse Spark) solo para analizar tus
+      cejas y recomendarte un servicio.</p>
+      <p><b>No</b> se guarda en ningún servidor, <b>no</b> se usa para
+      identificarte y <b>no</b> se usa para entrenar modelos. Al terminar el
+      análisis, se descarta.</p>
+      <p>También puedes usar la <b>foto de ejemplo</b> (una imagen de stock
+      autorizada) si prefieres no subir la tuya.</p>
+    </div>
+    <label class="check">
+      <input type="checkbox" id="check-consentimiento">
+      <span>Entiendo cómo se trata mi foto y acepto que se procese para el análisis.</span>
+    </label>
+    <div style="height:14px"></div>
+    <button class="btn btn-primario" id="btn-ir-foto" disabled>Continuar</button>
+    <button class="enlace" id="btn-sin-foto">Prefiero no subir foto y ver la carta →</button>
+  </section>
+
+  <!-- 3 · FOTO Y PREFERENCIAS -->
+  <section class="pantalla" id="p-foto">
+    <div class="tarjeta">
+      <h2>Tu foto y tu estilo</h2>
+      <div class="zona-foto" id="zona-foto">
+        <img id="img-previa" alt="Vista previa de tu foto">
+        <p class="mini" id="txt-zona">Una foto de frente, con buena luz y las cejas visibles.</p>
+        <div style="height:10px"></div>
+        <div class="fila-botones">
+          <button class="btn btn-lavanda btn-peq" id="btn-elegir-foto">Elegir mi foto</button>
+          <button class="btn btn-fantasma btn-peq" id="btn-foto-ejemplo">Usar la de ejemplo</button>
+        </div>
+        <input type="file" id="input-foto" accept="image/jpeg,image/png,image/webp" hidden>
+        <div id="acciones-foto" style="display:none;margin-top:10px">
+          <button class="enlace" id="btn-borrar-foto">Borrar esta foto</button>
+        </div>
+      </div>
+
+      <div class="grupo-pref" data-pref="naturalidad">
+        <h3>Naturalidad</h3>
+        <div class="segmentos">
+          <button class="seg" data-valor="muy natural">Muy natural</button>
+          <button class="seg sel" data-valor="natural con algo de definición">Natural</button>
+          <button class="seg" data-valor="definida y marcada">Marcada</button>
+        </div>
+      </div>
+      <div class="grupo-pref" data-pref="grosor">
+        <h3>Grosor deseado</h3>
+        <div class="segmentos">
+          <button class="seg" data-valor="fino">Fino</button>
+          <button class="seg sel" data-valor="medio">Medio</button>
+          <button class="seg" data-valor="grueso">Grueso</button>
+        </div>
+      </div>
+      <div class="grupo-pref" data-pref="arco">
+        <h3>Arco</h3>
+        <div class="segmentos">
+          <button class="seg sel" data-valor="suave">Suave</button>
+          <button class="seg" data-valor="definido">Definido</button>
+          <button class="seg" data-valor="alto">Alto</button>
+        </div>
+      </div>
+      <div class="grupo-pref" data-pref="tono">
+        <h3>Tono</h3>
+        <div class="segmentos">
+          <button class="seg sel" data-valor="mi tono natural">Mi tono</button>
+          <button class="seg" data-valor="un poco más oscuro">Algo más oscuro</button>
+          <button class="seg" data-valor="efecto maquillaje">Efecto maquillaje</button>
+        </div>
+      </div>
+      <div class="grupo-pref" data-pref="intensidad">
+        <h3>Intensidad del cambio</h3>
+        <div class="segmentos">
+          <button class="seg" data-valor="un retoque sutil">Sutil</button>
+          <button class="seg sel" data-valor="que se note pero natural">Se nota, natural</button>
+          <button class="seg" data-valor="un cambio claro">Cambio claro</button>
+        </div>
+      </div>
+    </div>
+    <div class="error-caja" id="error-foto"></div>
+    <div class="cargando" id="cargando-analisis">
+      <div class="rueda"></div>
+      <p><b>La Asistenta está mirando tu foto…</b></p>
+      <p class="mini">El análisis real tarda entre 15 y 45 segundos. No cierres esta pantalla.</p>
+    </div>
+    <button class="btn btn-primario" id="btn-analizar" disabled>Analizar mis cejas</button>
+    <button class="enlace" id="btn-volver-1">← Volver</button>
+  </section>
+
+  <!-- 4 · RESULTADO -->
+  <section class="pantalla" id="p-resultado">
+    <div class="tarjeta">
+      <h2>Esto ve La Asistenta</h2>
+      <p id="res-resumen"></p>
+      <div class="chips" id="res-chips"></div>
+      <p class="mini" id="res-consejo"></p>
+    </div>
+    <div class="tarjeta reco">
+      <div class="etiqueta">RECOMENDACIÓN</div>
+      <h3 id="reco-nombre"></h3>
+      <div class="datos" id="reco-datos"></div>
+      <p id="reco-motivo" style="margin-top:8px"></p>
+    </div>
+    <div class="tarjeta" id="alt-tarjeta">
+      <h2 style="font-size:18px">Alternativa</h2>
+      <p><b id="alt-nombre"></b> · <span id="alt-datos"></span></p>
+      <p id="alt-motivo" style="margin-top:6px"></p>
+      <div style="height:10px"></div>
+      <button class="btn btn-fantasma btn-peq" id="btn-elegir-alt">Reservar la alternativa</button>
+    </div>
+    <div class="aviso" id="res-aviso"></div>
+    <button class="btn btn-verde" id="btn-reservar-reco">Reservar la recomendación</button>
+    <div style="height:10px"></div>
+    <button class="btn btn-fantasma" id="btn-elegir-otro">Elegir otro servicio</button>
+    <button class="enlace" id="btn-reiniciar">Borrar mi foto y empezar de nuevo</button>
+  </section>
+
+  <!-- 5 · RESERVA -->
+  <section class="pantalla" id="p-reserva">
+    <div class="tarjeta">
+      <h2>Tu reserva</h2>
+      <label class="campo" for="sel-servicio">Servicio</label>
+      <select id="sel-servicio"></select>
+      <label class="campo" for="inp-fecha">Día</label>
+      <input type="date" id="inp-fecha">
+      <label class="campo">Hora (huecos reales de la agenda)</label>
+      <div class="huecos" id="huecos"><p class="mini">Elige un día para ver los huecos libres.</p></div>
+      <label class="campo" for="inp-nombre">Tu nombre</label>
+      <input type="text" id="inp-nombre" autocomplete="name" placeholder="Ej.: Carmen">
+      <label class="campo" for="inp-telefono">Teléfono (opcional)</label>
+      <input type="tel" id="inp-telefono" autocomplete="tel" placeholder="Para avisarte si hay cambios">
+      <div style="height:16px"></div>
+      <div class="resumen" id="resumen-reserva">Elige servicio, día y hora para ver el resumen.</div>
+      <div style="height:14px"></div>
+      <label class="check">
+        <input type="checkbox" id="check-confirma">
+        <span>Confirmo que quiero reservar esta cita. Sé que quedará escrita en la agenda del salón.</span>
+      </label>
+    </div>
+    <div class="error-caja" id="error-reserva"></div>
+    <button class="btn btn-verde" id="btn-confirmar" disabled>Confirmar reserva</button>
+    <button class="enlace" id="btn-volver-2">← Volver</button>
+  </section>
+
+  <!-- 6 · CONFIRMADA -->
+  <section class="pantalla" id="p-confirmada">
+    <div class="tarjeta confirmada">
+      <div class="tick">✓</div>
+      <h2>¡Cita confirmada!</h2>
+      <p id="conf-detalle"></p>
+      <p class="mini" style="margin-top:10px">La hemos verificado en la agenda real del salón: está escrita y confirmada.</p>
+      <p class="mini">Si necesitas cambiarla o cancelarla, escribe al salón por
+      <a href="https://wa.me/584249134367" target="_blank" rel="noopener">WhatsApp</a>.</p>
+    </div>
+    <button class="btn btn-primario" id="btn-terminar">Terminar</button>
+  </section>
+</div>
+
+<footer>
+  LA ASISTENTA · «Tu belleza, mejor entendida»<br>
+  Experiencia de demostración del Meta AI Developer Hackathon 2026.<br>
+  Análisis con Muse Spark · Reservas reales en la agenda del salón piloto.
+</footer>
+
+<script>
+'use strict';
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const estado = {
+  carta: [], cartaInfo: {}, fotoData: null, fotoEjemplo: false,
+  servicio: null, fecha: null, hora: null, analisis: null,
+};
+const PASOS = {'p-inicio':0,'p-consentimiento':1,'p-foto':2,'p-resultado':3,'p-reserva':3,'p-confirmada':3};
+
+function ir(id){
+  $$('.pantalla').forEach(p => p.classList.toggle('activa', p.id === id));
+  const paso = PASOS[id] ?? 0;
+  $$('#progreso i').forEach((b,i) => b.classList.toggle('on', i <= paso));
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function errorEn(caja, msg){
+  const el = $(caja);
+  el.textContent = msg || '';
+  el.classList.toggle('visible', !!msg);
+}
+async function fetchJson(url, opciones = {}, timeoutMs = 30000){
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), timeoutMs);
+  try{
+    const r = await fetch(url, {...opciones, signal: ctrl.signal});
+    const datos = await r.json().catch(() => ({}));
+    if(!r.ok) throw Object.assign(new Error(datos.error || ('Error ' + r.status)),
+                                 {status: r.status, datos});
+    return datos;
+  }catch(e){
+    if(e.name === 'AbortError') throw new Error('La petición tardó demasiado; inténtalo de nuevo.');
+    throw e;
+  }finally{ clearTimeout(t); }
+}
+
+/* ---------- carta ---------- */
+async function cargarCarta(){
+  try{
+    const d = await fetchJson('/api/servicios');
+    estado.carta = d.servicios;
+    $('#horario-txt').textContent =
+      'Horario: lun–vie ' + d.horario.lunes_viernes + ' · sáb ' + d.horario.sabado + ' · dom cerrado.';
+  }catch(e){
+    estado.carta = [];
+    $('#carta-inicio').innerHTML = '<p class="mini">La carta no cargó; prueba a recargar la página.</p>';
+    return;
+  }
+  $('#carta-inicio').innerHTML = estado.carta.map(s =>
+    `<div class="carta-item"><span class="nombre">${s.nombre}</span><span class="puntos"></span>` +
+    `<span class="dur">${s.duracion_min} min</span><span class="precio">${s.precio_etiqueta}</span></div>`
+  ).join('');
+  $('#sel-servicio').innerHTML = estado.carta.map(s =>
+    `<option value="${s.nombre}">${s.nombre} — ${s.precio_etiqueta} · ${s.duracion_min} min</option>`
+  ).join('');
+}
+
+/* ---------- navegación básica ---------- */
+$('#btn-ir-consentimiento').onclick = () => ir('p-consentimiento');
+$('#btn-ir-reserva-directa').onclick = () => { prepararReserva(null); ir('p-reserva'); };
+$('#btn-sin-foto').onclick = () => { prepararReserva(null); ir('p-reserva'); };
+$('#check-consentimiento').onchange = e => { $('#btn-ir-foto').disabled = !e.target.checked; };
+$('#btn-ir-foto').onclick = () => ir('p-foto');
+$('#btn-volver-1').onclick = () => ir('p-consentimiento');
+$('#btn-volver-2').onclick = () => ir(estado.analisis ? 'p-resultado' : 'p-inicio');
+$('#btn-terminar').onclick = () => location.reload();
+$('#btn-reiniciar').onclick = () => location.reload();
+
+/* ---------- foto y preferencias ---------- */
+const inputFoto = $('#input-foto');
+$('#btn-elegir-foto').onclick = () => inputFoto.click();
+inputFoto.onchange = () => {
+  const f = inputFoto.files[0];
+  if(!f) return;
+  if(!['image/jpeg','image/png','image/webp'].includes(f.type))
+    return errorEn('#error-foto', 'Esa foto no es JPG, PNG ni WebP. Prueba con otra.');
+  if(f.size > 6*1024*1024)
+    return errorEn('#error-foto', 'La foto pesa más de 6 MB. Elige una más ligera.');
+  const lector = new FileReader();
+  lector.onload = () => ponerFoto(lector.result, false);
+  lector.readAsDataURL(f);
+};
+$('#btn-foto-ejemplo').onclick = async () => {
+  try{
+    const r = await fetch('/ejemplo.jpg');
+    const blob = await r.blob();
+    const lector = new FileReader();
+    lector.onload = () => ponerFoto(lector.result, true);
+    lector.readAsDataURL(blob);
+  }catch(e){ errorEn('#error-foto', 'La foto de ejemplo no cargó; prueba con la tuya.'); }
+};
+function ponerFoto(dataUrl, esEjemplo){
+  estado.fotoData = dataUrl; estado.fotoEjemplo = esEjemplo;
+  $('#img-previa').src = dataUrl;
+  $('#zona-foto').classList.add('con-foto');
+  $('#acciones-foto').style.display = 'block';
+  $('#txt-zona').textContent = esEjemplo
+    ? 'Foto de ejemplo (imagen de stock autorizada).'
+    : 'Tu foto. Solo se usa para este análisis y no se guarda.';
+  $('#btn-analizar').disabled = false;
+  errorEn('#error-foto', '');
+}
+$('#btn-borrar-foto').onclick = () => {
+  estado.fotoData = null; estado.fotoEjemplo = false; inputFoto.value = '';
+  $('#img-previa').src = '';
+  $('#zona-foto').classList.remove('con-foto');
+  $('#acciones-foto').style.display = 'none';
+  $('#txt-zona').textContent = 'Una foto de frente, con buena luz y las cejas visibles.';
+  $('#btn-analizar').disabled = true;
+};
+$$('.grupo-pref').forEach(g => {
+  g.addEventListener('click', e => {
+    const b = e.target.closest('.seg'); if(!b) return;
+    g.querySelectorAll('.seg').forEach(s => s.classList.toggle('sel', s === b));
+  });
+});
+function preferencias(){
+  const p = {};
+  $$('.grupo-pref').forEach(g => {
+    const sel = g.querySelector('.seg.sel');
+    p[g.dataset.pref] = sel ? sel.dataset.valor : '';
+  });
+  return p;
+}
+
+/* ---------- análisis ---------- */
+$('#btn-analizar').onclick = async () => {
+  if(!estado.fotoData) return;
+  errorEn('#error-foto', '');
+  $('#cargando-analisis').classList.add('visible');
+  $('#btn-analizar').disabled = true;
+  try{
+    const d = await fetchJson('/api/analizar', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({imagen: estado.fotoData, preferencias: preferencias()}),
+    }, 170000);
+    estado.analisis = d.analisis; estado.cartaInfo = d.carta || {};
+    mostrarResultado(d);
+    ir('p-resultado');
+  }catch(e){
+    errorEn('#error-foto', e.message || 'El análisis falló. Inténtalo de nuevo.');
+  }finally{
+    $('#cargando-analisis').classList.remove('visible');
+    $('#btn-analizar').disabled = false;
+  }
+};
+function datosDe(nombre){
+  const c = estado.cartaInfo[nombre] || estado.carta.find(s => s.nombre === nombre) || {};
+  return `${c.precio_etiqueta || ''} · ${c.duracion_min || ''} min`;
+}
+function mostrarResultado(d){
+  const a = d.analisis;
+  $('#res-resumen').textContent = a.resumen;
+  $('#res-chips').innerHTML =
+    `<span class="chip">Forma: <b>${a.forma}</b></span>` +
+    `<span class="chip">Grosor: <b>${a.grosor}</b></span>` +
+    `<span class="chip">Densidad: <b>${a.densidad}</b></span>` +
+    `<span class="chip">Huecos: <b>${a.huecos}</b></span>`;
+  $('#res-consejo').textContent = 'Consejo: ' + a.consejo;
+  $('#reco-nombre').textContent = a.servicio_recomendado;
+  $('#reco-datos').textContent = datosDe(a.servicio_recomendado);
+  $('#reco-motivo').textContent = a.motivo;
+  if(a.servicio_alternativo){
+    $('#alt-tarjeta').style.display = 'block';
+    $('#alt-nombre').textContent = a.servicio_alternativo;
+    $('#alt-datos').textContent = datosDe(a.servicio_alternativo);
+    $('#alt-motivo').textContent = a.motivo_alternativo || '';
+  }else{
+    $('#alt-tarjeta').style.display = 'none';
+  }
+  $('#res-aviso').textContent = d.aviso +
+    ` (Análisis real en ${d.latencia_s} s con Muse Spark.)`;
+  // La foto ya cumplió su función: se descarta de la memoria de la página.
+  estado.fotoData = null;
+}
+$('#btn-reservar-reco').onclick = () => {
+  prepararReserva(estado.analisis.servicio_recomendado); ir('p-reserva');
+};
+$('#btn-elegir-alt').onclick = () => {
+  prepararReserva(estado.analisis.servicio_alternativo); ir('p-reserva');
+};
+$('#btn-elegir-otro').onclick = () => { prepararReserva(null); ir('p-reserva'); };
+
+/* ---------- reserva ---------- */
+function prepararReserva(servicio){
+  if(servicio) $('#sel-servicio').value = servicio;
+  const hoy = new Date();
+  const iso = f => f.toISOString().slice(0,10);
+  const inp = $('#inp-fecha');
+  inp.min = iso(hoy);
+  inp.max = iso(new Date(hoy.getTime() + 60*24*3600*1000));
+  if(!inp.value) inp.value = iso(new Date(hoy.getTime() + 24*3600*1000));
+  estado.hora = null;
+  cargarHuecos();
+  actualizarResumen();
+}
+async function cargarHuecos(){
+  const servicio = $('#sel-servicio').value;
+  const fecha = $('#inp-fecha').value;
+  const caja = $('#huecos');
+  estado.hora = null;
+  if(!servicio || !fecha){ caja.innerHTML = '<p class="mini">Elige servicio y día.</p>'; return; }
+  caja.innerHTML = '<p class="mini">Consultando la agenda real…</p>';
+  try{
+    const d = await fetchJson(`/api/disponibilidad?servicio=${encodeURIComponent(servicio)}&fecha=${fecha}`);
+    if(!d.huecos.length){
+      caja.innerHTML = `<p class="mini">${d.motivo === 'domingo cerrado'
+        ? 'Los domingos el salón cierra. Prueba otro día.'
+        : 'Ese día no quedan huecos para este servicio. Prueba otro día.'}</p>`;
+    }else{
+      caja.innerHTML = d.huecos.map(h =>
+        `<button class="hueco" data-hora="${h}">${h}</button>`).join('');
+      caja.querySelectorAll('.hueco').forEach(b => b.onclick = () => {
+        caja.querySelectorAll('.hueco').forEach(x => x.classList.toggle('sel', x === b));
+        estado.hora = b.dataset.hora;
+        actualizarResumen();
+      });
+    }
+  }catch(e){
+    caja.innerHTML = '<p class="mini">La agenda no respondió. Vuelve a elegir el día para reintentar.</p>';
+  }
+  actualizarResumen();
+}
+function actualizarResumen(){
+  const servicio = $('#sel-servicio').value;
+  const fecha = $('#inp-fecha').value;
+  const nombre = $('#inp-nombre').value.trim();
+  const s = estado.carta.find(x => x.nombre === servicio);
+  if(servicio && fecha && estado.hora && s){
+    const f = new Date(fecha + 'T12:00:00');
+    const fechaBonita = f.toLocaleDateString('es-ES', {weekday:'long', day:'numeric', month:'long'});
+    $('#resumen-reserva').innerHTML =
+      `<b>${servicio}</b> · ${s.precio_etiqueta} · ${s.duracion_min} min<br>` +
+      `${fechaBonita} a las <b>${estado.hora}</b>${nombre ? '<br>Para: ' + nombre : ''}`;
+  }else{
+    $('#resumen-reserva').textContent = 'Elige servicio, día y hora para ver el resumen.';
+  }
+  $('#btn-confirmar').disabled = !(servicio && fecha && estado.hora && nombre.length >= 2
+                                   && $('#check-confirma').checked);
+}
+$('#sel-servicio').onchange = cargarHuecos;
+$('#inp-fecha').onchange = cargarHuecos;
+$('#inp-nombre').oninput = actualizarResumen;
+$('#check-confirma').onchange = actualizarResumen;
+
+$('#btn-confirmar').onclick = async () => {
+  errorEn('#error-reserva', '');
+  const btn = $('#btn-confirmar');
+  btn.disabled = true; btn.textContent = 'Reservando en la agenda…';
+  try{
+    const d = await fetchJson('/api/reservar', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        nombre: $('#inp-nombre').value.trim(),
+        telefono: $('#inp-telefono').value.trim(),
+        servicio: $('#sel-servicio').value,
+        fecha: $('#inp-fecha').value,
+        hora: estado.hora,
+      }),
+    }, 40000);
+    const c = d.cita;
+    const f = new Date(c.fecha + 'T12:00:00');
+    $('#conf-detalle').innerHTML =
+      `<b>${c.servicio}</b> · ${c.precio_etiqueta}<br>` +
+      `${f.toLocaleDateString('es-ES', {weekday:'long', day:'numeric', month:'long'})} ` +
+      `a las <b>${c.hora}</b> (${c.duracion_min} min)<br>Para ${c.nombre} · Cita nº ${c.id}`;
+    ir('p-confirmada');
+  }catch(e){
+    if(e.status === 409 && e.datos && e.datos.alternativas){
+      errorEn('#error-reserva',
+        'Ese hueco se ocupó mientras reservabas. Huecos libres ahora: ' +
+        e.datos.alternativas.join(', ') + '. Vuelve a elegir la hora.');
+      cargarHuecos();
+    }else{
+      errorEn('#error-reserva', e.message || 'La reserva no pudo hacerse. Inténtalo de nuevo.');
+    }
+  }finally{
+    btn.disabled = false; btn.textContent = 'Confirmar reserva';
+    actualizarResumen();
+  }
+};
+
+/* ---------- arranque ---------- */
+cargarCarta();
+ir('p-inicio');
+</script>
+</body>
+</html>
