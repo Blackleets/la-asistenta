@@ -1,0 +1,28 @@
+{
+  "status": 200,
+  "latency_s": 2.06,
+  "count": 20,
+  "model_ids": [
+    "openai/gpt-oss-120b",
+    "nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B",
+    "zai-org/GLM-5.2",
+    "deepseek-ai/DeepSeek-V4-Flash-0731",
+    "zai-org/GLM-5.2-Fast",
+    "moonshotai/Kimi-K3",
+    "deepseek-ai/DeepSeek-V4-Pro-0813",
+    "zai-org/GLM-5.3-Flash",
+    "zai-org/GLM-5.3",
+    "zai-org/GLM-5.3-Fast",
+    "deepseek-ai/DeepSeek-V4.1-Flash",
+    "deepseek-ai/DeepSeek-V4.1-Flash-Fast",
+    "nvidia/NVIDIA-Nemotron-3.5-Super-VL-120B-A12B",
+    "reflection/Beam-1.0",
+    "meta-models/muse-spark-open",
+    "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "deepseek-ai/DeepSeek-V4.1-Flash-1017-Fast",
+    "decision-models/baseten-elephant-9b-latest",
+    "meta-models/muse-spark-open-1026",
+    "decision-models/baseten-mammoth-27b-latest"
+  ],
+  "raw_error": null
+}

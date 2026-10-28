@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="theme-color" content="#10505B">
+<title>La Asistenta · Ari Vivas Beauty</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- Iconos SVG (trazo, sin emojis) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-sun" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="4.2"/>
+      <path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/>
+    </symbol>
+    <symbol id="i-cal" viewBox="0 0 24 24">
+      <rect x="3.5" y="5" width="17" height="16" rx="2.5"/>
+      <path d="M3.5 10h17M8 3v4M16 3v4"/>
+      <circle cx="8.2" cy="14.2" r="1.15" fill="currentColor" stroke="none"/>
+      <circle cx="12" cy="14.2" r="1.15" fill="currentColor" stroke="none"/>
+      <circle cx="15.8" cy="14.2" r="1.15" fill="currentColor" stroke="none"/>
+    </symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="8.8"/>
+      <path d="M12 8.6v6.8M8.6 12h6.8"/>
+    </symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24">
+      <path d="M11 4.2l1.7 4.9 4.9 1.7-4.9 1.7L11 17.4l-1.7-4.9-4.9-1.7 4.9-1.7L11 4.2z"/>
+      <path d="M18.6 15.6l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8.8-2.2z"/>
+    </symbol>
+    <symbol id="i-sliders" viewBox="0 0 24 24">
+      <path d="M3.5 7.5h9M17.5 7.5h3M3.5 16.5h3M11.5 16.5h9"/>
+      <circle cx="14.8" cy="7.5" r="2.3"/>
+      <circle cx="8.8" cy="16.5" r="2.3"/>
+    </symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="8.6"/>
+      <path d="M12 7.4V12l3 1.8"/>
+    </symbol>
+    <symbol id="i-brow" viewBox="0 0 24 24">
+      <path d="M3.5 15.5C7 9.8 11 7.4 15.2 7.6c2.2.1 4 .9 5.3 2.1"/>
+      <path d="M6.2 18.6c2.4.5 5.4.4 8.4-.5" opacity=".55"/>
+    </symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24">
+      <path d="M4.5 12h14M13.5 6l6 6-6 6"/>
+    </symbol>
+  </defs>
+</svg>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark" aria-hidden="true">AV</div>
+    <div class="brand-text">
+      <span class="brand-name">Ari Vivas <em>Beauty</em></span>
+      <span class="brand-sub">Panel de La Asistenta</span>
+    </div>
+  </div>
+  <div class="conn" title="Estado de conexión con la agenda">
+    <span id="conn-dot" class="conn-dot"></span>
+    <span class="conn-txt">Agenda</span>
+  </div>
+</header>
+
+<main id="app">
+
+  <!-- HOY -->
+  <section id="view-hoy" class="view active">
+    <p class="eyebrow">Tu salón, de un vistazo</p>
+    <h1 class="view-title">Hoy</h1>
+    <p id="hoy-fecha" class="view-subtitle"></p>
+    <div class="stats">
+      <div class="stat-card">
+        <span class="stat-label">Citas hoy</span>
+        <span id="stat-citas" class="stat-num">–</span>
+      </div>
+      <div class="stat-card teal">
+        <span class="stat-label">Ingresos estimados</span>
+        <span id="stat-ingresos" class="stat-num">–</span>
+      </div>
+    </div>
+    <h2 class="section-label">Reservas del día</h2>
+    <div id="hoy-lista" class="lista"></div>
+    <div id="hoy-vacio" class="vacio" hidden>
+      <svg class="vacio-ic"><use href="#i-brow"/></svg>
+      <p class="vacio-tit">Día despejado</p>
+      <p class="vacio-txt">Sin citas para hoy. La Asistenta sigue atenta al WhatsApp por si entra una reserva.</p>
+    </div>
+  </section>
+
+  <!-- AGENDA -->
+  <section id="view-agenda" class="view">
+    <p class="eyebrow">Reservas</p>
+    <h1 class="view-title">Agenda</h1>
+    <p class="view-subtitle">Elige un día para ver y gestionar sus citas</p>
+    <div class="dia-bar">
+      <label class="campo campo-dia">
+        <span>Día</span>
+        <input type="date" id="agenda-fecha">
+      </label>
+      <div class="dia-chips">
+        <button type="button" class="chip-dia" data-setday="0">Hoy</button>
+        <button type="button" class="chip-dia" data-setday="1">Mañana</button>
+      </div>
+    </div>
+    <div id="agenda-lista" class="lista"></div>
+    <div id="agenda-vacio" class="vacio" hidden>
+      <svg class="vacio-ic"><use href="#i-brow"/></svg>
+      <p class="vacio-tit">Sin citas este día</p>
+      <p class="vacio-txt">La agenda está libre. Cuando La Asistenta cierre una reserva, aparecerá aquí al momento.</p>
+    </div>
+  </section>
+
+  <!-- NUEVA CITA -->
+  <section id="view-nueva" class="view">
+    <p class="eyebrow">Reserva manual</p>
+    <h1 class="view-title">Nueva cita</h1>
+    <p class="view-subtitle">Se guarda directamente en la agenda real del salón</p>
+    <form id="form-nueva" class="form">
+      <label class="campo"><span>Nombre de la clienta</span>
+        <input type="text" id="nueva-nombre" required autocomplete="off" placeholder="Ej.: Carmen">
+      </label>
+      <label class="campo"><span>Servicio</span>
+        <select id="nueva-servicio" required></select>
+      </label>
+      <div class="fila-2">
+        <label class="campo"><span>Fecha</span>
+          <input type="date" id="nueva-fecha" required>
+        </label>
+        <label class="campo"><span>Hora</span>
+          <input type="time" id="nueva-hora" required step="300">
+        </label>
+      </div>
+      <label class="campo"><span>Teléfono <em class="opt">(opcional)</em></span>
+        <input type="tel" id="nueva-telefono" autocomplete="off" placeholder="+34 …">
+      </label>
+      <button type="submit" class="btn-primary">Guardar cita
+        <svg class="btn-ic"><use href="#i-arrow"/></svg>
+      </button>
+      <p id="nueva-msg" class="msg" role="status"></p>
+    </form>
+  </section>
+
+  <!-- SERVICIOS -->
+  <section id="view-servicios" class="view">
+    <p class="eyebrow">Ari Vivas Beauty</p>
+    <h1 class="view-title">Servicios</h1>
+    <p class="view-subtitle">La carta real del salón</p>
+    <div id="servicios-lista" class="lista lista-serv"></div>
+    <div class="card horario-card">
+      <p class="card-eyebrow">Horario del salón</p>
+      <div class="hor-row"><span>Lunes a viernes</span><i class="leader"></i><b>10:00 – 20:00</b></div>
+      <div class="hor-row"><span>Sábado</span><i class="leader"></i><b>10:00 – 14:00</b></div>
+      <div class="hor-row"><span>Domingo</span><i class="leader"></i><b class="cerrado">Cerrado</b></div>
+    </div>
+  </section>
+
+  <!-- ESTADO -->
+  <section id="view-estado" class="view">
+    <p class="eyebrow">Sistema</p>
+    <h1 class="view-title">Estado</h1>
+    <p class="view-subtitle">Cómo está trabajando tu asistenta</p>
+    <div class="card estado-card">
+      <div class="estado-row"><span class="dot dot-on"></span><div>
+        <strong>La Asistenta</strong><span class="estado-nota">Activa — atiende y reserva en la agenda real</span>
+      </div></div>
+      <div class="estado-row"><span class="dot dot-wait"></span><div>
+        <strong>Canal WhatsApp</strong><span class="estado-nota">Pendiente del número de prueba de Meta (en curso en el panel de desarrollador)</span>
+      </div></div>
+      <div class="estado-row"><span id="api-dot" class="dot dot-wait"></span><div>
+        <strong>Agenda (base de datos)</strong><span id="api-nota" class="estado-nota">Comprobando conexión…</span>
+      </div></div>
+    </div>
+    <div class="card">
+      <h2 class="card-title">Ajustes de conexión</h2>
+      <label class="campo"><span>URL de la API de la agenda</span>
+        <input type="url" id="cfg-api" placeholder="http://127.0.0.1:8081">
+      </label>
+      <label class="campo"><span>Token de acceso</span>
+        <input type="text" id="cfg-token" autocomplete="off">
+      </label>
+      <button id="cfg-guardar" class="btn-primary">Guardar y comprobar</button>
+      <p id="cfg-msg" class="msg" role="status"></p>
+    </div>
+    <p class="demo-tag">App de demostración del hackathon Meta — trabaja sobre la agenda real del salón; las citas que ves y creas aquí son las mismas que gestiona La Asistenta por WhatsApp.</p>
+  </section>
+
+</main>
+
+<nav class="tabbar">
+  <button data-view="hoy" class="tab active">
+    <span class="tab-pildora"><svg class="tab-ic"><use href="#i-sun"/></svg></span>
+    <span class="tab-txt">Hoy</span>
+  </button>
+  <button data-view="agenda" class="tab">
+    <span class="tab-pildora"><svg class="tab-ic"><use href="#i-cal"/></svg></span>
+    <span class="tab-txt">Agenda</span>
+  </button>
+  <button data-view="nueva" class="tab">
+    <span class="tab-pildora"><svg class="tab-ic"><use href="#i-plus"/></svg></span>
+    <span class="tab-txt">Nueva</span>
+  </button>
+  <button data-view="servicios" class="tab">
+    <span class="tab-pildora"><svg class="tab-ic"><use href="#i-spark"/></svg></span>
+    <span class="tab-txt">Servicios</span>
+  </button>
+  <button data-view="estado" class="tab">
+    <span class="tab-pildora"><svg class="tab-ic"><use href="#i-sliders"/></svg></span>
+    <span class="tab-txt">Estado</span>
+  </button>
+</nav>
+
+<div id="modal" class="modal" hidden>
+  <div class="modal-card">
+    <svg class="vacio-ic modal-ic"><use href="#i-brow"/></svg>
+    <h2>Cancelar cita</h2>
+    <p id="modal-texto"></p>
+    <div class="modal-btns">
+      <button id="modal-no" class="btn-ghost">Volver</button>
+      <button id="modal-si" class="btn-danger">Sí, cancelar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast" hidden></div>
+
+<script src="app.js"></script>
+</body>
+</html>

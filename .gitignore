@@ -1,0 +1,48 @@
+# ── Secretos y configuración real ─────────────────────────────
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.keystore
+*.jks
+*credentials*
+*secret*
+
+# ── Datos ──────────────────────────────────────────────────────
+*.db
+*.db-shm
+*.db-wal
+*.sqlite*
+
+# ── Logs y estado de ejecución ────────────────────────────────
+*.log
+logs/
+hermes-home/
+hermes-runtime/
+credits-watch-state.json
+
+# ── Imágenes de clientas / material de prueba sensible ───────
+h2/foto_prueba.jpg
+h2/respuesta_*.json
+h2/respuesta_*.txt
+
+# ── Dependencias y toolchain ──────────────────────────────────
+node_modules/
+app/toolchain/
+bin/
+
+# ── Salidas de build ──────────────────────────────────────────
+*.apk
+*.idsig
+dist/
+build/
+.gradle/
+local.properties
+__pycache__/
+*.pyc
+
+# ── Varios ────────────────────────────────────────────────────
+.DS_Store
+.idea/
+.vscode/

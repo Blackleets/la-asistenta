@@ -1,0 +1,31 @@
+# ============================================================================
+# La Asistenta — config.yaml de Hermes Agent (EJEMPLO, listo para aplicar)
+# ============================================================================
+# Cuando llegue la clave de Baseten:
+#   1. Copia este fichero a  ~/workspace/la-asistenta/hermes-home/config.yaml
+#   2. Pon la clave real en   ~/workspace/la-asistenta/hermes-home/.env
+#      (variable BASETEN_API_KEY — ver hermes-config.example.env)
+#   3. Arranca Hermes con HERMES_HOME=~/workspace/la-asistenta/hermes-home
+#
+# Mecanismo: proveedor personalizado con nombre ("named custom provider")
+# de Hermes — providers.<nombre> con api (base_url), key_env y transport.
+# Baseten sirve una API OpenAI-compatible (/v1/chat/completions), así que
+# el transport correcto es chat_completions.
+# Documentación: https://hermes-agent.nousresearch.com/docs/integrations/providers
+# ============================================================================
+
+providers:
+  baseten:
+    name: Baseten (Muse Spark Open)
+    api: https://inference.baseten.co/v1
+    key_env: BASETEN_API_KEY
+    transport: chat_completions
+    default_model: meta-models/muse-spark-open-1026
+
+model:
+  # Modelo por defecto de La Asistenta: Muse Spark Open vía Baseten.
+  default: meta-models/muse-spark-open-1026
+  provider: custom:baseten
+  # Spark es multimodal; con supports_vision las selfies de las clientas
+  # se envían nativamente como image_url (clave para la puerta H2).
+  supports_vision: true

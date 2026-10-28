@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">La Asistenta</string>
+    <string name="title_activity_main">La Asistenta</string>
+    <string name="package_name">es.arivivas.asistenta</string>
+    <string name="custom_url_scheme">es.arivivas.asistenta</string>
+</resources>
