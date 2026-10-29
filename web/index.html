@@ -3,146 +3,699 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>LA ASISTENTA — Tu belleza, mejor entendida</title>
-<meta name="description" content="Analiza tus cejas con IA, recibe una recomendación honesta y reserva en la agenda real del salón.">
+<title>LA ASISTENTA — Pruébatelo antes de comprar</title>
+<meta name="description" content="Probador virtual con IA: descubre cómo te quedaría antes de comprarlo. Probador de cejas con análisis real y reserva en Ari Vivas Beauty.">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="La Asistenta">
+<link rel="apple-touch-startup-image" href="/icons/splash-750x1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)">
+<link rel="apple-touch-startup-image" href="/icons/splash-828x1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)">
+<link rel="apple-touch-startup-image" href="/icons/splash-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)">
+<link rel="apple-touch-startup-image" href="/icons/splash-1179x2556.png" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3)">
+<link rel="apple-touch-startup-image" href="/icons/splash-1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)">
 <style>
 @font-face{font-family:'Fraunces';src:url('/fonts/fraunces-normal.woff2') format('woff2');font-weight:400 700;font-style:normal;font-display:swap}
 @font-face{font-family:'Fraunces';src:url('/fonts/fraunces-italic.woff2') format('woff2');font-weight:400 700;font-style:italic;font-display:swap}
 @font-face{font-family:'Montserrat';src:url('/fonts/montserrat.woff2') format('woff2');font-weight:400 800;font-display:swap}
 :root{
-  --carbon:#252533; --lavanda:#C5B4F2; --lavanda-suave:#E9E2FB; --fondo:#FAF7F2;
-  --verde:#7AB7A7; --verde-oscuro:#3E7C6B; --tinta:#2B2B36; --gris:#6E6E7E;
-  --borde:#E7DFD2; --error:#B3402E; --radio:20px;
-  --sombra:0 10px 30px rgba(37,37,51,.10);
+  /* Paleta de la referencia (ESPEC_REFERENCIA §1.1: tokens MEDIDOS
+     del CSS de fresha.com), adoptada íntegra por orden de Lee (v5).
+     Tintes derivados, documentados: --violeta-tinte = #6950f3 al
+     10 % sobre blanco · --violeta-claro = #6950f3 aclarado al 55 %
+     (solo texto/acento sobre negro) · #F9F8FE = #6950f3 al 4 %
+     (fondo de fila elegida) · fondos y bordes de aviso,
+     error y OK = tintes de #b7570b, #bb1232 y #1f8900. */
+  --negro:#0d0d0d; --violeta:#6950f3; --violeta-oscuro:#403591;
+  --violeta-tinte:#F0EDFE; --violeta-claro:#BCB0F9; --blanco:#ffffff;
+  --positivo:#1f8900; --tinta:#0d0d0d; --gris:#747a8d;
+  --borde:#dee3e7; --superficie:#f5f5f5; --error:#bb1232; --radio:20px;
+  --sombra:0 10px 30px rgba(13,13,13,.08);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-text-size-adjust:100%}
-body{font-family:'Montserrat',system-ui,sans-serif;background:var(--fondo);color:var(--tinta);
-  min-height:100dvh;display:flex;flex-direction:column;align-items:center}
-.wrap{width:100%;max-width:480px;padding:0 18px 40px;margin:0 auto}
-header{width:100%;background:var(--carbon);color:var(--fondo);border-radius:0 0 28px 28px;
-  padding:26px 22px 22px;margin-bottom:20px;position:relative;overflow:hidden}
-header::after{content:'';position:absolute;right:-50px;top:-50px;width:170px;height:170px;
-  border-radius:50%;background:radial-gradient(circle,var(--lavanda) 0%,transparent 70%);opacity:.45}
-.marca{font-size:11px;letter-spacing:.34em;font-weight:700;color:var(--lavanda)}
-header h1{font-family:'Fraunces',serif;font-weight:600;font-size:31px;line-height:1.12;margin-top:8px}
-header h1 em{color:var(--lavanda)}
-header p{margin-top:8px;font-size:13.5px;color:#D9D4E8;line-height:1.45;max-width:34ch}
+body{font-family:'Montserrat',system-ui,sans-serif;background:#fff;color:var(--tinta);
+  min-height:100dvh;display:flex;flex-direction:column;align-items:center;
+  padding-bottom:calc(76px + env(safe-area-inset-bottom))}
+.wrap{width:100%;max-width:480px;padding:calc(14px + env(safe-area-inset-top)) 18px 40px;margin:0 auto}
+/* --- v6: sin barra de marca. La home empieza como la referencia:
+   fila ligera del salón y buscador PÍLDORA (radio 999) con el
+   placeholder en DOS líneas: un <input> no envuelve su placeholder
+   y el texto quedaba cortado bajo el botón; un <textarea> sí. --- */
+.buscador{display:flex;align-items:center;gap:8px;background:#fff;border:1.5px solid var(--borde);
+  border-radius:999px;padding:8px 8px 8px 18px;box-shadow:var(--sombra);margin-bottom:18px}
+.buscador svg{width:21px;height:21px;stroke:var(--gris);fill:none;stroke-width:2;
+  stroke-linecap:round;flex:none}
+.buscador textarea{flex:1;border:none;background:transparent;font:inherit;font-size:16px;
+  color:var(--tinta);min-width:0;padding:6px 0;resize:none;line-height:1.3;
+  overflow:hidden;-webkit-appearance:none;appearance:none}
+.buscador textarea:focus{outline:none}
+.buscador textarea::placeholder{color:#a4adba}
+.buscador-btn{flex:none;border:none;background:var(--negro);color:var(--blanco);font:inherit;
+  font-weight:700;font-size:14px;border-radius:999px;padding:14px 22px;cursor:pointer;min-height:56px}
+.buscador-btn:active{transform:scale(.97)}
+.pastillas{display:grid;grid-template-columns:repeat(4,1fr);gap:14px 8px;margin-bottom:8px}
+.pastilla{display:flex;flex-direction:column;align-items:center;gap:7px;background:none;border:none;
+  font:inherit;cursor:pointer;color:var(--tinta);padding:0;min-height:44px}
+.pastilla .p-ico{width:100%;max-width:88px;aspect-ratio:1/1;border-radius:24px;background:#f5f5f5;border:none;
+  box-shadow:none;display:flex;align-items:center;justify-content:center;
+  transition:transform .12s ease}
+.pastilla svg{width:28px;height:28px;stroke:var(--negro);fill:none;stroke-width:1.7;
+  stroke-linecap:round;stroke-linejoin:round}
+.pastilla .p-txt{font-size:13px;font-weight:400;line-height:1.25;text-align:center}
+.pastilla:active .p-ico{transform:scale(.94)}
+/* --- fila del salón (pin) + tarjeta grande del salón + filas ---
+   v6: la fila es ligera como la de la referencia: pin VIOLETA RELLENO
+   (el map-pin de Lucide con fill, no el contorno en círculo), nombre
+   en peso NORMAL y chevron. Sin círculo de fondo. */
+.fila-salon{display:flex;align-items:center;gap:8px;width:100%;background:none;border:none;
+  font:inherit;cursor:pointer;color:var(--negro);padding:8px 0 10px;min-height:44px;text-align:left}
+.fila-salon .fs-pin{display:flex;flex:none;align-items:center}
+.fila-salon .fs-pin svg{width:24px;height:24px;display:block}
+.fila-salon .fs-nombre{font-size:17px;font-weight:400;letter-spacing:0}
+.fila-salon .fs-chev{width:19px;height:19px;stroke:var(--negro);fill:none;stroke-width:2;
+  stroke-linecap:round;stroke-linejoin:round;flex:none}
+.salon-card{background:#fff;border:1px solid var(--borde);border-radius:24px;overflow:hidden;
+  box-shadow:var(--sombra);margin-bottom:16px;cursor:pointer;transition:transform .12s ease}
+.salon-card:active{transform:scale(.99)}
+.salon-card .foto-wrap img{width:100%;height:212px;object-fit:cover;object-position:center 22%;display:block;background:var(--violeta-tinte)}
+.chip-dato{display:inline-flex;align-items:center;background:var(--violeta-tinte);border-radius:999px;
+  padding:6px 12px;font-size:12px;font-weight:700;color:#403591;white-space:nowrap}
+/* v6: cabecera del salón A SANGRE COMPLETA, como la referencia: la
+   foto escapa del margen de .wrap (arriba y a los lados) y los
+   botones flotantes quedan sobre ella, bajo la zona segura. */
+.salon-hero{position:relative;border-radius:0;overflow:hidden;box-shadow:var(--sombra);
+  margin:calc(-14px - env(safe-area-inset-top)) -18px 16px}
+.salon-hero img{width:100%;height:252px;object-fit:cover;object-position:center 22%;display:block;background:var(--violeta-tinte)}
+.hero-flot{position:absolute;top:calc(24px + env(safe-area-inset-top));width:44px;height:44px;border-radius:50%;
+  background:rgba(255,255,255,.95);border:1px solid var(--borde);box-shadow:var(--sombra);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+.hero-flot svg{width:20px;height:20px;stroke:var(--negro);fill:none;stroke-width:2;
+  stroke-linecap:round;stroke-linejoin:round}
+.hero-flot.izq{left:12px}
+.hero-flot.der{right:12px}
+.hero-flot:active{transform:scale(.94)}
+.salon-titulo{font-family:'Fraunces',serif;font-size:28px;font-weight:600;line-height:1.12;color:var(--negro)}
+.salon-sub{font-size:13.5px;color:var(--gris);margin-top:5px;line-height:1.5}
+.salon-sub em{font-family:'Fraunces',serif;color:var(--negro)}
+.salon-txt{font-size:14px;line-height:1.6;color:var(--tinta);margin-top:12px}
+.fila-servicio{display:flex;align-items:center;gap:12px;width:100%;background:#fff;
+  border:1.5px solid var(--borde);border-radius:18px;padding:14px 16px;margin-bottom:10px;
+  font:inherit;color:var(--tinta);text-align:left;cursor:pointer;transition:transform .12s ease}
+.fila-servicio:active{transform:scale(.99)}
+.fila-servicio .fs-main{flex:1;min-width:0}
+.fila-servicio .fs-nombre{font-weight:700;font-size:15.5px;line-height:1.25}
+.fila-servicio .fs-meta{font-size:12.5px;color:var(--gris);margin-top:2px;line-height:1.4}
+.fila-servicio .fs-precio{font-weight:800;font-size:15px;white-space:nowrap;color:var(--negro)}
+.fila-servicio .fs-add{flex:none;width:44px;height:44px;border-radius:50%;border:1.5px solid var(--negro);
+  background:#fff;display:flex;align-items:center;justify-content:center}
+.fila-servicio .fs-add svg{width:18px;height:18px;stroke:var(--negro);fill:none;stroke-width:2.4;
+  stroke-linecap:round;stroke-linejoin:round}
+.fila-servicio.sel{border-color:var(--violeta);border-width:2px;background:#F9F8FE}
+.fila-servicio.sel .fs-add{background:var(--violeta);border-color:var(--violeta)}
+.fila-servicio.sel .fs-add svg{stroke:#fff}
+/* Barra fija de la ficha del salón: contador + total + CTA (espec §5 P4).
+   Solo vive en la pantalla del salón (la controla actualizarBarraSalon). */
+.salon-barra{position:fixed;left:50%;transform:translateX(-50%);
+  bottom:calc(86px + env(safe-area-inset-bottom));width:calc(100% - 24px);max-width:456px;
+  z-index:45;background:#fff;color:var(--tinta);border:1px solid var(--borde);
+  border-radius:16px;padding:12px 14px;display:none;align-items:center;gap:12px;
+  box-shadow:0 14px 34px rgba(13,13,13,.14)}
+.salon-barra.visible{display:flex;animation:sube .25s ease both}
+.salon-barra .sb-txt{flex:1;font-size:12.5px;line-height:1.4;color:var(--gris)}
+.salon-barra .sb-txt b{display:block;font-size:15px;color:var(--negro)}
+.salon-barra .sb-btn{flex:none;border:none;background:var(--negro);color:var(--blanco);font:inherit;
+  font-weight:800;font-size:14.5px;border-radius:999px;padding:13px 20px;min-height:48px;cursor:pointer}
+.salon-barra .sb-btn:active{transform:scale(.97)}
+/* --- tarjetas fotográficas «Recomendado» ---
+   v6: FOTO A SANGRE COMPLETA (la foto llena la tarjeta, radio 24) con
+   UNA pastilla de cristal flotante que dice un HECHO («Reservas
+   abiertas», la duración). Nada de simular valoraciones: la estrella
+   «Highly Recommended» de la referencia es una valoración que este
+   salón no tiene en la plataforma, así que no se imita. */
+.seccion-titulo.titulo-grande{font-size:29px;letter-spacing:-.02em;margin:26px 0 14px}
+.foto-wrap{position:relative}
+.foto-pill{position:absolute;top:12px;left:12px;background:rgba(255,255,255,.86);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-radius:999px;
+  padding:7px 13px;font-size:12.5px;font-weight:700;color:var(--negro);
+  box-shadow:0 4px 14px rgba(13,13,13,.14)}
+.reco-card{background:#fff;border:1px solid var(--borde);border-radius:24px;overflow:hidden;
+  box-shadow:var(--sombra);margin-bottom:16px;cursor:pointer;transition:transform .12s ease}
+/* Carrusel «Recomendado» (espec §5 P1): tarjetas al ~80 % con asomo de
+   la siguiente; el carril sale del margen para que el asomo se vea. */
+.carrusel{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;
+  margin:0 -18px;padding:2px 18px 12px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.carrusel::-webkit-scrollbar{display:none}
+.carrusel>*{flex:0 0 88%;scroll-snap-align:start;margin-bottom:0}
+.carrusel .esqueleto{flex:0 0 82%}
+.reco-card:active{transform:scale(.99)}
+.reco-card .foto-wrap img{width:100%;height:190px;object-fit:cover;object-position:center 30%;display:block;background:var(--violeta-tinte)}
+.salon-card .rc-body,.reco-card .rc-body{padding:15px 17px 17px}
+.salon-card h3,.reco-card h3{font-size:19px;font-weight:800;line-height:1.2}
+.salon-card .rc-cta-txt,.reco-card .rc-cta-txt{margin-left:auto;font-size:13.5px;font-weight:800;color:var(--negro);white-space:nowrap}
+.salon-card .rc-desc,.reco-card .rc-desc{font-size:13px;color:var(--gris);margin-top:3px;line-height:1.45}
+.salon-card .rc-meta,.reco-card .rc-meta{display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap}
+.tarjeta-analisis{border:2px solid var(--violeta);background:linear-gradient(180deg,#fff 0%,#F9F8FE 100%)}
+.tarjeta-analisis .ta-ico{width:44px;height:44px;border-radius:14px;background:var(--violeta-tinte);
+  display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.tarjeta-analisis .ta-ico svg{width:24px;height:24px;stroke:var(--negro);fill:none;stroke-width:2;
+  stroke-linecap:round;stroke-linejoin:round}
 .pantalla{display:none;animation:sube .35s ease both}
 .pantalla.activa{display:block}
 @keyframes sube{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 .tarjeta{background:#fff;border:1px solid var(--borde);border-radius:var(--radio);
   padding:20px;box-shadow:var(--sombra);margin-bottom:16px}
-.tarjeta h2{font-family:'Fraunces',serif;font-size:22px;font-weight:600;margin-bottom:8px}
+.tarjeta h2{font-size:21px;font-weight:800;margin-bottom:8px;letter-spacing:-.01em}
 .tarjeta p{font-size:14px;line-height:1.55;color:var(--tinta)}
 .tarjeta p+p{margin-top:8px}
 .mini{font-size:12.5px;color:var(--gris);line-height:1.5}
 .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
-  border:none;border-radius:16px;padding:16px 18px;font-family:inherit;font-size:15.5px;
+  border:none;border-radius:999px;padding:16px 18px;font-family:inherit;font-size:15.5px;
   font-weight:700;cursor:pointer;transition:transform .12s ease,opacity .2s;text-align:center}
+.btn svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:2;
+  stroke-linecap:round;stroke-linejoin:round;flex:none}
 .btn:active{transform:scale(.985)}
-.btn-primario{background:var(--carbon);color:var(--fondo)}
-.btn-primario:hover{background:#33334A}
-.btn-verde{background:var(--verde);color:#12362C}
-.btn-lavanda{background:var(--lavanda);color:var(--carbon)}
-.btn-fantasma{background:transparent;color:var(--carbon);border:1.5px solid var(--carbon)}
+.btn-primario{background:var(--negro);color:var(--blanco)}
+.btn-primario:hover{background:#262626}
+.btn-verde{background:var(--positivo);color:#fff}
+.btn-lavanda{background:var(--violeta);color:#fff}
+.btn-fantasma{background:transparent;color:var(--negro);border:1.5px solid var(--negro)}
 .btn[disabled]{opacity:.38;pointer-events:none}
 .btn-peq{padding:11px 14px;font-size:13.5px;border-radius:12px;width:auto}
 .fila-botones{display:flex;gap:10px;flex-wrap:wrap}
 .fila-botones .btn{flex:1}
-.enlace{background:none;border:none;color:var(--verde-oscuro);font:inherit;font-size:13.5px;
-  font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:6px 0}
-.carta-lista{display:flex;flex-direction:column}
-.carta-item{display:flex;align-items:baseline;gap:8px;padding:11px 0;border-bottom:1px dashed var(--borde)}
-.carta-item:last-child{border-bottom:none}
-.carta-item .nombre{font-weight:600;font-size:14.5px}
-.carta-item .puntos{flex:1;border-bottom:2px dotted #CFC6AE;transform:translateY(-3px)}
-.carta-item .precio{font-family:'Fraunces',serif;font-weight:700;font-size:16px;color:var(--carbon)}
-.carta-item .dur{font-size:11.5px;color:var(--gris);white-space:nowrap}
-.check{display:flex;gap:12px;align-items:flex-start;background:var(--lavanda-suave);
+.enlace{background:none;border:none;color:var(--violeta);font:inherit;font-size:13.5px;
+  font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:6px 0;
+  min-height:44px;display:inline-flex;align-items:center}
+.seccion-titulo{font-size:22px;font-weight:800;margin:22px 0 4px;letter-spacing:-.01em}
+.seccion-sub{font-size:13px;color:var(--gris);margin-bottom:12px;line-height:1.5}
+/* --- tarjetas de servicio (inicio y paso 1) --- */
+.servicio-card{display:block;width:100%;text-align:left;background:#fff;border:1.5px solid var(--borde);
+  border-radius:18px;padding:15px 16px;box-shadow:0 4px 16px rgba(13,13,13,.05);margin-bottom:10px;
+  font:inherit;color:var(--tinta);cursor:pointer;transition:border-color .15s ease,transform .12s ease}
+.servicio-card:active{transform:scale(.99)}
+.servicio-card .sc-top{display:flex;align-items:flex-start;gap:10px}
+.servicio-card .sc-nombre{font-size:16.5px;font-weight:700;line-height:1.25;flex:1}
+.servicio-card .sc-precio{font-weight:800;font-size:16.5px;color:var(--negro);white-space:nowrap}
+.servicio-card .sc-desc{font-size:13px;color:var(--gris);margin-top:3px;line-height:1.45}
+.servicio-card .sc-meta{display:flex;align-items:center;gap:8px;margin-top:11px}
+.servicio-card .sc-dur,.reco-card .sc-dur{background:var(--violeta-tinte);border-radius:999px;padding:5px 11px;
+  font-size:12px;font-weight:700;color:#403591}
+.servicio-card .sc-cta{margin-left:auto;font-size:13.5px;font-weight:800;color:var(--negro)}
+.servicio-card.sel{border-color:var(--violeta);border-width:2px;background:#F9F8FE}
+.servicio-card .sc-check{display:none;width:24px;height:24px;border-radius:50%;background:var(--violeta);
+  align-items:center;justify-content:center;flex:none}
+.servicio-card .sc-check svg{width:14px;height:14px;stroke:#fff;fill:none;stroke-width:3;
+  stroke-linecap:round;stroke-linejoin:round}
+.servicio-card.sel .sc-check{display:flex}
+.check{display:flex;gap:12px;align-items:flex-start;background:#f5f5f5;
   border-radius:14px;padding:14px;cursor:pointer}
-.check input{width:22px;height:22px;accent-color:var(--carbon);flex:none;margin-top:1px}
+.check input{width:22px;height:22px;accent-color:var(--violeta);flex:none;margin-top:1px}
 .check span{font-size:13.5px;line-height:1.5}
-.zona-foto{border:2px dashed var(--lavanda);border-radius:var(--radio);padding:18px;
+.zona-foto{border:2px dashed var(--violeta);border-radius:var(--radio);padding:18px;
   text-align:center;background:#fff}
 .zona-foto img{max-width:100%;max-height:300px;border-radius:14px;display:none;margin:0 auto 10px}
 .zona-foto.con-foto img{display:block}
 .grupo-pref{margin-top:16px}
 .grupo-pref h3{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gris);margin-bottom:8px}
 .segmentos{display:flex;gap:8px;flex-wrap:wrap}
-.seg{flex:1;min-width:fit-content;border:1.5px solid var(--borde);background:#fff;color:var(--tinta);
+.seg{flex:1;min-width:fit-content;min-height:44px;display:flex;align-items:center;justify-content:center;
+  border:1.5px solid var(--borde);background:#fff;color:var(--tinta);
   border-radius:999px;padding:9px 12px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
-.seg.sel{background:var(--carbon);color:var(--fondo);border-color:var(--carbon)}
+.seg.sel{background:var(--violeta);color:#fff;border-color:var(--violeta)}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
-.chip{background:var(--lavanda-suave);border-radius:999px;padding:7px 12px;font-size:12.5px;font-weight:600}
-.chip b{color:var(--carbon)}
-.reco{border:2px solid var(--verde);background:#F2F8F5}
-.reco .etiqueta{font-size:11px;letter-spacing:.2em;font-weight:800;color:var(--verde-oscuro)}
-.reco h3{font-family:'Fraunces',serif;font-size:24px;margin:6px 0 4px}
-.reco .datos{font-weight:700;color:var(--verde-oscuro);font-size:14px}
-.aviso{background:#FFF6E8;border:1px solid #EBD9AE;border-radius:14px;padding:13px 14px;
+.chip{background:var(--violeta-tinte);border-radius:999px;padding:7px 12px;font-size:12.5px;font-weight:600}
+.chip b{color:var(--negro)}
+.reco{border:2px solid var(--positivo);background:#EDF6EB}
+.reco .etiqueta{font-size:11px;letter-spacing:.2em;font-weight:800;color:var(--positivo)}
+.reco h3{font-size:23px;font-weight:800;margin:6px 0 4px}
+.reco .datos{font-weight:700;color:var(--positivo);font-size:14px}
+.aviso{background:#FAF3EE;border:1px solid #E9CDB6;border-radius:14px;padding:13px 14px;
   font-size:13px;line-height:1.55;margin-bottom:16px}
-.error-caja{background:#FDECE8;border:1px solid #EFC0B4;color:var(--error);border-radius:14px;
+.error-caja{background:#FBF1F3;border:1px solid #EEC4CC;color:var(--error);border-radius:14px;
   padding:13px 14px;font-size:13.5px;line-height:1.5;margin-bottom:14px;display:none}
 .error-caja.visible{display:block}
 label.campo{display:block;font-size:12px;letter-spacing:.12em;text-transform:uppercase;
   color:var(--gris);font-weight:700;margin:16px 0 7px}
 input[type=text],input[type=tel],input[type=date],select,textarea{
   width:100%;border:1.5px solid var(--borde);border-radius:13px;padding:13px 14px;
-  font:inherit;font-size:15px;background:#fff;color:var(--tinta)}
-input:focus,select:focus,textarea:focus{outline:2px solid var(--lavanda);border-color:var(--lavanda)}
-.huecos{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:6px}
-.hueco{border:1.5px solid var(--borde);background:#fff;border-radius:12px;padding:10px 2px;
-  font:inherit;font-size:14px;font-weight:700;cursor:pointer}
-.hueco.sel{background:var(--verde);border-color:var(--verde);color:#12362C}
-.resumen{background:var(--lavanda-suave);border-radius:14px;padding:14px;font-size:14px;line-height:1.6}
+  font:inherit;font-size:16px;background:#fff;color:var(--tinta)}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--violeta);border-color:var(--violeta)}
+/* v4 · paso 2 como la referencia (espec §5 P7): calendario de MES
+   navegable + horas como LISTA con radios. Los huecos ocupados no se
+   pintan: la lista solo trae inicios libres reales de la agenda. */
+.cal-cab{display:flex;align-items:center;justify-content:space-between;margin:4px 0 8px}
+.cal-mes{font-size:17px;font-weight:800;color:var(--negro);text-transform:capitalize}
+.cal-nav{width:44px;height:44px;border-radius:50%;border:1.5px solid var(--borde);background:#fff;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+.cal-nav svg{width:19px;height:19px;stroke:var(--negro);fill:none;stroke-width:2;
+  stroke-linecap:round;stroke-linejoin:round}
+.cal-nav[disabled]{opacity:.32;pointer-events:none}
+.cal-rejilla{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-dow{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--gris);text-align:center;padding:5px 0}
+.cal-dia{position:relative;border:none;background:none;font:inherit;font-size:15px;font-weight:600;
+  color:var(--tinta);border-radius:50%;cursor:pointer;min-height:44px;
+  display:flex;align-items:center;justify-content:center;padding:0}
+.cal-dia.hoy::after{content:'';position:absolute;bottom:6px;width:5px;height:5px;
+  border-radius:50%;background:var(--violeta)}
+.cal-dia.sel{background:var(--violeta);color:#fff;font-weight:800}
+.cal-dia.sel::after{background:#fff}
+.cal-dia[disabled]{color:#bfbfbf;cursor:default}
+.cal-dia.vacio{visibility:hidden}
+.horas-lista{border-top:1px solid var(--borde);margin-top:4px}
+.hora-fila{display:flex;align-items:center;gap:10px;width:100%;min-height:52px;padding:8px 2px;
+  border:none;border-bottom:1px solid var(--borde);background:none;font:inherit;
+  cursor:pointer;text-align:left;color:var(--tinta)}
+.hora-fila .hf-hora{font-size:16px;font-weight:600}
+.hora-fila.sel .hf-hora{font-weight:800}
+.hora-fila .hf-precio{font-size:13px;color:var(--gris)}
+.hora-fila .hf-radio{margin-left:auto;width:24px;height:24px;border-radius:50%;
+  border:2px solid #bfbfbf;flex:none;display:flex;align-items:center;justify-content:center}
+.hora-fila.sel .hf-radio{border-color:var(--violeta)}
+.hora-fila.sel .hf-radio::after{content:'';width:12px;height:12px;border-radius:50%;
+  background:var(--violeta)}
+#btn-mas-huecos{display:flex;width:100%;justify-content:center;margin-top:6px}
+.resumen{background:#f5f5f5;border-radius:14px;padding:14px;font-size:14px;line-height:1.6}
 .confirmada{text-align:center;padding:12px 0 4px}
 .confirmada .tick{width:74px;height:74px;margin:0 auto 14px;border-radius:50%;
-  background:var(--verde);display:flex;align-items:center;justify-content:center;
-  font-size:36px;color:#fff}
-.confirmada h2{font-family:'Fraunces',serif;font-size:26px;margin-bottom:8px}
+  background:var(--positivo);display:flex;align-items:center;justify-content:center}
+.confirmada .tick svg{width:38px;height:38px;stroke:#fff;fill:none;stroke-width:2.5;
+  stroke-linecap:round;stroke-linejoin:round}
+.confirmada h2{font-size:25px;font-weight:800;margin-bottom:8px}
+.codigo-grande{display:inline-block;background:var(--negro);color:var(--blanco);border-radius:14px;
+  padding:11px 20px;font-size:24px;font-weight:800;letter-spacing:.14em}
 .cargando{display:none;text-align:center;padding:34px 16px}
 .cargando.visible{display:block}
 .rueda{width:44px;height:44px;margin:0 auto 16px;border-radius:50%;
-  border:4px solid var(--lavanda-suave);border-top-color:var(--carbon);
+  border:4px solid var(--borde);border-top-color:var(--violeta);
   animation:gira 0.9s linear infinite}
 @keyframes gira{to{transform:rotate(360deg)}}
 footer{margin-top:auto;padding:18px;text-align:center;font-size:11.5px;color:var(--gris);line-height:1.6;max-width:480px}
 .progreso{display:flex;gap:6px;margin-bottom:16px}
 .progreso i{flex:1;height:5px;border-radius:99px;background:var(--borde)}
-.progreso i.on{background:var(--lavanda)}
+.progreso i.on{background:var(--violeta)}
+.btn{min-height:52px}
+/* --- flujo de reserva por pasos --- */
+.pasos-ind{display:flex;gap:6px;margin-bottom:14px}
+.pasos-ind .pi{flex:1;text-align:center;font-size:11px;font-weight:800;letter-spacing:.05em;
+  color:var(--gris);padding:8px 2px;border-radius:10px;background:#fff;border:1px solid var(--borde)}
+.pasos-ind .pi .n{display:inline-flex;width:19px;height:19px;border-radius:50%;background:var(--borde);
+  color:var(--tinta);align-items:center;justify-content:center;font-size:11px;margin-right:4px;vertical-align:-5px}
+.pasos-ind .pi.on{color:var(--negro);border-color:var(--negro)}
+.pasos-ind .pi.on .n{background:var(--negro);color:var(--blanco)}
+.pasos-ind .pi.hecho{color:#403591;border-color:var(--violeta)}
+.pasos-ind .pi.hecho .n{background:var(--violeta);color:#fff}
+.paso-panel{display:none;animation:sube .35s ease both}
+.paso-panel.activo{display:block}
+.resumen-mini{position:sticky;top:10px;z-index:20;background:var(--negro);color:var(--blanco);
+  border-radius:16px;padding:12px 16px;box-shadow:var(--sombra);margin-bottom:16px;
+  display:flex;align-items:center;gap:10px;font-size:13px;line-height:1.45}
+.resumen-mini .rm-etq{font-size:10px;letter-spacing:.18em;font-weight:800;color:var(--violeta-claro);white-space:nowrap}
+.resumen-mini .rm-txt{flex:1}
+.resumen-mini .rm-precio{font-weight:800;font-size:16px;white-space:nowrap}
+
+.tu-cita{background:#fff;border:2px solid var(--violeta);border-radius:var(--radio);
+  padding:16px 18px;box-shadow:var(--sombra);margin-top:16px}
+.tu-cita .tc-etq{font-size:11px;letter-spacing:.2em;font-weight:800;color:var(--gris)}
+.tu-cita .tc-fila{display:flex;justify-content:space-between;gap:10px;font-size:13.5px;
+  padding:7px 0;border-bottom:1px dashed var(--borde)}
+.tu-cita .tc-fila:last-child{border-bottom:none}
+.tu-cita .tc-fila b{color:var(--negro);text-align:right}
+.tu-cita .tc-linea{display:flex;justify-content:space-between;gap:10px;font-size:14px;padding:6px 0}
+.tu-cita .tc-linea span{color:var(--tinta)}
+.tu-cita .tc-linea b{color:var(--negro);white-space:nowrap}
+.tu-cita .tc-total{display:flex;justify-content:space-between;gap:10px;font-size:15.5px;
+  font-weight:800;color:var(--negro);padding:9px 0 3px;margin-top:5px;
+  border-top:1.5px solid var(--violeta)}
+/* --- sensación app: navegación inferior, aviso offline, esqueleto --- */
+.barra-nav{position:fixed;left:0;right:0;bottom:0;z-index:50;
+  background:rgba(255,255,255,.94);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  border-top:1px solid var(--borde);padding-bottom:env(safe-area-inset-bottom)}
+.barra-nav .fila{max-width:480px;margin:0 auto;display:flex}
+.nav-btn{flex:1;min-height:58px;background:none;border:none;cursor:pointer;font:inherit;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  color:var(--gris);font-size:11px;font-weight:400;letter-spacing:.04em;
+  padding:7px 0 5px;transition:color .15s ease}
+.nav-btn svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:2;
+  stroke-linecap:round;stroke-linejoin:round}
+.nav-btn.on{color:var(--violeta)}
+.nav-btn.on svg{fill:var(--violeta);stroke:var(--violeta)}
+.nav-btn:active{transform:scale(.96)}
+#banner-offline{display:none;width:100%;background:#FAF3EE;border-bottom:1px solid #E9CDB6;
+  color:#b7570b;font-size:13px;line-height:1.5;text-align:center;
+  padding:calc(10px + env(safe-area-inset-top)) 18px 10px}
+#banner-offline.visible{display:block}
+.esqueleto{display:flex;flex-direction:column;gap:12px;padding:6px 0}
+.esqueleto i{display:block;height:17px;border-radius:8px;
+  background:linear-gradient(100deg,#f5f5f5 40%,#E9ECEF 50%,#f5f5f5 60%);
+  background-size:200% 100%;animation:brillo 1.3s linear infinite}
+@keyframes brillo{to{background-position:-200% 0}}
+/* --- v4: vídeos de TikTok, reseñas reales y The Lounge --- */
+.videos-fila{display:flex;gap:10px;overflow-x:auto;padding:4px 2px 12px;scrollbar-width:none;
+  -webkit-overflow-scrolling:touch}
+.videos-fila::-webkit-scrollbar{display:none}
+.video-card{flex:none;width:132px;border:none;padding:0;border-radius:18px;overflow:hidden;
+  position:relative;cursor:pointer;background:var(--violeta-tinte);font:inherit;
+  box-shadow:0 6px 18px rgba(13,13,13,.10);transition:transform .12s ease;text-align:left}
+.video-card:active{transform:scale(.97)}
+.video-card img{width:100%;height:176px;object-fit:cover;object-position:center 28%;display:block}
+.video-card .vc-play{position:absolute;top:50%;left:50%;transform:translate(-50%,-62%);
+  width:42px;height:42px;border-radius:50%;background:rgba(13,13,13,.62);
+  display:flex;align-items:center;justify-content:center}
+.video-card .vc-play svg{width:20px;height:20px;stroke:#fff;fill:#fff;stroke-width:2;
+  stroke-linecap:round;stroke-linejoin:round;margin-left:2px}
+.video-card .vc-tag{position:absolute;top:8px;left:8px;background:rgba(13,13,13,.78);color:#fff;
+  font-size:10px;font-weight:800;letter-spacing:.08em;border-radius:999px;padding:4px 8px}
+.video-card .vc-tit{position:absolute;left:0;right:0;bottom:0;padding:20px 9px 8px;color:#fff;
+  font-size:11.5px;font-weight:700;line-height:1.3;
+  background:linear-gradient(180deg,transparent,rgba(13,13,13,.78))}
+.modal-tt{position:fixed;inset:0;z-index:90;background:rgba(13,13,13,.74);
+  display:none;align-items:center;justify-content:center;padding:16px}
+.modal-tt.visible{display:flex}
+.modal-tt-caja{background:#fff;border-radius:20px;padding:14px;width:100%;max-width:400px;
+  max-height:92dvh;overflow-y:auto;box-shadow:var(--sombra)}
+.modal-tt-x{margin-left:auto;display:flex;width:38px;height:38px;border-radius:50%;border:none;
+  background:var(--violeta-tinte);cursor:pointer;align-items:center;justify-content:center}
+.modal-tt-x svg{width:19px;height:19px;stroke:var(--negro);fill:none;stroke-width:2;
+  stroke-linecap:round;stroke-linejoin:round}
+.modal-tt-marco iframe{width:100%;height:min(60dvh,540px);border:0;border-radius:14px;
+  background:#0d0d0d;display:block}
+.modal-tt-tit{font-weight:700;font-size:14.5px;margin:12px 0 4px;line-height:1.4}
+.resena{background:#fff;border:1px solid var(--borde);border-radius:18px;padding:16px 17px;
+  box-shadow:0 4px 16px rgba(13,13,13,.05);margin-bottom:10px}
+.resena svg{width:22px;height:22px;stroke:var(--violeta);fill:var(--violeta-tinte);stroke-width:2;
+  stroke-linecap:round;stroke-linejoin:round;display:block;margin-bottom:8px}
+.resena p{font-size:14px;line-height:1.6;color:var(--tinta)}
+.resena .r-nombre{margin-top:9px;font-size:13px;font-weight:800;color:var(--negro)}
+.lounge-card{background:#fff;border:1px solid var(--borde);border-radius:24px;overflow:hidden;
+  box-shadow:var(--sombra);margin-bottom:16px}
+.lounge-card img{width:100%;height:196px;object-fit:cover;object-position:center 55%;display:block;
+  background:var(--violeta-tinte)}
+.lounge-card .lc-body{padding:15px 17px 17px}
+.lounge-card h3{font-size:19px;font-weight:800}
+.lounge-card p{font-size:13.5px;color:var(--gris);margin-top:4px;line-height:1.5}
+.btn-videos{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;
+  background:#fff;border:1.5px solid var(--negro);color:var(--negro);border-radius:16px;
+  padding:14px 16px;font:inherit;font-size:14.5px;font-weight:700;cursor:pointer;
+  min-height:52px;margin-bottom:16px}
+.btn-videos svg{width:19px;height:19px;stroke:var(--negro);fill:none;stroke-width:2;
+  stroke-linecap:round;stroke-linejoin:round}
+.btn-videos:active{transform:scale(.985)}
+#btn-instalar{display:none;margin-top:10px}
+#btn-instalar.visible{display:flex}
+@media (display-mode:standalone){#btn-instalar{display:none!important}}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001s!important;animation-iteration-count:1!important;
+    transition-duration:.001s!important}
+  html{scroll-behavior:auto}
+}
+/* --- PIVOTE · Fase 1: probador virtual (identidad propia) ---
+   Cabecera de marca, hero editorial sin fotos de stock, tarjetas de
+   categoría, tarjeta del probador, Explorar con productos reales y
+   estados honestos. Tokens v5 sin tocar; el violeta es acento de
+   marca usado con moderación. */
+.cabecera{display:flex;align-items:center;justify-content:space-between;
+  padding:2px 0 14px}
+.marca{display:flex;align-items:center;gap:9px;font-size:19px;font-weight:800;
+  letter-spacing:.14em;color:var(--negro)}
+.marca svg{width:26px;height:26px;flex:none}
+.cabecera .btn-perfil-ico{width:44px;height:44px;border-radius:50%;border:none;
+  background:var(--superficie);display:flex;align-items:center;justify-content:center;
+  cursor:pointer;padding:0}
+.cabecera .btn-perfil-ico svg{width:21px;height:21px;stroke:var(--negro);fill:none;
+  stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.cabecera .btn-perfil-ico:active{transform:scale(.94)}
+.hero{position:relative;background:linear-gradient(150deg,#F4F1FE 0%,#ECE7FD 55%,#E3DBFB 100%);
+  border-radius:28px;padding:30px 24px 78px;overflow:hidden;margin-bottom:26px}
+.hero .hero-estrella{position:absolute;right:-26px;top:-26px;width:150px;height:150px;
+  opacity:.16;transform:rotate(12deg)}
+.hero .hero-kicker{font-size:11px;font-weight:800;letter-spacing:.22em;
+  color:var(--violeta-oscuro);margin-bottom:12px}
+.hero h1{font-size:37px;line-height:1.08;font-weight:800;letter-spacing:-.02em;
+  color:var(--negro);max-width:300px}
+.hero .hero-sub{font-size:16.5px;color:#3c4152;margin-top:12px;line-height:1.45}
+.hero .hero-regla{width:44px;height:4px;border-radius:99px;background:var(--violeta);
+  margin:18px 0}
+.hero .btn{max-width:250px}
+.hero .hero-chips{position:absolute;right:16px;bottom:16px;display:flex;gap:8px}
+.hero .hero-chips span{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.9);
+  box-shadow:0 4px 12px rgba(13,13,13,.10);display:flex;align-items:center;justify-content:center}
+.hero .hero-chips svg{width:20px;height:20px;stroke:var(--negro);fill:none;stroke-width:1.8;
+  stroke-linecap:round;stroke-linejoin:round}
+.encabezado-seccion{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.encabezado-seccion .ver-todo{background:none;border:none;color:var(--violeta);
+  font:inherit;font-size:13.5px;font-weight:700;cursor:pointer;padding:8px 0;min-height:44px;
+  display:inline-flex;align-items:center;gap:2px}
+.encabezado-seccion .ver-todo svg{width:16px;height:16px;stroke:var(--violeta);fill:none;
+  stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.cat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:6px}
+.cat-card{display:flex;flex-direction:column;align-items:center;gap:8px;background:none;
+  border:none;font:inherit;cursor:pointer;color:var(--tinta);padding:0;min-height:44px}
+.cat-card .c-ico{width:100%;max-width:88px;aspect-ratio:1/1;border-radius:24px;
+  background:#f5f5f5;display:flex;align-items:center;justify-content:center;
+  transition:transform .12s ease}
+.cat-card svg{width:30px;height:30px;stroke:var(--negro);fill:none;stroke-width:1.6;
+  stroke-linecap:round;stroke-linejoin:round}
+.cat-card .c-txt{font-size:13px;font-weight:400;line-height:1.25;text-align:center}
+.cat-card:active .c-ico{transform:scale(.94)}
+.tarjeta-probador{background:linear-gradient(160deg,#FBFAFF 0%,var(--violeta-tinte) 130%);
+  border:1.5px solid #E4DEF9}
+.checks{list-style:none;margin:14px 0 4px;display:flex;flex-direction:column;gap:10px}
+.checks li{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600}
+.checks .ck{flex:none;width:23px;height:23px;border-radius:50%;background:var(--violeta);
+  display:flex;align-items:center;justify-content:center}
+.checks .ck svg{width:13px;height:13px;stroke:#fff;fill:none;stroke-width:3;
+  stroke-linecap:round;stroke-linejoin:round}
+.tarjeta-cejas .tc-foto{width:100%;height:150px;object-fit:cover;object-position:center 28%;
+  border-radius:14px;display:block;margin-bottom:14px;background:var(--violeta-tinte)}
+.chip-estado{display:inline-flex;align-items:center;border-radius:999px;padding:5px 11px;
+  font-size:11.5px;font-weight:800;letter-spacing:.04em;white-space:nowrap}
+.chip-estado.ok{background:#EDF6EB;color:var(--positivo)}
+.chip-estado.obra{background:var(--violeta-tinte);color:var(--violeta-oscuro)}
+/* --- MODULAR · registro de módulos (web/modulos.json) ---
+   La estantería de la home, los chips de Explorar y la pantalla de
+   próxima apertura se pintan desde el registro: activar un módulo es
+   cambiar su estado en el JSON, sin tocar código. */
+.chip-estado.prox{background:var(--violeta-tinte);color:var(--violeta-oscuro)}
+.hero{padding-bottom:30px}
+.hero-botones{display:flex;flex-direction:column;gap:10px}
+.mod-grid{display:flex;flex-direction:column;gap:12px}
+.mod-card{display:flex;gap:14px;align-items:center;width:100%;text-align:left;
+  background:#fff;border:1px solid var(--borde);border-radius:20px;padding:16px;
+  cursor:pointer;font:inherit;box-shadow:var(--sombra)}
+.mod-card:active{transform:scale(.985)}
+.mod-card .m-ico{width:48px;height:48px;flex:none;border-radius:15px;
+  background:var(--superficie);display:flex;align-items:center;justify-content:center}
+.mod-card .m-ico svg{width:25px;height:25px;stroke:var(--negro);fill:none;
+  stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.mod-card .m-main{flex:1;min-width:0}
+.mod-card .m-nombre{font-size:16.5px;font-weight:800;display:flex;align-items:center;
+  gap:8px;flex-wrap:wrap}
+.mod-card .m-desc{font-size:13px;color:var(--gris);line-height:1.45;margin-top:3px}
+.mod-card .m-chev{flex:none;color:var(--gris);display:flex}
+.mod-card .m-chev svg{width:19px;height:19px;stroke:currentColor;fill:none;
+  stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+/* --- Explorar: chips de categoría y productos reales --- */
+.chips-cat{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 16px}
+.chip-cat{border:1.5px solid var(--borde);background:#fff;color:var(--tinta);
+  border-radius:999px;padding:10px 16px;font:inherit;font-size:13.5px;font-weight:600;
+  cursor:pointer;min-height:44px}
+.chip-cat.on{background:var(--negro);color:#fff;border-color:var(--negro)}
+.prod-grid{display:flex;flex-direction:column;gap:12px}
+.prod-card{background:#fff;border:1px solid var(--borde);border-radius:22px;overflow:hidden;
+  box-shadow:0 4px 16px rgba(13,13,13,.05)}
+.prod-card .pc-foto{width:100%;height:170px;object-fit:cover;object-position:center 30%;
+  display:block;background:var(--violeta-tinte)}
+.prod-card .pc-sinfoto{height:110px;background:linear-gradient(140deg,#F4F1FE,#E7E1FB);
+  display:flex;align-items:center;justify-content:center}
+.prod-card .pc-sinfoto svg{width:40px;height:40px;stroke:var(--violeta);fill:none;
+  stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.prod-card .pc-body{padding:15px 17px 17px}
+.prod-card h3{font-size:17.5px;font-weight:800;line-height:1.2}
+.prod-card .pc-desc{font-size:13px;color:var(--gris);margin-top:3px;line-height:1.45}
+.prod-card .pc-meta{display:flex;align-items:center;gap:8px;margin-top:11px}
+.prod-card .pc-precio{font-weight:800;font-size:16px;color:var(--negro)}
+.prod-card .pc-acciones{display:flex;gap:8px;margin-top:14px}
+.prod-card .pc-acciones .btn{padding:12px 10px;font-size:13.5px;min-height:48px}
+.btn-guardar{flex:none;width:48px;height:48px;border-radius:999px;border:1.5px solid var(--borde);
+  background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+.btn-guardar svg{width:20px;height:20px;stroke:var(--negro);fill:none;stroke-width:2;
+  stroke-linecap:round;stroke-linejoin:round}
+.btn-guardar.on{border-color:var(--violeta);background:var(--violeta-tinte)}
+.btn-guardar.on svg{stroke:var(--violeta);fill:var(--violeta)}
+.estado-honesto{border:1.5px dashed var(--borde);border-radius:20px;padding:26px 20px;
+  text-align:center;background:#FCFCFD}
+.estado-honesto h3{font-size:18px;font-weight:800;margin-bottom:8px}
+.estado-honesto p{font-size:13.5px;color:var(--gris);line-height:1.55}
+/* --- Perfil: guardados y looks en el dispositivo --- */
+.item-local{display:flex;align-items:center;gap:10px;border:1px solid var(--borde);
+  border-radius:14px;padding:12px 14px;margin-bottom:9px}
+.item-local .il-main{flex:1;min-width:0;font-size:13.5px;line-height:1.45}
+.item-local .il-main b{color:var(--negro)}
+.item-local .il-btn{flex:none;border:1.5px solid var(--negro);background:#fff;color:var(--negro);
+  border-radius:999px;padding:9px 14px;font:inherit;font-size:12.5px;font-weight:700;
+  cursor:pointer;min-height:44px}
+.item-local .il-x{flex:none;width:44px;height:44px;border:none;background:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;padding:0}
+.item-local .il-x svg{width:18px;height:18px;stroke:var(--gris);fill:none;stroke-width:2;
+  stroke-linecap:round;stroke-linejoin:round}
+.pv-foto{width:84px;height:84px;object-fit:cover;border-radius:16px;display:block;
+  background:var(--violeta-tinte)}
 </style>
 </head>
 <body>
-<header>
-  <div class="wrap" style="padding:0">
-    <div class="marca">LA ASISTENTA</div>
-    <h1>Tu belleza,<br><em>mejor entendida</em></h1>
-    <p>Cuéntanos qué buscas, analiza tus cejas con IA y reserva en la agenda real del salón.</p>
-  </div>
-</header>
+<div id="banner-offline" role="status">Sin conexión: estás viendo la portada guardada.
+El análisis y las reservas necesitan internet y volverán en cuanto vuelva la señal.</div>
 
 <div class="wrap">
-  <div class="progreso" id="progreso"><i></i><i></i><i></i><i></i></div>
+  <div class="cabecera">
+    <span class="marca"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#6950f3" d="M12 1c.7 6.3 4.6 10.2 11 11-6.4.8-10.3 4.7-11 11-.7-6.3-4.6-10.2-11-11C7.4 11.2 11.3 7.3 12 1z"/></svg>ASISTENTA</span>
+    <button class="btn-perfil-ico" id="btn-cab-perfil" aria-label="Ir a tu perfil"><svg viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg></button>
+  </div>
+  <div class="progreso" id="progreso" style="display:none"><i></i><i></i><i></i><i></i></div>
 
-  <!-- 1 · INICIO -->
+  <!-- 1 · INICIO (MODULAR): la plataforma se presenta ampliable y
+       Belleza — el único módulo activo — manda en la primera
+       pantalla. La estantería de módulos se pinta desde el registro
+       (/api/modulos), no a mano. -->
   <section class="pantalla activa" id="p-inicio">
-    <div class="tarjeta">
-      <h2>¿Empezamos por tus cejas?</h2>
-      <p>Sube una foto y la IA de La Asistenta — Muse Spark — la analiza y te
-      recomienda el servicio de la carta que mejor encaja contigo. Después
-      reservas en el momento, con huecos reales.</p>
-      <p class="mini">Sin registro. Tu foto no se guarda: se procesa para el
-      análisis y se descarta.</p>
+    <div class="hero">
+      <svg class="hero-estrella" viewBox="0 0 24 24" aria-hidden="true"><path fill="#6950f3" d="M12 1c.7 6.3 4.6 10.2 11 11-6.4.8-10.3 4.7-11 11-.7-6.3-4.6-10.2-11-11C7.4 11.2 11.3 7.3 12 1z"/></svg>
+      <div class="hero-kicker">PLATAFORMA MODULAR · BELLEZA ACTIVA</div>
+      <h1>Tu asistenta de belleza, con IA de verdad</h1>
+      <p class="hero-sub">Hoy funciona <b>Ari Vivas Beauty</b>: análisis de
+      cejas con IA y reservas reales en su agenda. Los próximos módulos
+      llegarán cuando estén probados, no antes.</p>
+      <div class="hero-regla"></div>
+      <div class="hero-botones">
+        <button class="btn btn-primario" id="btn-hero-reservar">Ver servicios y reservar</button>
+        <button class="btn btn-lavanda" id="btn-hero-analizar">
+          <svg viewBox="0 0 24 24"><path d="M12 3c.4 3.9 1.9 5.4 5.8 5.8-3.9.4-5.4 1.9-5.8 5.8-.4-3.9-1.9-5.4-5.8-5.8C10.1 8.4 11.6 6.9 12 3z"/><path d="M19 15c.2 2 .9 2.7 2.9 2.9-2 .2-2.7.9-2.9 2.9-.2-2-.9-2.7-2.9-2.9 2-.2 2.7-.9 2.9-2.9z"/></svg>
+          Analizar mis cejas con IA
+        </button>
+      </div>
     </div>
-    <div class="tarjeta">
-      <h2>La carta del salón</h2>
-      <div class="carta-lista" id="carta-inicio"><p class="mini">Cargando la carta real…</p></div>
-      <p class="mini" id="horario-txt" style="margin-top:10px"></p>
+
+    <h2 class="seccion-titulo" style="margin-top:0">Disponible ahora · Belleza</h2>
+    <p class="seccion-sub">El módulo activo de la plataforma: el salón
+    real, con su carta, sus huecos y su análisis con IA.</p>
+    <div class="tarjeta tarjeta-cejas">
+      <img class="tc-foto" src="/img/salon.jpg" alt="Arianna, de Ari Vivas Beauty, diseñando las cejas de una clienta en su estudio">
+      <span class="chip-estado ok">Disponible ahora</span>
+      <h2 style="margin-top:10px">Probador de cejas</h2>
+      <p>Análisis con IA y reserva real en <b>Ari Vivas Beauty</b>: sube una foto,
+      la IA analiza tus cejas y te recomienda el servicio que mejor encaja.
+      Después reservas en la agenda real del salón, sin registro.</p>
+      <p class="mini" style="margin-top:8px">Tu foto no se guarda: se procesa para
+      el análisis y se descarta.</p>
+      <div style="height:14px"></div>
+      <button class="btn btn-primario" id="btn-ir-consentimiento">Analizar mis cejas con una foto</button>
+      <div style="height:10px"></div>
+      <button class="btn btn-fantasma" id="btn-home-cejas">Ver servicios y reservar</button>
+      <button class="btn btn-lavanda" id="btn-instalar">Instalar la app en tu móvil</button>
     </div>
-    <button class="btn btn-primario" id="btn-ir-consentimiento">Analizar mis cejas con una foto</button>
-    <div style="height:10px"></div>
-    <button class="btn btn-fantasma" id="btn-ir-reserva-directa">Prefiero reservar directamente</button>
+
+    <h2 class="seccion-titulo">Ya puedes probarlo: cejas</h2>
+    <p class="seccion-sub">El salón y sus servicios reales, con precio y duración.
+    Toca una tarjeta para reservar con huecos reales.</p>
+    <div class="carrusel" id="carrusel-reco"><div class="esqueleto" aria-hidden="true"><i></i><i></i></div></div>
+    <p class="mini">Es el catálogo real del módulo de Belleza: la carta
+    del salón, servida desde su agenda.</p>
+
+    <h2 class="seccion-titulo">Módulos de La Asistenta</h2>
+    <p class="seccion-sub">La plataforma crece por módulos. Solo está
+    activo lo que funciona de verdad; el resto se anuncia como lo que
+    es: próximo.</p>
+    <div class="mod-grid" id="estanteria-modulos"><div class="esqueleto" aria-hidden="true"><i></i><i></i></div></div>
+    <p class="mini" style="margin-top:12px">Un módulo se activa desde el
+    registro central de la plataforma cuando sus dependencias están
+    cumplidas y verificadas. Sin catálogos ni funciones de mentira.</p>
+  </section>
+
+  <!-- 1b · PRÓXIMA APERTURA: pantalla común de los módulos no
+       activos. Se rellena desde el registro (/api/modulos): ningún
+       texto de módulo vive codificado aquí. -->
+  <section class="pantalla" id="p-proxima">
+    <button class="enlace" id="btn-proxima-volver">← Volver al inicio</button>
+    <div class="tarjeta" style="text-align:center;padding:34px 22px">
+      <div id="proxima-ico" style="width:52px;height:52px;border-radius:16px;background:var(--violeta-tinte);display:flex;align-items:center;justify-content:center;margin:0 auto 14px"></div>
+      <span class="chip-estado prox">Próximamente</span>
+      <h2 id="proxima-titulo" style="margin-top:10px">Módulo</h2>
+      <p id="proxima-que"></p>
+      <p class="mini" id="proxima-preparando" style="margin-top:10px"></p>
+      <p class="mini" style="margin-top:10px">Sin fechas inventadas: el
+      módulo se activará cuando esté verificado de verdad, y aparecerá
+      aquí sin que tengas que hacer nada.</p>
+      <div style="height:16px"></div>
+      <button class="btn btn-primario" id="btn-proxima-belleza">Ver lo que ya funciona: belleza</button>
+    </div>
+  </section>
+
+  <!-- 1c · EXPLORAR: el catálogo real que sirve el servidor -->
+  <section class="pantalla" id="p-explorar">
+    <h2 class="seccion-titulo" style="margin-top:2px">Explorar</h2>
+    <form class="buscador" id="form-buscar-exp" role="search">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" />
+  <path d="m21 21-4.3-4.3" /></svg>
+      <textarea id="inp-buscar-exp" rows="2" placeholder="Buscar en el catálogo"
+             aria-label="Buscar en el catálogo" autocomplete="off"></textarea>
+      <button type="submit" class="buscador-btn">Buscar</button>
+    </form>
+    <div class="chips-cat" id="chips-cat"></div>
+    <div class="prod-grid" id="explorar-grid"><div class="esqueleto" aria-hidden="true"><i></i><i></i><i></i></div></div>
+    <div class="estado-honesto" id="explorar-vacio" style="display:none">
+      <h3 id="vacio-titulo">Sin productos verificados todavía</h3>
+      <p>Este módulo está activo, pero todavía no tiene productos
+      verificados cargados. Cuando los haya, aparecerán aquí: sin
+      productos inventados.</p>
+    </div>
+    <p class="mini" id="sin-resultados-exp" style="display:none"></p>
+    <button class="fila-servicio" id="btn-exp-salon" style="margin-top:16px">
+      <span class="fs-main"><span class="fs-nombre">El salón · Ari Vivas Beauty</span>
+      <span class="fs-meta" style="display:block">Su espacio, sus vídeos de TikTok y lo que dicen sus clientas</span></span>
+      <span class="fs-precio">→</span>
+    </button>
+  </section>
+
+  <!-- 1d · PROBADOR: hub de verticales -->
+  <section class="pantalla" id="p-probador">
+    <h2 class="seccion-titulo" style="margin-top:2px">Tu probador</h2>
+    <p class="seccion-sub">El probador que funciona hoy es el de cejas,
+    del módulo de Belleza. Los probadores de los próximos módulos se
+    anunciarán aquí cuando estén activos.</p>
+
+    <div class="tarjeta tarjeta-cejas">
+      <img class="tc-foto" src="/img/diseno.jpg" alt="Resultado de un diseño de cejas de Ari Vivas Beauty">
+      <span class="chip-estado ok">Disponible ahora</span>
+      <h2 style="margin-top:10px">Probador de cejas</h2>
+      <p>Sube una foto y la IA de La Asistenta — Muse Spark — analiza tus cejas
+      y te recomienda el servicio real que mejor encaja contigo. Después
+      reservas en la agenda real de Ari Vivas Beauty.</p>
+      <div style="height:12px"></div>
+      <button class="btn btn-primario" id="btn-prob-cejas">Probar mis cejas</button>
+    </div>
+
+    <div class="tarjeta">
+      <span class="chip-estado prox">Próximamente</span>
+      <h2 style="margin-top:10px">Probador de moda</h2>
+      <p>Será un módulo nuevo de la plataforma, con su propio motor y su
+      catálogo real verificado. Hoy no está activo y no prepara fotos:
+      cuando lo esté, se anunciará aquí.</p>
+      <div style="height:12px"></div>
+      <button class="btn btn-fantasma" id="btn-prob-moda">Ver qué traerá</button>
+    </div>
+
+    <div class="tarjeta">
+      <h2>¿Tienes una cita de cejas?</h2>
+      <p>Si reservaste desde esta app, tu cita está guardada en este dispositivo.</p>
+      <div style="height:12px"></div>
+      <button class="btn btn-fantasma" id="btn-prob-micita">Ver mi cita</button>
+    </div>
   </section>
 
   <!-- 2 · CONSENTIMIENTO -->
@@ -229,7 +782,9 @@ footer{margin-top:auto;padding:18px;text-align:center;font-size:11.5px;color:var
     <div class="cargando" id="cargando-analisis">
       <div class="rueda"></div>
       <p><b>La Asistenta está mirando tu foto…</b></p>
-      <p class="mini">El análisis real tarda entre 15 y 45 segundos. No cierres esta pantalla.</p>
+      <p class="mini">Lleva <span id="seg-cargando">0</span> s. El análisis es real
+      y a veces tarda hasta 2 minutos: deja esta pantalla abierta y la
+      respuesta llega sola, sin recargar.</p>
     </div>
     <button class="btn btn-primario" id="btn-analizar" disabled>Analizar mis cejas</button>
     <button class="enlace" id="btn-volver-1">← Volver</button>
@@ -248,6 +803,8 @@ footer{margin-top:auto;padding:18px;text-align:center;font-size:11.5px;color:var
       <h3 id="reco-nombre"></h3>
       <div class="datos" id="reco-datos"></div>
       <p id="reco-motivo" style="margin-top:8px"></p>
+      <div style="height:14px"></div>
+      <button class="btn btn-primario" id="btn-reservar-reco">Reservar este servicio</button>
     </div>
     <div class="tarjeta" id="alt-tarjeta">
       <h2 style="font-size:18px">Alternativa</h2>
@@ -257,58 +814,406 @@ footer{margin-top:auto;padding:18px;text-align:center;font-size:11.5px;color:var
       <button class="btn btn-fantasma btn-peq" id="btn-elegir-alt">Reservar la alternativa</button>
     </div>
     <div class="aviso" id="res-aviso"></div>
-    <button class="btn btn-verde" id="btn-reservar-reco">Reservar la recomendación</button>
+    <button class="btn btn-fantasma" id="btn-guardar-look">Guardar este look en Mis looks</button>
+    <p class="mini" id="look-guardado" style="display:none;margin-top:8px">Guardado en Perfil → Mis looks (sin tu foto: solo la recomendación).</p>
     <div style="height:10px"></div>
     <button class="btn btn-fantasma" id="btn-elegir-otro">Elegir otro servicio</button>
     <button class="enlace" id="btn-reiniciar">Borrar mi foto y empezar de nuevo</button>
   </section>
 
-  <!-- 5 · RESERVA -->
+  <!-- 5 · RESERVA POR PASOS -->
   <section class="pantalla" id="p-reserva">
-    <div class="tarjeta">
-      <h2>Tu reserva</h2>
-      <label class="campo" for="sel-servicio">Servicio</label>
-      <select id="sel-servicio"></select>
-      <label class="campo" for="inp-fecha">Día</label>
-      <input type="date" id="inp-fecha">
-      <label class="campo">Hora (huecos reales de la agenda)</label>
-      <div class="huecos" id="huecos"><p class="mini">Elige un día para ver los huecos libres.</p></div>
+    <div class="pasos-ind" id="pasos-ind">
+      <div class="pi on" data-paso="1"><span class="n">1</span>Servicios</div>
+      <div class="pi" data-paso="2"><span class="n">2</span>Día y hora</div>
+      <div class="pi" data-paso="3"><span class="n">3</span>Tus datos</div>
+    </div>
+    <div class="resumen-mini" id="resumen-mini">
+      <span class="rm-etq">TU CITA</span>
+      <span class="rm-txt" id="rm-txt">Elige uno o varios servicios para empezar</span>
+      <span class="rm-precio" id="rm-precio"></span>
+    </div>
+
+    <!-- Paso 1 · servicios (selección múltiple: una cita, total sumado) -->
+    <div class="paso-panel activo" id="paso-1">
+      <h2 class="seccion-titulo" style="margin-top:2px">1 · Elige los servicios</h2>
+      <p class="seccion-sub">Precios y duraciones reales de la carta del salón.
+      Toca para añadir o quitar: puedes combinar varios en <b>una sola cita</b>
+      y el total se suma solo.</p>
+      <div id="res-servicios"><div class="esqueleto" aria-hidden="true"><i></i><i></i><i></i></div></div>
+      <button class="btn btn-primario" id="btn-paso1-siguiente" disabled>Continuar al día y la hora</button>
+    </div>
+
+    <!-- Paso 2 · día y hora: calendario de mes + lista de horas con radios -->
+    <div class="paso-panel" id="paso-2">
+      <h2 class="seccion-titulo" style="margin-top:2px">2 · Elige día y hora</h2>
+      <p class="seccion-sub">Huecos reales de la agenda del salón, en directo.
+      Solo aparecen los inicios libres para la duración total de tu selección.</p>
+      <div class="cal-cab">
+        <button class="cal-nav" id="cal-ant" aria-label="Mes anterior">
+          <svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6" /></svg>
+        </button>
+        <span class="cal-mes" id="cal-mes"></span>
+        <button class="cal-nav" id="cal-sig" aria-label="Mes siguiente">
+          <svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6" /></svg>
+        </button>
+      </div>
+      <div class="cal-rejilla" id="cal-rejilla"></div>
+      <input type="hidden" id="inp-fecha">
+      <label class="campo">Hora</label>
+      <div id="huecos"><p class="mini">Elige un día para ver los huecos libres.</p></div>
+      <div class="tarjeta" id="tarjeta-espera" style="display:none;margin-top:16px">
+        <h2>¿Sin hueco ese día?</h2>
+        <p>Apúntate a la <b>lista de espera</b>: si se libera un hueco de tu
+        servicio principal en ese día, tu petición quedará marcada como prioritaria en el
+        salón. Te seremos honestas: <b>no</b> te escribiremos automáticamente;
+        si nos escribes por WhatsApp, La Asistenta sabrá que tu hueco se liberó.</p>
+        <div id="espera-form">
+          <label class="campo" for="esp-nombre">Tu nombre</label>
+          <input type="text" id="esp-nombre" autocomplete="name" placeholder="Ej.: Carmen">
+          <label class="campo" for="esp-telefono">Tu teléfono (WhatsApp)</label>
+          <input type="tel" id="esp-telefono" autocomplete="tel" placeholder="Ej.: 600 123 456">
+          <div class="error-caja" id="error-espera" style="margin-top:14px"></div>
+          <button class="btn btn-lavanda" id="btn-espera">Apuntarme a la lista de espera</button>
+        </div>
+        <div id="espera-ok" style="display:none">
+          <p><b>¡Ya estás en la lista de espera!</b> Si se libera un hueco,
+          quedará marcado para ti en el salón. Escríbenos por WhatsApp cuando
+          quieras y comprobamos si ya se liberó.</p>
+        </div>
+      </div>
+      <div style="height:16px"></div>
+      <button class="btn btn-primario" id="btn-paso2-siguiente" disabled>Continuar a tus datos</button>
+      <button class="enlace" id="btn-paso2-volver">← Cambiar el servicio</button>
+    </div>
+
+    <!-- Paso 3 · tus datos y confirmación -->
+    <div class="paso-panel" id="paso-3">
+      <h2 class="seccion-titulo" style="margin-top:2px">3 · Tus datos</h2>
+      <p class="seccion-sub">Solo tu nombre para la agenda. El teléfono es opcional, por si hubiera cambios.</p>
       <label class="campo" for="inp-nombre">Tu nombre</label>
       <input type="text" id="inp-nombre" autocomplete="name" placeholder="Ej.: Carmen">
       <label class="campo" for="inp-telefono">Teléfono (opcional)</label>
       <input type="tel" id="inp-telefono" autocomplete="tel" placeholder="Para avisarte si hay cambios">
-      <div style="height:16px"></div>
-      <div class="resumen" id="resumen-reserva">Elige servicio, día y hora para ver el resumen.</div>
+      <label class="campo" for="inp-notas">Notas para el salón (opcional)</label>
+      <textarea id="inp-notas" rows="2" placeholder="Ej.: es mi primera vez con henna"></textarea>
+      <div class="tu-cita">
+        <div class="tc-etq">TU CITA</div>
+        <div id="tc-lineas"></div>
+        <div class="tc-total"><span>Total</span><b id="tc-total">—</b></div>
+        <div class="tc-fila"><span>Día</span><b id="tc-fecha">—</b></div>
+        <div class="tc-fila"><span>Hora</span><b id="tc-hora">—</b></div>
+        <div class="tc-fila"><span>Duración total</span><b id="tc-duracion">—</b></div>
+        <div class="tc-fila"><span>Para</span><b id="tc-nombre">—</b></div>
+        <div class="tc-fila"><span>Código de cita</span><b>Se crea al confirmar</b></div>
+      </div>
+      <p class="mini" style="margin-top:12px">Reservar es gratis y no necesitas
+      registro. Si luego necesitas <b>cambiar o cancelar</b> tu cita, podrás
+      hacerlo cuando quieras desde tu enlace personal, sin coste.</p>
       <div style="height:14px"></div>
       <label class="check">
         <input type="checkbox" id="check-confirma">
         <span>Confirmo que quiero reservar esta cita. Sé que quedará escrita en la agenda del salón.</span>
       </label>
+      <div class="error-caja" id="error-reserva" style="margin-top:14px"></div>
+      <button class="btn btn-primario" id="btn-confirmar" disabled>Confirmar reserva</button>
+      <button class="enlace" id="btn-volver-2">← Cambiar el día o la hora</button>
     </div>
-    <div class="error-caja" id="error-reserva"></div>
-    <button class="btn btn-verde" id="btn-confirmar" disabled>Confirmar reserva</button>
-    <button class="enlace" id="btn-volver-2">← Volver</button>
   </section>
 
   <!-- 6 · CONFIRMADA -->
   <section class="pantalla" id="p-confirmada">
     <div class="tarjeta confirmada">
-      <div class="tick">✓</div>
+      <div class="tick"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg></div>
       <h2>¡Cita confirmada!</h2>
       <p id="conf-detalle"></p>
-      <p class="mini" style="margin-top:10px">La hemos verificado en la agenda real del salón: está escrita y confirmada.</p>
-      <p class="mini">Si necesitas cambiarla o cancelarla, escribe al salón por
-      <a href="https://wa.me/584249134367" target="_blank" rel="noopener">WhatsApp</a>.</p>
+      <div style="height:14px"></div>
+      <span class="codigo-grande" id="conf-codigo" style="display:none"></span>
+      <p class="mini" style="margin-top:12px">La hemos verificado en la agenda real del salón: está escrita y confirmada.</p>
+      <div id="conf-enlace-bloque" style="display:none;text-align:left;margin-top:14px">
+        <div class="resumen" id="conf-enlace" style="word-break:break-all;font-size:12.5px"></div>
+        <p class="mini" style="margin-top:8px">Tu enlace personal: desde ahí puedes <b>ver tu cita,
+        responder 2 preguntas de preparación, cambiarla o cancelarla</b>. Guárdalo bien: no lo compartas.</p>
+        <div style="height:10px"></div>
+        <div class="fila-botones">
+          <a class="btn btn-primario" id="conf-ver-cita" href="#" target="_blank" rel="noopener" style="text-decoration:none">Ver mi cita</a>
+          <button class="btn btn-fantasma" id="btn-copiar-enlace">Copiar mi enlace</button>
+        </div>
+        <p class="mini" style="margin-top:8px">Tu cita también queda guardada en este dispositivo:
+        la verás en <b>Perfil → Mi cita</b>.</p>
+        <p class="mini" id="conf-copiado" style="display:none;margin-top:6px">¡Enlace copiado! Guárdalo en tus notas o en favoritos.</p>
+      </div>
+      <button class="btn btn-fantasma" id="btn-ics" style="display:none;margin-top:14px">
+        <svg viewBox="0 0 24 24"><path d="M8 2v4" /><path d="M16 2v4" /><rect width="18" height="18" x="3" y="4" rx="2" /><path d="M3 10h18" /><path d="M12 11v6" /><path d="m9 14 3 3 3-3" /></svg>
+        Añadir al calendario
+      </button>
+      <p class="mini" id="conf-ics" style="display:none;margin-top:8px">Se descarga el archivo de tu cita (.ics): ábrelo para guardarla en tu calendario.</p>
+      <p class="mini" style="margin-top:10px">También puedes escribir al salón por
+      <a href="https://wa.me/584249134367" target="_blank" rel="noopener">WhatsApp</a> citando tu código.</p>
     </div>
     <button class="btn btn-primario" id="btn-terminar">Terminar</button>
+  </section>
+
+  <!-- 7 · EL SALÓN -->
+  <section class="pantalla" id="p-salon">
+    <div class="salon-hero">
+      <img src="/img/salon.jpg" alt="Arianna, de Ari Vivas Beauty, diseñando las cejas de una clienta en su estudio">
+      <button class="hero-flot izq" id="btn-salon-atras" aria-label="Volver al inicio">
+        <svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6" /></svg>
+      </button>
+      <button class="hero-flot der" id="btn-salon-compartir" aria-label="Compartir el salón">
+        <svg viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" /><path d="m16 6-4-4-4 4" /><path d="M12 2v13" /></svg>
+      </button>
+    </div>
+    <h2 class="salon-titulo">Ari Vivas Beauty</h2>
+    <p class="salon-sub">Salón de cejas · <em>Tu belleza, mejor entendida</em></p>
+    <div class="chips" style="margin:12px 0 4px">
+      <span class="chip-dato" id="salon-chip-horario">Horario…</span>
+      <span class="chip-dato" id="salon-chip-servicios">Servicios…</span>
+    </div>
+    <p class="salon-txt">Un salón especializado en cejas: diseño, henna y
+    laminación. Aquí puedes analizar tus cejas con la IA de La Asistenta,
+    ver los huecos reales de la agenda y reservar al momento, sin registro.</p>
+    <div class="tarjeta tarjeta-analisis" style="margin-top:16px">
+      <div class="ta-ico"><svg viewBox="0 0 24 24"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z" />
+  <path d="M20 3v4" />
+  <path d="M22 5h-4" />
+  <path d="M4 17v2" />
+  <path d="M5 18H3" /></svg></div>
+      <h2>¿No sabes qué servicio elegir?</h2>
+      <p>Analiza tus cejas con la IA de La Asistenta y te recomendamos el
+      servicio de este salón que mejor encaja contigo.</p>
+      <p class="mini">Tu foto no se guarda: se procesa para el análisis y se descarta.</p>
+      <div style="height:12px"></div>
+      <button class="btn btn-lavanda" id="btn-salon-analisis">Analizar mis cejas</button>
+    </div>
+    <h3 class="seccion-titulo">Servicios</h3>
+    <p class="seccion-sub">Toca el círculo para añadir o quitar servicios de tu cita:
+    puedes combinar varios y verás el total antes de reservar.</p>
+    <div id="salon-servicios"><div class="esqueleto" aria-hidden="true"><i></i><i></i><i></i></div></div>
+    <div class="salon-barra" id="salon-barra">
+      <div class="sb-txt"><b id="sb-n">1 servicio</b><span id="sb-detalle"></span></div>
+      <button class="sb-btn" id="btn-salon-reservar">Reservar ahora</button>
+    </div>
+
+    <h3 class="seccion-titulo" id="salon-videos">Vídeos</h3>
+    <p class="seccion-sub">Trabajos reales de cejas en su TikTok oficial,
+    <b>@arivivasbeauty</b>. Toca un vídeo para verlo aquí mismo.</p>
+    <div class="videos-fila" id="videos-fila">
+      <button class="video-card" data-tiktok="7692179415891070229" data-titulo="Bienvenidas a mi Home Studio">
+        <img src="/img/salon.jpg" alt="Arianna trabajando en su Home Studio" loading="lazy">
+        <span class="vc-tag">TikTok</span>
+        <span class="vc-play"><svg viewBox="0 0 24 24"><polygon points="6 3 20 12 6 21 6 3" /></svg></span>
+        <span class="vc-tit">Bienvenidas a mi Home Studio</span>
+      </button>
+      <button class="video-card" data-tiktok="7700590054648925461" data-titulo="Técnicas y resultados reales">
+        <img src="/img/laminacion.jpg" alt="Cejas laminadas de Ari Vivas Beauty" loading="lazy">
+        <span class="vc-tag">TikTok</span>
+        <span class="vc-play"><svg viewBox="0 0 24 24"><polygon points="6 3 20 12 6 21 6 3" /></svg></span>
+        <span class="vc-tit">Técnicas y resultados reales</span>
+      </button>
+      <button class="video-card" data-tiktok="7690387352631446804" data-titulo="Mis trabajos en Madrid">
+        <img src="/img/diseno.jpg" alt="Diseño de cejas de Ari Vivas Beauty" loading="lazy">
+        <span class="vc-tag">TikTok</span>
+        <span class="vc-play"><svg viewBox="0 0 24 24"><polygon points="6 3 20 12 6 21 6 3" /></svg></span>
+        <span class="vc-tit">Mis trabajos en Madrid</span>
+      </button>
+      <button class="video-card" data-tiktok="7687377779133779221" data-titulo="Resultados que hablan por sí solos">
+        <img src="/img/henna.jpg" alt="Cejas con tinte de Ari Vivas Beauty" loading="lazy">
+        <span class="vc-tag">TikTok</span>
+        <span class="vc-play"><svg viewBox="0 0 24 24"><polygon points="6 3 20 12 6 21 6 3" /></svg></span>
+        <span class="vc-tit">Resultados que hablan por sí solos</span>
+      </button>
+      <button class="video-card" data-tiktok="7687338935386672405" data-titulo="Tour por The Lounge">
+        <img src="/img/lounge.jpg" alt="The Lounge de Ari Vivas Beauty" loading="lazy">
+        <span class="vc-tag">TikTok</span>
+        <span class="vc-play"><svg viewBox="0 0 24 24"><polygon points="6 3 20 12 6 21 6 3" /></svg></span>
+        <span class="vc-tit">Tour por The Lounge</span>
+      </button>
+    </div>
+    <p class="mini">Los vídeos se reproducen con el reproductor oficial de TikTok
+    y siempre son los actuales de su cuenta.</p>
+
+    <h3 class="seccion-titulo">Lo que dicen sus clientas</h3>
+    <p class="seccion-sub">Testimonios reales, publicados en su propia web,
+    arivivasbeauty.com.</p>
+    <div class="resena">
+      <svg viewBox="0 0 24 24"><path d="M16 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z" /><path d="M5 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z" /></svg>
+      <p>¡La henna para cejas de Henna Menela es un dream! Logré un color súper
+      natural y definido. El kit viene con todo lo necesario y el tutorial
+      online me ayudó un montón. Envío rapidísimo y producto de calidad.
+      Lo recomiendo 100%</p>
+      <div class="r-nombre">María</div>
+    </div>
+    <div class="resena">
+      <svg viewBox="0 0 24 24"><path d="M16 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z" /><path d="M5 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z" /></svg>
+      <p>Un producto 10/10. Es de muy buena calidad, fácil de aplicar y el
+      resultado es natural y hermoso. Me sorprendió lo rápido que llegó mi
+      pedido. Además, la atención que me dieron fue excelente</p>
+      <div class="r-nombre">Carmen</div>
+    </div>
+    <div class="resena">
+      <svg viewBox="0 0 24 24"><path d="M16 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z" /><path d="M5 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z" /></svg>
+      <p>El tinte de cejas es un must. Fácil de aplicar, color preciso y dura
+      muchísimo. Viene con todo lo necesario para una aplicación perfecta.
+      Súper recomendado para quienes buscan definir y verse bellas.</p>
+      <div class="r-nombre">Isabel</div>
+    </div>
+
+    <div class="lounge-card">
+      <img src="/img/lounge.jpg" alt="The Lounge, el rincón de café de Ari Vivas Beauty" loading="lazy">
+      <div class="lc-body">
+        <h3>The Lounge</h3>
+        <p>Antes o después de tu cita, un pequeño rincón de calma con café,
+        infusiones y agua, creado para que desconectes y te sientas como en casa.</p>
+      </div>
+    </div>
+
+    <div class="tarjeta" style="margin-top:18px">
+      <h2>Habla con el salón</h2>
+      <p>Por WhatsApp te atiende La Asistenta: te cuenta los servicios,
+      mira los huecos reales de la agenda y te reserva la cita al momento.</p>
+      <div style="height:14px"></div>
+      <a class="btn btn-verde" href="https://wa.me/584249134367" target="_blank" rel="noopener"
+         style="text-decoration:none">Escribir por WhatsApp</a>
+      <p class="mini" style="margin-top:10px">Se abre WhatsApp con el número público del salón.</p>
+      <p class="mini" style="margin-top:8px"><b>Horario:</b> <span id="salon-horario">Cargando el horario real…</span></p>
+    </div>
+    <button class="enlace" id="btn-salon-volver">← Volver al inicio</button>
+  </section>
+
+  <!-- 8 · MI CITA -->
+  <section class="pantalla" id="p-micita">
+    <div class="tarjeta" id="micita-vacia">
+      <h2>Mi cita</h2>
+      <p>Cuando confirmas una reserva <b>desde esta app</b>, tu enlace
+      personal se guarda en este dispositivo y tu cita aparece aquí.</p>
+      <p>Si reservaste por <b>WhatsApp</b>, no necesitas esta pantalla:
+      tu enlace está en la propia conversación con el salón, y desde él
+      puedes ver, cambiar o cancelar tu cita.</p>
+      <div style="height:14px"></div>
+      <button class="btn btn-primario" id="btn-micita-reservar">Reservar ahora</button>
+    </div>
+    <div class="tarjeta" id="micita-datos" style="display:none">
+      <h2>Tu cita guardada</h2>
+      <div class="resumen" id="micita-resumen"></div>
+      <p class="mini" style="margin-top:10px">Desde tu enlace personal puedes ver la cita,
+      responder 2 preguntas de preparación, cambiarla o cancelarla.</p>
+      <div style="height:12px"></div>
+      <div class="fila-botones">
+        <a class="btn btn-primario" id="micita-abrir" href="#" target="_blank" rel="noopener" style="text-decoration:none">Abrir mi cita</a>
+        <button class="btn btn-fantasma" id="micita-copiar">Copiar enlace</button>
+      </div>
+      <p class="mini" id="micita-copiado" style="display:none;margin-top:8px">¡Enlace copiado!</p>
+      <button class="enlace" id="micita-borrar">Quitar esta cita de este dispositivo</button>
+    </div>
+    <button class="enlace" id="btn-micita-volver">← Volver</button>
+  </section>
+
+  <!-- 9 · PERFIL: tus datos en ESTE dispositivo, contacto y privacidad -->
+  <section class="pantalla" id="p-perfil">
+    <h2 class="seccion-titulo" style="margin-top:2px">Perfil</h2>
+    <div class="tarjeta">
+      <h2>Tus datos</h2>
+      <p class="mini">Tu nombre y tu teléfono se guardan <b>solo en este
+      dispositivo</b> (nunca salen de tu móvil ni se suben a ningún
+      servidor) y sirven para rellenar tus reservas sin escribirlos
+      cada vez. Al reservar, se actualizan solos con los de tu cita.</p>
+      <label class="campo" for="perf-nombre">Tu nombre</label>
+      <input type="text" id="perf-nombre" autocomplete="name" placeholder="Ej.: Carmen">
+      <label class="campo" for="perf-telefono">Tu teléfono</label>
+      <input type="tel" id="perf-telefono" autocomplete="tel" placeholder="Ej.: 600 123 456">
+      <p class="mini" id="perfil-estado" style="margin-top:12px"></p>
+      <div style="height:12px"></div>
+      <button class="btn btn-primario" id="btn-perfil-guardar">Guardar en este dispositivo</button>
+      <button class="enlace" id="btn-perfil-borrar" style="color:var(--error)">Borrar mis datos de este dispositivo</button>
+    </div>
+    <div class="tarjeta">
+      <h2>Contacto del salón</h2>
+      <p>Ari Vivas Beauty · WhatsApp público del salón: te atiende
+      La Asistenta y puede reservarte la cita en la misma conversación.</p>
+      <div style="height:12px"></div>
+      <a class="btn btn-verde" href="https://wa.me/584249134367" target="_blank" rel="noopener"
+         style="text-decoration:none">Escribir por WhatsApp</a>
+      <p class="mini" style="margin-top:10px"><b>Horario:</b> <span id="perfil-horario">Cargando el horario real…</span></p>
+    </div>
+    <div class="tarjeta">
+      <h2>Mi cita</h2>
+      <p>Tu última reserva hecha desde esta app, guardada en este dispositivo.</p>
+      <div style="height:12px"></div>
+      <button class="btn btn-primario" id="btn-perfil-micita">Ver mi cita</button>
+    </div>
+    <div class="tarjeta">
+      <h2>¿Eres la profesional?</h2>
+      <p>El área profesional de Ari Vivas Beauty: las citas de hoy, la
+      agenda, la lista de espera y los mensajes por enviar. Se entra con
+      la clave del negocio.</p>
+      <div style="height:12px"></div>
+      <a class="btn btn-fantasma" href="/profesional" style="text-decoration:none">Entrar al área profesional</a>
+    </div>
+    <div class="tarjeta">
+      <h2>Mis guardados</h2>
+      <p class="mini" style="margin-bottom:12px">Productos que has guardado desde
+      Explorar. Viven solo en este dispositivo.</p>
+      <div id="guardados-lista"></div>
+    </div>
+    <div class="tarjeta">
+      <h2>Mis looks</h2>
+      <p class="mini" style="margin-bottom:12px">Resultados de tus análisis de
+      cejas que decidas guardar. Sin fotos: solo la recomendación.</p>
+      <div id="looks-lista"></div>
+    </div>
+    <div class="tarjeta">
+      <h2>Tu privacidad</h2>
+      <p>La foto del análisis de cejas <b>no se guarda</b>: se procesa en
+      el momento para recomendarte un servicio y se descarta. No hay
+      cuentas ni contraseñas: tu cita vive en tu enlace personal y,
+      si la hiciste desde esta app, también en este dispositivo
+      (Perfil → «Mi cita»). Tu foto de perfil visual, si la creas,
+      también vive solo aquí y puedes borrarla cuando quieras.</p>
+    </div>
   </section>
 </div>
 
 <footer>
-  LA ASISTENTA · «Tu belleza, mejor entendida»<br>
+  LA ASISTENTA · «Descubre cómo te quedaría antes de comprarlo»<br>
   Experiencia de demostración del Meta AI Developer Hackathon 2026.<br>
-  Análisis con Muse Spark · Reservas reales en la agenda del salón piloto.
+  Probador de cejas con Muse Spark · Reservas reales en Ari Vivas Beauty.
 </footer>
+
+<div class="modal-tt" id="modal-tt" role="dialog" aria-modal="true" aria-label="Vídeo de TikTok">
+  <div class="modal-tt-caja">
+    <button class="modal-tt-x" id="modal-tt-x" aria-label="Cerrar el vídeo">
+      <svg viewBox="0 0 24 24"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+    </button>
+    <div class="modal-tt-marco" id="modal-tt-marco"></div>
+    <p class="modal-tt-tit" id="modal-tt-tit"></p>
+    <p class="mini" style="margin-bottom:10px">De su TikTok oficial, @arivivasbeauty.</p>
+    <a class="btn btn-primario" id="modal-tt-link" href="#" target="_blank" rel="noopener"
+       style="text-decoration:none">Abrir en TikTok</a>
+  </div>
+</div>
+
+<nav class="barra-nav" aria-label="Navegación principal">
+  <div class="fila">
+    <button class="nav-btn on" id="nav-inicio">
+      <svg viewBox="0 0 24 24"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" /><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /></svg>
+      Inicio
+    </button>
+    <button class="nav-btn" id="nav-explorar">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
+      Explorar
+    </button>
+    <button class="nav-btn" id="nav-probador">
+      <svg viewBox="0 0 24 24"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z" /><path d="M20 3v4" /><path d="M22 5h-4" /><path d="M4 17v2" /><path d="M5 18H3" /></svg>
+      Probador
+    </button>
+    <button class="nav-btn" id="nav-perfil">
+      <svg viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+      Perfil
+    </button>
+  </div>
+</nav>
 
 <script>
 'use strict';
@@ -316,15 +1221,61 @@ const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const estado = {
   carta: [], cartaInfo: {}, fotoData: null, fotoEjemplo: false,
-  servicio: null, fecha: null, hora: null, analisis: null,
+  servicio: null, servicioReserva: null, fecha: null, hora: null,
+  analisis: null, paso: 1,
+  /* v4: selección múltiple de servicios (pack). `seleccion` es la lista
+     de nombres elegidos, en orden de carta; `servicioReserva` se mantiene
+     como el primero de la selección (lo usa la lista de espera). */
+  seleccion: [], mesVista: null,
 };
-const PASOS = {'p-inicio':0,'p-consentimiento':1,'p-foto':2,'p-resultado':3,'p-reserva':3,'p-confirmada':3};
+/* Descriptores cortos y honestos: son el lenguaje del propio salón
+   (los usa la recepcionista); de Depilación rápida no afirmamos nada más. */
+const DESCRIPTORES = {
+  'Diseño de cejas': 'Natural y definido, a tu medida',
+  'Ombré Brows Henna': 'Color y definición con henna',
+  'Brow Lamination': 'Efecto peinado y fijado',
+};
+const PASOS = {'p-inicio':0,'p-explorar':0,'p-probador':0,'p-salon':0,'p-micita':0,'p-perfil':0,'p-proxima':0,'p-consentimiento':1,'p-foto':2,'p-resultado':3,'p-reserva':3,'p-confirmada':3};
 
+/* PIVOTE Fase 1: la navegación es Inicio · Explorar · Probador ·
+   Perfil. El recorrido de cejas (consentimiento, foto, resultado,
+   reserva) cuelga de Probador; el salón y las categorías, de
+   Explorar; la cita guardada vive en Perfil (y en el hub). */
+const NAV_DE = {'p-inicio':'nav-inicio','p-explorar':'nav-explorar','p-probador':'nav-probador',
+  'p-consentimiento':'nav-probador','p-foto':'nav-probador',
+  'p-resultado':'nav-probador','p-reserva':'nav-probador',
+  'p-salon':'nav-explorar','p-proxima':'nav-inicio',
+  'p-micita':'nav-perfil','p-perfil':'nav-perfil','p-confirmada':'nav-perfil'};
+/* La última cita confirmada desde la web se guarda SOLO en este
+   dispositivo (localStorage) para que «Historial» la reabra sin login.
+   Es el mismo patrón del enlace mágico: el token vive en la URL y la
+   agenda es la fuente de verdad; aquí no se guarda ningún dato más. */
+const CLAVE_CITA = 'la-asistenta-cita-v1';
+/* Nombre y teléfono que la clienta usa al reservar, SOLO en este
+   dispositivo: la pantalla «Perfil» los muestra, edita y borra, y el
+   paso 3 de la reserva los rellena solos. Nunca salen del móvil
+   salvo como datos de la propia reserva cuando ella confirma. */
+const CLAVE_PERFIL = 'la-asistenta-perfil-v1';
+/* Fotos REALES del salón, de su propia web (arivivasbeauty.com),
+   autoalojadas en /img/. Fuentes exactas en ESTADO_PROYECTO.md. */
+const FOTOS = {
+  'Diseño de cejas':   {src: '/img/diseno.jpg',     alt: 'Resultado de un diseño de cejas de Ari Vivas Beauty'},
+  'Ombré Brows Henna': {src: '/img/henna.jpg',      alt: 'Cejas con tinte de Ari Vivas Beauty, con efecto maquillaje'},
+  'Brow Lamination':   {src: '/img/laminacion.jpg', alt: 'Primer plano de unas cejas laminadas de Ari Vivas Beauty'},
+};
+const normalizar = t => (t || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+const MOVIMIENTO_SUAVE = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 function ir(id){
   $$('.pantalla').forEach(p => p.classList.toggle('activa', p.id === id));
   const paso = PASOS[id] ?? 0;
+  /* La barra de progreso es SOLO del recorrido de análisis: en Inicio,
+     Reserva y Confirmación no significa nada y no se muestra. */
+  $('#progreso').style.display =
+    ['p-consentimiento','p-foto','p-resultado'].includes(id) ? 'flex' : 'none';
   $$('#progreso i').forEach((b,i) => b.classList.toggle('on', i <= paso));
-  window.scrollTo({top:0, behavior:'smooth'});
+  $$('.nav-btn').forEach(b => b.classList.toggle('on', b.id === NAV_DE[id]));
+  actualizarBarraSalon();
+  window.scrollTo({top:0, behavior: MOVIMIENTO_SUAVE ? 'smooth' : 'auto'});
 }
 function errorEn(caja, msg){
   const el = $(caja);
@@ -345,36 +1296,343 @@ async function fetchJson(url, opciones = {}, timeoutMs = 30000){
     throw e;
   }finally{ clearTimeout(t); }
 }
+const isoFecha = f => f.toISOString().slice(0,10);
+function fechaBonita(iso){
+  if(!iso) return '—';
+  const f = new Date(iso + 'T12:00:00');
+  return f.toLocaleDateString('es-ES', {weekday:'long', day:'numeric', month:'long'});
+}
 
-/* ---------- carta ---------- */
+/* ---------- carta: tarjetas en inicio y en el paso 1 ---------- */
+function tarjetaServicio(s, conCta){
+  const desc = DESCRIPTORES[s.nombre];
+  return `<div class="sc-top"><div style="flex:1">
+      <div class="sc-nombre">${s.nombre}</div>
+      ${desc ? `<div class="sc-desc">${desc}</div>` : ''}
+    </div><span class="sc-check"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg></span>
+    <div class="sc-precio">${s.precio_etiqueta}</div></div>
+    <div class="sc-meta"><span class="sc-dur">${s.duracion_min} min</span>
+    ${conCta ? '<span class="sc-cta">Reservar →</span>' : ''}</div>`;
+}
+function tarjetaRecomendada(s){
+  const f = FOTOS[s.nombre];
+  const desc = DESCRIPTORES[s.nombre];
+  const art = document.createElement('article');
+  art.className = 'reco-card';
+  art.dataset.busqueda = normalizar(s.nombre + ' ' + (desc || ''));
+  /* v6: foto a sangre completa; la pastilla de cristal dice un HECHO
+     (la duración real); nombre en negrita y precio/duración en la
+     línea gris inferior. Toda la tarjeta lleva a reservar ese
+     servicio, como en la referencia. */
+  art.innerHTML =
+    `<div class="foto-wrap"><img src="${f.src}" alt="${f.alt}" loading="lazy">` +
+    `<span class="foto-pill">${s.duracion_min} min</span></div>` +
+    `<div class="rc-body"><h3>${s.nombre}</h3>` +
+    `<p class="rc-desc">${s.precio_etiqueta} · ${s.duracion_min} min${desc ? ' · ' + desc : ''}</p></div>`;
+  art.onclick = () => { prepararReserva(s.nombre); ir('p-reserva'); mostrarPaso(2); cargarHuecos(); };
+  return art;
+}
+/* «10:00–20:00» → «10–20» para los chips compactos (dato real, resumido). */
+const compacto = r => (r || '').replace(/:00/g, '');
+function tarjetaSalon(){
+  const art = document.createElement('article');
+  art.className = 'salon-card';
+  art.dataset.busqueda = normalizar('Ari Vivas Beauty salón cejas');
+  /* v6: foto a sangre completa; la pastilla de cristal dice un HECHO
+     («Reservas abiertas»), nunca una valoración simulada. Bajo la
+     foto: nombre, línea gris y chips de hechos (horario, servicios). */
+  art.innerHTML =
+    `<div class="foto-wrap"><img src="/img/salon.jpg" alt="Arianna, de Ari Vivas Beauty, diseñando las cejas de una clienta en su estudio">` +
+    `<span class="foto-pill">Reservas abiertas</span></div>` +
+    `<div class="rc-body"><h3>Ari Vivas Beauty</h3>` +
+    `<p class="rc-desc">Salón de cejas · análisis con IA</p>` +
+    `<div class="rc-meta"><span class="chip-dato" data-chip="horario"></span>` +
+    `<span class="chip-dato" data-chip="servicios"></span>` +
+    `<span class="rc-cta-txt">Ver el salón →</span></div></div>`;
+  art.onclick = () => ir('p-salon');
+  return art;
+}
+function filaSalon(s){
+  const desc = DESCRIPTORES[s.nombre];
+  const b = document.createElement('button');
+  b.className = 'fila-servicio';
+  b.dataset.servicio = s.nombre;
+  b.setAttribute('aria-label', 'Añadir o quitar ' + s.nombre + ' de tu cita');
+  b.innerHTML =
+    `<span class="fs-main"><span class="fs-nombre">${s.nombre}</span>` +
+    `<span class="fs-meta" style="display:block">${s.duracion_min} min${desc ? ' · ' + desc : ''}</span></span>` +
+    `<span class="fs-precio">${s.precio_etiqueta}</span>` +
+    `<span class="fs-add">${SVG_MAS}</span>`;
+  /* v4 (espec §5 P4): la fila AÑADE/QUITA el servicio de la selección;
+     la barra fija de abajo lleva el total y el «Reservar ahora». */
+  b.onclick = () => alternarServicio(s.nombre);
+  return b;
+}
 async function cargarCarta(){
   try{
     const d = await fetchJson('/api/servicios');
     estado.carta = d.servicios;
-    $('#horario-txt').textContent =
-      'Horario: lun–vie ' + d.horario.lunes_viernes + ' · sáb ' + d.horario.sabado + ' · dom cerrado.';
+    const horarioLargo =
+      'Lunes a viernes: ' + d.horario.lunes_viernes + ' · Sábados: ' + d.horario.sabado +
+      ' · Domingos: cerrado.';
+    $('#salon-horario').textContent = horarioLargo;
+    $('#perfil-horario').textContent = horarioLargo;
+    const chipHorario = 'L–V ' + compacto(d.horario.lunes_viernes) + ' · S ' + compacto(d.horario.sabado);
+    const chipServicios = d.servicios.length + ' servicios';
+    $('#salon-chip-horario').textContent = chipHorario;
+    $('#salon-chip-servicios').textContent = chipServicios;
+    estado.chipHorario = chipHorario; estado.chipServicios = chipServicios;
   }catch(e){
     estado.carta = [];
-    $('#carta-inicio').innerHTML = '<p class="mini">La carta no cargó; prueba a recargar la página.</p>';
+    $('#carrusel-reco').innerHTML = '<p class="mini">El salón y sus servicios no cargaron; prueba a recargar la página.</p>';
+    $('#explorar-grid').innerHTML = '<p class="mini">El catálogo no cargó; prueba a recargar la página.</p>';
+    $('#salon-servicios').innerHTML = '<p class="mini">La carta no cargó; prueba a recargar la página.</p>';
+    $('#res-servicios').innerHTML = '<p class="mini">La carta no cargó; prueba a recargar la página.</p>';
+    $('#salon-horario').textContent = 'El horario no cargó; prueba a recargar la página.';
+    $('#perfil-horario').textContent = 'El horario no cargó; prueba a recargar la página.';
     return;
   }
-  $('#carta-inicio').innerHTML = estado.carta.map(s =>
-    `<div class="carta-item"><span class="nombre">${s.nombre}</span><span class="puntos"></span>` +
-    `<span class="dur">${s.duracion_min} min</span><span class="precio">${s.precio_etiqueta}</span></div>`
-  ).join('');
-  $('#sel-servicio').innerHTML = estado.carta.map(s =>
-    `<option value="${s.nombre}">${s.nombre} — ${s.precio_etiqueta} · ${s.duracion_min} min</option>`
-  ).join('');
+  $('#carrusel-reco').innerHTML = '';
+  $('#res-servicios').innerHTML = '';
+  $('#salon-servicios').innerHTML = '';
+  const salonCard = tarjetaSalon();
+  salonCard.querySelector('[data-chip="horario"]').textContent = estado.chipHorario;
+  salonCard.querySelector('[data-chip="servicios"]').textContent = estado.chipServicios;
+  $('#carrusel-reco').appendChild(salonCard);
+  for(const s of estado.carta){
+    if(FOTOS[s.nombre]) $('#carrusel-reco').appendChild(tarjetaRecomendada(s));
+    $('#salon-servicios').appendChild(filaSalon(s));
+    const b2 = document.createElement('button');
+    b2.className = 'servicio-card'; b2.dataset.servicio = s.nombre;
+    b2.innerHTML = tarjetaServicio(s, false);
+    /* Paso 1 (v4): tocar AÑADE o QUITA el servicio de la selección. */
+    b2.onclick = () => { alternarServicio(s.nombre); };
+    $('#res-servicios').appendChild(b2);
+  }
+  if(!estado.seleccion.length && estado.carta.length)
+    fijarSeleccion([estado.carta[0].nombre]);
+  sincronizarSeleccionUI();
+  pintarExplorar();
+}
+
+/* ---------- v4 · selección múltiple de servicios (pack) ----------
+   Una reserva puede llevar varios servicios: la cita es UNA, con la
+   duración y el precio sumados (lo calcula la agenda desde la carta).
+   La selección vive en estado.seleccion, en orden de carta, y todas las
+   superficies (tarjetas del paso 1, filas del salón, barra del salón y
+   resumen «Tu cita») se pintan desde sincronizarSeleccionUI(). */
+const SVG_MAS = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14" /><path d="M5 12h14" /></svg>';
+const SVG_OK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>';
+function datosServicio(nombre){
+  return estado.carta.find(x => x.nombre === nombre) || null;
+}
+function totalesSeleccion(){
+  let precio = 0, duracion = 0, consultar = false;
+  for(const n of estado.seleccion){
+    const s = datosServicio(n);
+    if(!s) continue;
+    duracion += Number(s.duracion_min) || 0;
+    if(s.precio_eur === null || s.precio_eur === undefined) consultar = true;
+    else precio += Number(s.precio_eur) || 0;
+  }
+  let etiqueta = '';
+  if(estado.seleccion.length){
+    etiqueta = (Number.isInteger(precio) ? String(precio) : precio.toFixed(2)) + ' €';
+    if(consultar) etiqueta += ' + a consultar';
+  }
+  return {precio, duracion, etiqueta, consultar};
+}
+function nombreSeleccion(){
+  return estado.seleccion.join(' + ');
+}
+function fijarSeleccion(nombres){
+  const orden = estado.carta.map(s => s.nombre);
+  const nueva = orden.filter(n => nombres.includes(n));
+  const cambia = nueva.join('|') !== estado.seleccion.join('|');
+  estado.seleccion = nueva;
+  estado.servicioReserva = nueva[0] || null;
+  /* Si cambia la selección, cambia la duración total: la hora elegida
+     puede dejar de ser válida y se descarta (la agenda manda). */
+  if(cambia) estado.hora = null;
+  sincronizarSeleccionUI();
+  actualizarResumen();
+}
+function alternarServicio(nombre){
+  const esta = estado.seleccion.includes(nombre);
+  fijarSeleccion(esta
+    ? estado.seleccion.filter(n => n !== nombre)
+    : [...estado.seleccion, nombre]);
+}
+function sincronizarSeleccionUI(){
+  const sel = new Set(estado.seleccion);
+  $$('#res-servicios .servicio-card').forEach(c =>
+    c.classList.toggle('sel', sel.has(c.dataset.servicio)));
+  $$('#salon-servicios .fila-servicio').forEach(f => {
+    const on = sel.has(f.dataset.servicio);
+    f.classList.toggle('sel', on);
+    const add = f.querySelector('.fs-add');
+    if(add) add.innerHTML = on ? SVG_OK : SVG_MAS;
+  });
+  actualizarBarraSalon();
+}
+function actualizarBarraSalon(){
+  const barra = $('#salon-barra');
+  if(!barra) return;
+  const enSalon = $('#p-salon').classList.contains('activa');
+  const n = estado.seleccion.length;
+  barra.classList.toggle('visible', enSalon && n > 0);
+  if(n){
+    const t = totalesSeleccion();
+    $('#sb-n').textContent = n === 1 ? '1 servicio' : n + ' servicios';
+    $('#sb-detalle').textContent = t.etiqueta + ' · ' + t.duracion + ' min en total';
+  }
+}
+/* Compatibilidad: los accesos de un servicio (pastillas, recomendadas,
+   análisis) siembran la selección con ESE servicio, como antes. */
+function elegirServicioReserva(nombre){
+  fijarSeleccion([nombre]);
+}
+
+/* ---------- inicio: buscador real y pastillas de acceso ---------- */
+/* PIVOTE Fase 1: el buscador y las categorías viven ahora en
+   Explorar (bloque nuevo al final del script). Las tarjetas de
+   categoría de la home llevan allí con el filtro puesto. */
+$('#btn-proxima-volver').onclick = () => ir('p-inicio');
+$('#btn-proxima-belleza').onclick = () => { catExplorar = 'belleza'; pintarExplorar(); ir('p-explorar'); };
+$('#btn-salon-volver').onclick = () => ir('p-inicio');
+$('#btn-salon-atras').onclick = () => ir('p-inicio');
+/* Compartir REAL del sistema (Web Share); si no existe, se copia el
+   enlace público de la app. Nunca se finge un envío. */
+$('#btn-salon-compartir').onclick = async () => {
+  const datos = {title: 'Ari Vivas Beauty — La Asistenta',
+    text: 'Reserva tu cita de cejas en Ari Vivas Beauty, con huecos reales:',
+    url: location.origin + '/'};
+  if(navigator.share){
+    try{ await navigator.share(datos); }catch(e){ /* cancelado por la clienta */ }
+  }else{
+    try{ await navigator.clipboard.writeText(datos.url); }catch(e){ /* sin portapapeles */ }
+  }
+};
+$('#btn-salon-reservar').onclick = () => {
+  prepararReserva(null);
+  ir('p-reserva'); mostrarPaso(2); cargarHuecos();
+};
+/* El análisis IA también vive en la pantalla del salón (v6): si ya
+   hay un análisis hecho en esta sesión, lleva a su resultado. */
+$('#btn-salon-analisis').onclick = () => {
+  if(estado.analisis) return ir('p-resultado');
+  ir($('#check-consentimiento').checked ? 'p-foto' : 'p-consentimiento');
+};
+
+/* ---------- vídeos de TikTok: reproductor oficial embebido ---------- */
+const modalTT = $('#modal-tt');
+function abrirVideo(id, titulo){
+  $('#modal-tt-marco').innerHTML =
+    `<iframe src="https://www.tiktok.com/embed/v2/${id}" title="Vídeo de TikTok de @arivivasbeauty"
+       loading="lazy" allow="encrypted-media; picture-in-picture" allowfullscreen
+       referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
+  $('#modal-tt-tit').textContent = titulo || 'Vídeo del salón';
+  $('#modal-tt-link').href = `https://www.tiktok.com/@arivivasbeauty/video/${id}`;
+  modalTT.classList.add('visible');
+}
+function cerrarVideo(){
+  modalTT.classList.remove('visible');
+  $('#modal-tt-marco').innerHTML = '';  /* corta la reproducción al cerrar */
+}
+$$('#videos-fila .video-card').forEach(c => {
+  c.onclick = () => abrirVideo(c.dataset.tiktok, c.dataset.titulo);
+});
+$('#modal-tt-x').onclick = cerrarVideo;
+modalTT.addEventListener('click', e => { if(e.target === modalTT) cerrarVideo(); });
+$('#btn-micita-volver').onclick = () => ir('p-perfil');
+$('#btn-micita-reservar').onclick = () => { prepararReserva(null); ir('p-reserva'); };
+
+/* ---------- mi cita: la última reserva web, guardada en el dispositivo ---------- */
+function leerMiCita(){
+  try{
+    const c = JSON.parse(localStorage.getItem(CLAVE_CITA) || 'null');
+    return c && c.enlace ? c : null;
+  }catch(e){ return null; }
+}
+function mostrarMiCita(){
+  const c = leerMiCita();
+  $('#micita-vacia').style.display = c ? 'none' : 'block';
+  $('#micita-datos').style.display = c ? 'block' : 'none';
+  if(!c) return;
+  $('#micita-resumen').innerHTML =
+    `<b>${c.servicio}</b>${c.codigo ? ' · ' + c.codigo : ''}<br>` +
+    `${fechaBonita(c.fecha)} a las <b>${c.hora}</b><br>Para ${c.nombre}`;
+  $('#micita-abrir').href = c.enlace;
+  $('#micita-copiado').style.display = 'none';
+  $('#micita-copiar').onclick = async () => {
+    try{ await navigator.clipboard.writeText(c.enlace); }
+    catch(e){
+      const ta = document.createElement('textarea');
+      ta.value = c.enlace; document.body.appendChild(ta);
+      ta.select(); document.execCommand('copy'); ta.remove();
+    }
+    $('#micita-copiado').style.display = 'block';
+  };
+}
+$('#micita-borrar').onclick = () => {
+  try{ localStorage.removeItem(CLAVE_CITA); }catch(e){}
+  mostrarMiCita();
+};
+
+/* ---------- perfil: nombre y teléfono SOLO en este dispositivo ---------- */
+function leerPerfil(){
+  try{ return JSON.parse(localStorage.getItem(CLAVE_PERFIL) || 'null') || {}; }
+  catch(e){ return {}; }
+}
+function guardarPerfil(nombre, telefono){
+  try{
+    localStorage.setItem(CLAVE_PERFIL, JSON.stringify({
+      nombre: nombre || '', telefono: telefono || '',
+    }));
+  }catch(e){ /* sin almacenamiento: la reserva sigue funcionando */ }
+}
+function mostrarPerfil(){
+  const p = leerPerfil();
+  const c = leerMiCita();
+  /* El nombre puede venir de la última cita aunque aún no se haya
+     guardado un perfil: se muestra igual, sin inventar nada. */
+  $('#perf-nombre').value = p.nombre || (c ? c.nombre : '') || '';
+  $('#perf-telefono').value = p.telefono || '';
+  $('#perfil-estado').textContent = (p.nombre || p.telefono)
+    ? 'Guardados en este dispositivo: se rellenan solos cuando reservas.'
+    : 'Aún no hay datos guardados en este dispositivo.';
+}
+$('#btn-perfil-guardar').onclick = () => {
+  guardarPerfil($('#perf-nombre').value.trim(), $('#perf-telefono').value.trim());
+  $('#perfil-estado').textContent = 'Guardado. Solo vive en este dispositivo.';
+};
+$('#btn-perfil-borrar').onclick = () => {
+  try{
+    localStorage.removeItem(CLAVE_PERFIL);
+    localStorage.removeItem(CLAVE_CITA);
+  }catch(e){}
+  mostrarPerfil();
+  mostrarMiCita();
+  $('#perfil-estado').textContent = 'Datos borrados de este dispositivo.';
+};
+/* Al llegar al paso 3, nombre y teléfono se rellenan solos con lo
+   guardado en el dispositivo (perfil o última cita), sin pisar lo
+   que la clienta ya haya escrito. */
+function rellenarDatosGuardados(){
+  const p = leerPerfil();
+  const c = leerMiCita();
+  if(!$('#inp-nombre').value.trim() && (p.nombre || (c && c.nombre)))
+    $('#inp-nombre').value = p.nombre || c.nombre;
+  if(!$('#inp-telefono').value.trim() && p.telefono)
+    $('#inp-telefono').value = p.telefono;
 }
 
 /* ---------- navegación básica ---------- */
 $('#btn-ir-consentimiento').onclick = () => ir('p-consentimiento');
-$('#btn-ir-reserva-directa').onclick = () => { prepararReserva(null); ir('p-reserva'); };
 $('#btn-sin-foto').onclick = () => { prepararReserva(null); ir('p-reserva'); };
 $('#check-consentimiento').onchange = e => { $('#btn-ir-foto').disabled = !e.target.checked; };
 $('#btn-ir-foto').onclick = () => ir('p-foto');
 $('#btn-volver-1').onclick = () => ir('p-consentimiento');
-$('#btn-volver-2').onclick = () => ir(estado.analisis ? 'p-resultado' : 'p-inicio');
 $('#btn-terminar').onclick = () => location.reload();
 $('#btn-reiniciar').onclick = () => location.reload();
 
@@ -389,7 +1647,7 @@ inputFoto.onchange = () => {
   if(f.size > 6*1024*1024)
     return errorEn('#error-foto', 'La foto pesa más de 6 MB. Elige una más ligera.');
   const lector = new FileReader();
-  lector.onload = () => ponerFoto(lector.result, false);
+  lector.onload = async () => ponerFoto(await reducirFoto(lector.result), false);
   lector.readAsDataURL(f);
 };
 $('#btn-foto-ejemplo').onclick = async () => {
@@ -397,10 +1655,30 @@ $('#btn-foto-ejemplo').onclick = async () => {
     const r = await fetch('/ejemplo.jpg');
     const blob = await r.blob();
     const lector = new FileReader();
-    lector.onload = () => ponerFoto(lector.result, true);
+    lector.onload = async () => ponerFoto(await reducirFoto(lector.result), true);
     lector.readAsDataURL(blob);
   }catch(e){ errorEn('#error-foto', 'La foto de ejemplo no cargó; prueba con la tuya.'); }
 };
+/* Antes de enviarla, la foto se reduce en el propio móvil (lado mayor
+   ≤1280 px, JPEG 0.85): sube menos bytes y la visión tarda menos.
+   Si ya es pequeña, va tal cual, sin recomprimir. */
+function reducirFoto(dataUrl){
+  return new Promise(res => {
+    const img = new Image();
+    img.onload = () => {
+      const mayor = Math.max(img.naturalWidth, img.naturalHeight);
+      if(!mayor || mayor <= 1280) return res(dataUrl);
+      const esc = 1280 / mayor;
+      const cv = document.createElement('canvas');
+      cv.width = Math.round(img.naturalWidth * esc);
+      cv.height = Math.round(img.naturalHeight * esc);
+      cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+      res(cv.toDataURL('image/jpeg', 0.85));
+    };
+    img.onerror = () => res(dataUrl);
+    img.src = dataUrl;
+  });
+}
 function ponerFoto(dataUrl, esEjemplo){
   estado.fotoData = dataUrl; estado.fotoEjemplo = esEjemplo;
   $('#img-previa').src = dataUrl;
@@ -435,28 +1713,63 @@ function preferencias(){
   return p;
 }
 
-/* ---------- análisis ---------- */
+/* ---------- análisis (asíncrono: crear trabajo y sondear) ---------- */
+let relojAnalisis = null;
 $('#btn-analizar').onclick = async () => {
   if(!estado.fotoData) return;
   errorEn('#error-foto', '');
+  const btn = $('#btn-analizar');
+  btn.textContent = 'Analizar mis cejas';
   $('#cargando-analisis').classList.add('visible');
-  $('#btn-analizar').disabled = true;
+  btn.disabled = true;
+  let segundos = 0;
+  $('#seg-cargando').textContent = '0';
+  relojAnalisis = setInterval(() => {
+    segundos++;
+    $('#seg-cargando').textContent = segundos;
+  }, 1000);
   try{
-    const d = await fetchJson('/api/analizar', {
+    const creado = await fetchJson('/api/analizar', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({imagen: estado.fotoData, preferencias: preferencias()}),
-    }, 170000);
+    }, 30000);
+    const d = await esperarAnalisis(creado.id);
     estado.analisis = d.analisis; estado.cartaInfo = d.carta || {};
     mostrarResultado(d);
     ir('p-resultado');
   }catch(e){
     errorEn('#error-foto', e.message || 'El análisis falló. Inténtalo de nuevo.');
+    btn.textContent = 'Intentar de nuevo';
   }finally{
+    clearInterval(relojAnalisis);
     $('#cargando-analisis').classList.remove('visible');
-    $('#btn-analizar').disabled = false;
+    btn.disabled = false;
   }
 };
+/* Sondea el trabajo cada 3 s. Un fallo de red aislado no tumba la espera
+   (el proxy puede parpadear); 5 seguidos, sí. Tope total: 4 minutos. */
+async function esperarAnalisis(id){
+  const limite = Date.now() + 240000;
+  let fallosRed = 0;
+  while(Date.now() < limite){
+    await new Promise(r => setTimeout(r, 3000));
+    let d;
+    try{
+      d = await fetchJson('/api/analizar/' + id, {}, 20000);
+      fallosRed = 0;
+    }catch(e){
+      if(e.status) throw e;  // error real del servidor: su mensaje ya es humano
+      if(++fallosRed >= 5)
+        throw new Error('Se perdió la conexión mientras esperábamos el análisis. Inténtalo de nuevo.');
+      continue;
+    }
+    if(d.estado === 'listo') return d;
+    if(d.estado === 'error')
+      throw new Error(d.error || 'El análisis falló. Inténtalo de nuevo.');
+  }
+  throw new Error('El análisis está tardando demasiado. Inténtalo de nuevo en un momento.');
+}
 function datosDe(nombre){
   const c = estado.cartaInfo[nombre] || estado.carta.find(s => s.nombre === nombre) || {};
   return `${c.precio_etiqueta || ''} · ${c.duracion_min || ''} min`;
@@ -487,44 +1800,153 @@ function mostrarResultado(d){
   estado.fotoData = null;
 }
 $('#btn-reservar-reco').onclick = () => {
-  prepararReserva(estado.analisis.servicio_recomendado); ir('p-reserva');
+  prepararReserva(estado.analisis.servicio_recomendado); ir('p-reserva'); mostrarPaso(2); cargarHuecos();
 };
 $('#btn-elegir-alt').onclick = () => {
-  prepararReserva(estado.analisis.servicio_alternativo); ir('p-reserva');
+  prepararReserva(estado.analisis.servicio_alternativo); ir('p-reserva'); mostrarPaso(2); cargarHuecos();
 };
 $('#btn-elegir-otro').onclick = () => { prepararReserva(null); ir('p-reserva'); };
 
-/* ---------- reserva ---------- */
+/* ---------- reserva por pasos ---------- */
+function mostrarPaso(n){
+  estado.paso = n;
+  if(n === 3) rellenarDatosGuardados();
+  $$('.paso-panel').forEach(p => p.classList.toggle('activo', p.id === 'paso-' + n));
+  $$('#pasos-ind .pi').forEach(pi => {
+    const k = Number(pi.dataset.paso);
+    pi.classList.toggle('on', k === n);
+    pi.classList.toggle('hecho', k < n);
+    pi.querySelector('.n').textContent = k < n ? '✓' : String(k);
+  });
+  actualizarResumen();
+}
+$('#btn-paso1-siguiente').onclick = () => { mostrarPaso(2); cargarHuecos(); };
+$('#btn-paso2-volver').onclick = () => mostrarPaso(1);
+$('#btn-paso2-siguiente').onclick = () => mostrarPaso(3);
+$('#btn-volver-2').onclick = () => mostrarPaso(2);
+
+/* ---------- v4 · calendario de MES (espec §5 P7) ----------
+   Mes navegable dentro de la ventana de reserva (hoy … hoy+60 días):
+   pasados, domingos (cerrado) y días fuera de ventana deshabilitados;
+   hoy marcado con un punto; el día elegido, círculo relleno violeta
+   #6950f3 (paleta de la referencia, v5). Las fechas se
+   componen en hora LOCAL (isoLocal): isoFecha es UTC y a medianoche
+   local desplazaría el día. */
+const MESES_ES = ['enero','febrero','marzo','abril','mayo','junio','julio',
+  'agosto','septiembre','octubre','noviembre','diciembre'];
+function isoLocal(f){
+  return f.getFullYear() + '-' + String(f.getMonth() + 1).padStart(2, '0') +
+    '-' + String(f.getDate()).padStart(2, '0');
+}
+function pintarCalendario(){
+  const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
+  const limite = new Date(hoy.getTime() + 60 * 24 * 3600 * 1000);
+  const elegida = $('#inp-fecha').value;
+  if(!estado.mesVista){
+    const base = elegida ? new Date(elegida + 'T12:00:00') : hoy;
+    estado.mesVista = new Date(base.getFullYear(), base.getMonth(), 1);
+  }
+  const mv = estado.mesVista;
+  $('#cal-mes').textContent = MESES_ES[mv.getMonth()] + ' ' + mv.getFullYear();
+  const mesHoy = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+  const mesLimite = new Date(limite.getFullYear(), limite.getMonth(), 1);
+  $('#cal-ant').disabled = mv <= mesHoy;
+  $('#cal-sig').disabled = mv >= mesLimite;
+  const rej = $('#cal-rejilla');
+  rej.innerHTML = '';
+  for(const l of ['L','M','X','J','V','S','D']){
+    const d = document.createElement('span');
+    d.className = 'cal-dow'; d.textContent = l;
+    rej.appendChild(d);
+  }
+  const primero = new Date(mv.getFullYear(), mv.getMonth(), 1);
+  const huecosIni = (primero.getDay() + 6) % 7; /* la semana empieza en lunes */
+  const diasMes = new Date(mv.getFullYear(), mv.getMonth() + 1, 0).getDate();
+  for(let i = 0; i < huecosIni; i++){
+    const v = document.createElement('span');
+    v.className = 'cal-dia vacio';
+    rej.appendChild(v);
+  }
+  for(let n = 1; n <= diasMes; n++){
+    const f = new Date(mv.getFullYear(), mv.getMonth(), n);
+    const iso = isoLocal(f);
+    const b = document.createElement('button');
+    b.className = 'cal-dia';
+    b.textContent = String(n);
+    b.dataset.fecha = iso;
+    if(iso === isoLocal(hoy)) b.classList.add('hoy');
+    if(iso === elegida) b.classList.add('sel');
+    const domingo = f.getDay() === 0;
+    if(domingo) b.title = 'Domingo: el salón cierra';
+    b.disabled = domingo || f < hoy || f > limite;
+    if(!b.disabled) b.onclick = () => {
+      $('#inp-fecha').value = iso;
+      cargarHuecos();
+    };
+    rej.appendChild(b);
+  }
+}
+$('#cal-ant').onclick = () => {
+  const mv = estado.mesVista || new Date();
+  estado.mesVista = new Date(mv.getFullYear(), mv.getMonth() - 1, 1);
+  pintarCalendario();
+};
+$('#cal-sig').onclick = () => {
+  const mv = estado.mesVista || new Date();
+  estado.mesVista = new Date(mv.getFullYear(), mv.getMonth() + 1, 1);
+  pintarCalendario();
+};
 function prepararReserva(servicio){
-  if(servicio) $('#sel-servicio').value = servicio;
+  if(servicio) elegirServicioReserva(servicio);
+  else if(!estado.seleccion.length && estado.carta.length)
+    fijarSeleccion([estado.carta[0].nombre]);
   const hoy = new Date();
-  const iso = f => f.toISOString().slice(0,10);
   const inp = $('#inp-fecha');
-  inp.min = iso(hoy);
-  inp.max = iso(new Date(hoy.getTime() + 60*24*3600*1000));
-  if(!inp.value) inp.value = iso(new Date(hoy.getTime() + 24*3600*1000));
-  estado.hora = null;
-  cargarHuecos();
+  if(!inp.value)
+    inp.value = isoLocal(new Date(hoy.getTime() + 24 * 3600 * 1000));
+  const f = new Date(inp.value + 'T12:00:00');
+  estado.mesVista = new Date(f.getFullYear(), f.getMonth(), 1);
+  mostrarPaso(servicio ? 2 : 1);
   actualizarResumen();
 }
 async function cargarHuecos(){
-  const servicio = $('#sel-servicio').value;
   const fecha = $('#inp-fecha').value;
   const caja = $('#huecos');
   estado.hora = null;
-  if(!servicio || !fecha){ caja.innerHTML = '<p class="mini">Elige servicio y día.</p>'; return; }
+  pintarCalendario();
+  if(!estado.seleccion.length || !fecha){
+    caja.innerHTML = '<p class="mini">Elige los servicios y un día.</p>';
+    actualizarResumen();
+    return;
+  }
   caja.innerHTML = '<p class="mini">Consultando la agenda real…</p>';
   try{
-    const d = await fetchJson(`/api/disponibilidad?servicio=${encodeURIComponent(servicio)}&fecha=${fecha}`);
+    /* Pack: la disponibilidad se pide con la lista; el servidor suma
+       las duraciones de la carta y devuelve inicios libres reales. */
+    const q = estado.seleccion.map(encodeURIComponent).join(',');
+    const d = await fetchJson(`/api/disponibilidad?servicios=${q}&fecha=${fecha}`);
     if(!d.huecos.length){
       caja.innerHTML = `<p class="mini">${d.motivo === 'domingo cerrado'
         ? 'Los domingos el salón cierra. Prueba otro día.'
-        : 'Ese día no quedan huecos para este servicio. Prueba otro día.'}</p>`;
+        : 'Ese día no quedan huecos para la duración total de tu selección. Prueba otro día o quita algún servicio.'}</p>`;
+      mostrarEspera(true);
     }else{
-      caja.innerHTML = d.huecos.map(h =>
-        `<button class="hueco" data-hora="${h}">${h}</button>`).join('');
-      caja.querySelectorAll('.hueco').forEach(b => b.onclick = () => {
-        caja.querySelectorAll('.hueco').forEach(x => x.classList.toggle('sel', x === b));
+      mostrarEspera(false);
+      const etq = totalesSeleccion().etiqueta;
+      caja.innerHTML = '<div class="horas-lista">' + d.huecos.map((h, i) =>
+        `<button class="hora-fila" data-hora="${h}" ${i >= 8 ? 'style="display:none" data-extra="1"' : ''}>` +
+        `<span class="hf-hora">${h}</span><span class="hf-precio">${etq}</span>` +
+        `<span class="hf-radio"></span></button>`).join('') + '</div>' +
+        (d.huecos.length > 8
+          ? `<button class="enlace" id="btn-mas-huecos">Ver más horarios (${d.huecos.length - 8} más) ↓</button>`
+          : '');
+      const btnMas = caja.querySelector('#btn-mas-huecos');
+      if(btnMas) btnMas.onclick = () => {
+        caja.querySelectorAll('[data-extra]').forEach(b => b.style.display = '');
+        btnMas.remove();
+      };
+      caja.querySelectorAll('.hora-fila').forEach(b => b.onclick = () => {
+        caja.querySelectorAll('.hora-fila').forEach(x => x.classList.toggle('sel', x === b));
         estado.hora = b.dataset.hora;
         actualizarResumen();
       });
@@ -534,24 +1956,123 @@ async function cargarHuecos(){
   }
   actualizarResumen();
 }
+/* ---------- lista de espera activa ---------- */
+function mostrarEspera(visible){
+  const t = $('#tarjeta-espera');
+  t.style.display = visible ? 'block' : 'none';
+  if(visible){
+    if(!$('#esp-nombre').value) $('#esp-nombre').value = $('#inp-nombre').value.trim();
+    if(!$('#esp-telefono').value) $('#esp-telefono').value = $('#inp-telefono').value.trim();
+  }
+}
+$('#btn-espera').onclick = async () => {
+  errorEn('#error-espera', '');
+  const nombre = $('#esp-nombre').value.trim();
+  const telefono = $('#esp-telefono').value.trim();
+  if(nombre.length < 2) return errorEn('#error-espera', 'Escribe tu nombre para apuntarte.');
+  if(telefono.replace(/\D/g, '').length < 9)
+    return errorEn('#error-espera', 'Deja un teléfono válido: es donde el salón verá tu aviso.');
+  const btn = $('#btn-espera');
+  btn.disabled = true; btn.textContent = 'Apuntándote…';
+  try{
+    await fetchJson('/api/lista-espera', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        nombre, telefono,
+        servicio: estado.servicioReserva,
+        fecha_pref: $('#inp-fecha').value || null,
+      }),
+    });
+    $('#espera-form').style.display = 'none';
+    $('#espera-ok').style.display = 'block';
+  }catch(e){
+    errorEn('#error-espera', e.message || 'No pudimos apuntarte. Inténtalo de nuevo.');
+  }finally{
+    btn.disabled = false; btn.textContent = 'Apuntarme a la lista de espera';
+  }
+};
+/* ---------- resumen «Tu cita» (mini fija + tarjeta del paso 3) ----------
+   Objeto cerrado (espec §5 P8): una línea por servicio con su precio y
+   su duración, y el TOTAL sumado, antes de confirmar. */
 function actualizarResumen(){
-  const servicio = $('#sel-servicio').value;
   const fecha = $('#inp-fecha').value;
   const nombre = $('#inp-nombre').value.trim();
-  const s = estado.carta.find(x => x.nombre === servicio);
-  if(servicio && fecha && estado.hora && s){
-    const f = new Date(fecha + 'T12:00:00');
-    const fechaBonita = f.toLocaleDateString('es-ES', {weekday:'long', day:'numeric', month:'long'});
-    $('#resumen-reserva').innerHTML =
-      `<b>${servicio}</b> · ${s.precio_etiqueta} · ${s.duracion_min} min<br>` +
-      `${fechaBonita} a las <b>${estado.hora}</b>${nombre ? '<br>Para: ' + nombre : ''}`;
+  const n = estado.seleccion.length;
+  const t = totalesSeleccion();
+  if(n){
+    $('#rm-txt').innerHTML = `<b>${nombreSeleccion()}</b>` +
+      (fecha ? `<br>${fechaBonita(fecha)}${estado.hora ? ' · ' + estado.hora : ''}` : '<br>Elige día y hora');
+    $('#rm-precio').textContent = t.etiqueta;
+    $('#tc-lineas').innerHTML = estado.seleccion.map(nm => {
+      const s = datosServicio(nm);
+      return s ? `<div class="tc-linea"><span>${nm} · ${s.duracion_min} min</span><b>${s.precio_etiqueta}</b></div>` : '';
+    }).join('');
+    $('#tc-total').textContent = t.etiqueta;
+    $('#tc-fecha').textContent = fecha ? fechaBonita(fecha) : '—';
+    $('#tc-hora').textContent = estado.hora || '—';
+    $('#tc-duracion').textContent = t.duracion + ' min';
+    $('#tc-nombre').textContent = nombre || '—';
   }else{
-    $('#resumen-reserva').textContent = 'Elige servicio, día y hora para ver el resumen.';
+    $('#rm-txt').textContent = 'Elige uno o varios servicios para empezar';
+    $('#rm-precio').textContent = '';
+    $('#tc-lineas').innerHTML = '';
+    $('#tc-total').textContent = '—';
+    $('#tc-fecha').textContent = fecha ? fechaBonita(fecha) : '—';
+    $('#tc-hora').textContent = estado.hora || '—';
+    $('#tc-duracion').textContent = '—';
+    $('#tc-nombre').textContent = nombre || '—';
   }
-  $('#btn-confirmar').disabled = !(servicio && fecha && estado.hora && nombre.length >= 2
+  $('#btn-paso1-siguiente').disabled = !n;
+  $('#btn-paso2-siguiente').disabled = !(n && fecha && estado.hora);
+  $('#btn-confirmar').disabled = !(n && fecha && estado.hora && nombre.length >= 2
                                    && $('#check-confirma').checked);
 }
-$('#sel-servicio').onchange = cargarHuecos;
+
+/* ---------- «Añadir al calendario» (.ics), generado en el cliente ----------
+   El .ics se compone con los datos de ESA cita tal como la devolvió la
+   agenda (fecha, hora, duración real ya sumada si es pack): sin servidor
+   nuevo. La hora va en hora local flotante, como hacen la mayoría de
+   exportaciones: el calendario del móvil la interpreta en su zona. */
+function textoICS(c){
+  const p2 = x => String(x).padStart(2, '0');
+  const fmtLocal = (base, masMin) => {
+    const d = new Date(base.getFullYear(), base.getMonth(), base.getDate(),
+                       base.getHours(), base.getMinutes() + masMin);
+    return d.getFullYear() + p2(d.getMonth() + 1) + p2(d.getDate()) + 'T' +
+           p2(d.getHours()) + p2(d.getMinutes()) + '00';
+  };
+  const esc = t => String(t || '').replace(/\\/g, '\\\\').replace(/;/g, '\\;')
+    .replace(/,/g, '\\,').replace(/\n/g, '\\n');
+  const ini = new Date(c.fecha + 'T' + (c.hora || '10:00') + ':00');
+  const ahora = new Date();
+  const stamp = ahora.getUTCFullYear() + p2(ahora.getUTCMonth() + 1) +
+    p2(ahora.getUTCDate()) + 'T' + p2(ahora.getUTCHours()) +
+    p2(ahora.getUTCMinutes()) + p2(ahora.getUTCSeconds()) + 'Z';
+  return [
+    'BEGIN:VCALENDAR', 'VERSION:2.0',
+    'PRODID:-//La Asistenta//Ari Vivas Beauty//ES',
+    'BEGIN:VEVENT',
+    'UID:' + (c.codigo || ('cita-' + c.id)) + '@la-asistenta',
+    'DTSTAMP:' + stamp,
+    'DTSTART:' + fmtLocal(ini, 0),
+    'DTEND:' + fmtLocal(ini, Number(c.duracion_min) || 0),
+    'SUMMARY:' + esc('Ari Vivas Beauty — ' + c.servicio),
+    'DESCRIPTION:' + esc('Tu cita en Ari Vivas Beauty.\nCódigo: ' +
+      (c.codigo || '') + (c.enlace ? '\nTu enlace personal: ' + c.enlace : '')),
+    'END:VEVENT', 'END:VCALENDAR',
+  ].join('\r\n');
+}
+function descargarICS(c){
+  const blob = new Blob([textoICS(c)], {type: 'text/calendar;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'cita-' + (c.codigo || 'ari-vivas-beauty') + '.ics';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+}
 $('#inp-fecha').onchange = cargarHuecos;
 $('#inp-nombre').oninput = actualizarResumen;
 $('#check-confirma').onchange = actualizarResumen;
@@ -567,23 +2088,65 @@ $('#btn-confirmar').onclick = async () => {
       body: JSON.stringify({
         nombre: $('#inp-nombre').value.trim(),
         telefono: $('#inp-telefono').value.trim(),
-        servicio: $('#sel-servicio').value,
+        /* v4: la selección completa; el servidor crea UNA cita con el
+           total. «servicio» viaja también por compatibilidad. */
+        servicios: estado.seleccion.slice(),
+        servicio: estado.servicioReserva,
+        notas: $('#inp-notas').value.trim(),
         fecha: $('#inp-fecha').value,
         hora: estado.hora,
       }),
     }, 40000);
     const c = d.cita;
-    const f = new Date(c.fecha + 'T12:00:00');
     $('#conf-detalle').innerHTML =
       `<b>${c.servicio}</b> · ${c.precio_etiqueta}<br>` +
-      `${f.toLocaleDateString('es-ES', {weekday:'long', day:'numeric', month:'long'})} ` +
-      `a las <b>${c.hora}</b> (${c.duracion_min} min)<br>Para ${c.nombre} · Cita nº ${c.id}`;
+      `${fechaBonita(c.fecha)} a las <b>${c.hora}</b> (${c.duracion_min} min)<br>Para ${c.nombre}`;
+    /* «Añadir al calendario»: el .ics de ESTA cita (con su duración ya
+       sumada si es un pack), generado en el propio navegador. */
+    const btnIcs = $('#btn-ics');
+    btnIcs.style.display = 'flex';
+    $('#conf-ics').style.display = 'none';
+    btnIcs.onclick = () => {
+      descargarICS(c);
+      $('#conf-ics').style.display = 'block';
+    };
+    if(c.codigo){
+      const cod = $('#conf-codigo');
+      cod.textContent = c.codigo;
+      cod.style.display = 'inline-block';
+    }
+    if(c.enlace){
+      /* Guardar la cita en ESTE dispositivo para la pestaña «Historial». */
+      try{
+        localStorage.setItem(CLAVE_CITA, JSON.stringify({
+          enlace: c.enlace, codigo: c.codigo || null,
+          servicio: c.servicio, fecha: c.fecha, hora: c.hora, nombre: c.nombre,
+        }));
+      }catch(e){ /* sin almacenamiento disponible: el enlace sigue en pantalla */ }
+      $('#conf-enlace-bloque').style.display = 'block';
+      $('#conf-enlace').textContent = c.enlace;
+      $('#conf-ver-cita').href = c.enlace;
+      $('#btn-copiar-enlace').onclick = async () => {
+        try{ await navigator.clipboard.writeText(c.enlace); }
+        catch(e){
+          const r = document.createRange();
+          r.selectNodeContents($('#conf-enlace'));
+          const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
+          document.execCommand('copy'); sel.removeAllRanges();
+        }
+        $('#conf-copiado').style.display = 'block';
+      };
+    }
+    /* Sus datos quedan en este dispositivo para «Perfil» y para
+       rellenar la próxima reserva sin escribirlos otra vez. */
+    guardarPerfil($('#inp-nombre').value.trim(), $('#inp-telefono').value.trim());
     ir('p-confirmada');
   }catch(e){
     if(e.status === 409 && e.datos && e.datos.alternativas){
       errorEn('#error-reserva',
         'Ese hueco se ocupó mientras reservabas. Huecos libres ahora: ' +
         e.datos.alternativas.join(', ') + '. Vuelve a elegir la hora.');
+      mostrarPaso(2);
       cargarHuecos();
     }else{
       errorEn('#error-reserva', e.message || 'La reserva no pudo hacerse. Inténtalo de nuevo.');
@@ -594,8 +2157,330 @@ $('#btn-confirmar').onclick = async () => {
   }
 };
 
+/* ---------- barra de navegación inferior ---------- */
+$('#nav-inicio').onclick = () => ir('p-inicio');
+$('#nav-explorar').onclick = () => { pintarExplorar(); ir('p-explorar'); };
+$('#nav-probador').onclick = () => ir('p-probador');
+$('#nav-perfil').onclick = () => { mostrarPerfil(); mostrarGuardados(); mostrarLooks(); ir('p-perfil'); };
+$('#btn-cab-perfil').onclick = () => { mostrarPerfil(); mostrarGuardados(); mostrarLooks(); ir('p-perfil'); };
+
+/* ---------- PWA: service worker, instalación y conexión ---------- */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () =>
+    navigator.serviceWorker.register('/sw.js').catch(() => {}));
+}
+function actualizarConexion(){
+  $('#banner-offline').classList.toggle('visible', !navigator.onLine);
+}
+window.addEventListener('online', actualizarConexion);
+window.addEventListener('offline', actualizarConexion);
+let eventoInstalar = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  eventoInstalar = e;
+  $('#btn-instalar').classList.add('visible');
+});
+$('#btn-instalar').onclick = async () => {
+  if(!eventoInstalar) return;
+  eventoInstalar.prompt();
+  await eventoInstalar.userChoice.catch(() => {});
+  eventoInstalar = null;
+  $('#btn-instalar').classList.remove('visible');
+};
+window.addEventListener('appinstalled', () =>
+  $('#btn-instalar').classList.remove('visible'));
+
+/* ---------- PIVOTE Fase 1 · Explorar, guardados, looks, probador ----------
+   Todo lo nuevo vive en el dispositivo (localStorage), como el perfil:
+   guardados (productos de la carta real), looks (resultados del análisis
+   de cejas, SIN la foto) y foto del perfil visual. Nada de esto sale del
+   móvil; el probador de moda aún no tiene motor y lo dice en pantalla. */
+const CLAVE_GUARDADOS = 'la-asistenta-guardados-v1';
+const CLAVE_LOOKS = 'la-asistenta-looks-v1';
+const CLAVE_FOTO_PERFIL = 'la-asistenta-foto-perfil-v1';
+let catExplorar = 'belleza';
+const SVG_GUARDAR = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" /></svg>';
+const SVG_OJO = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" /><circle cx="12" cy="12" r="3" /></svg>';
+const SVG_X = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>';
+
+function leerLista(clave){
+  try{
+    const v = JSON.parse(localStorage.getItem(clave) || '[]');
+    return Array.isArray(v) ? v : [];
+  }catch(e){ return []; }
+}
+function escribirLista(clave, lista){
+  try{ localStorage.setItem(clave, JSON.stringify(lista)); }catch(e){}
+}
+function estaGuardado(nombre){
+  return leerLista(CLAVE_GUARDADOS).includes(nombre);
+}
+function alternarGuardado(nombre){
+  const lista = leerLista(CLAVE_GUARDADOS);
+  const i = lista.indexOf(nombre);
+  if(i >= 0) lista.splice(i, 1); else lista.push(nombre);
+  escribirLista(CLAVE_GUARDADOS, lista);
+  return i < 0;
+}
+
+/* ---------- Explorar: productos reales de la carta (vertical Cejas) ---------- */
+function tarjetaProducto(s){
+  const f = FOTOS[s.nombre];
+  const desc = DESCRIPTORES[s.nombre];
+  const art = document.createElement('article');
+  art.className = 'prod-card';
+  art.dataset.busqueda = normalizar(s.nombre + ' ' + (desc || ''));
+  const guardado = estaGuardado(s.nombre);
+  art.innerHTML =
+    (f
+      ? `<img class="pc-foto" src="${f.src}" alt="${f.alt}" loading="lazy">`
+      : `<div class="pc-sinfoto">${SVG_OJO}</div>`) +
+    `<div class="pc-body"><h3>${s.nombre}</h3>` +
+    (desc ? `<p class="pc-desc">${desc}</p>` : '') +
+    `<div class="pc-meta"><span class="pc-precio">${s.precio_etiqueta}</span>` +
+    `<span class="sc-dur">${s.duracion_min} min</span>` +
+    `<span class="chip-dato">Ari Vivas Beauty</span></div>` +
+    `<div class="pc-acciones">` +
+    `<button class="btn btn-lavanda" data-acc="probar">Probar con mi foto</button>` +
+    `<button class="btn btn-fantasma" data-acc="reservar">Reservar</button>` +
+    `<button class="btn-guardar${guardado ? ' on' : ''}" data-acc="guardar" aria-label="Guardar ${s.nombre} en Mis guardados" aria-pressed="${guardado}">${SVG_GUARDAR}</button>` +
+    `</div></div>`;
+  art.querySelector('[data-acc="probar"]').onclick = () => {
+    if(estado.analisis) return ir('p-resultado');
+    ir($('#check-consentimiento').checked ? 'p-foto' : 'p-consentimiento');
+  };
+  art.querySelector('[data-acc="reservar"]').onclick = () => {
+    prepararReserva(s.nombre); ir('p-reserva'); mostrarPaso(2); cargarHuecos();
+  };
+  art.querySelector('[data-acc="guardar"]').onclick = ev => {
+    const on = alternarGuardado(s.nombre);
+    ev.currentTarget.classList.toggle('on', on);
+    ev.currentTarget.setAttribute('aria-pressed', String(on));
+  };
+  return art;
+}
+/* ---------- Registro central de módulos (/api/modulos) ----------
+   La estantería de la home, los chips de Explorar y la pantalla de
+   próxima apertura se pintan desde web/modulos.json. Activar un
+   módulo = cambiar su «estado» en el registro, sin tocar código. */
+let MODULOS = [];
+const ICONOS_MOD = {
+  sparkles: '<path d="M12 3c.4 3.9 1.9 5.4 5.8 5.8-3.9.4-5.4 1.9-5.8 5.8-.4-3.9-1.9-5.4-5.8-5.8C10.1 8.4 11.6 6.9 12 3z"/><path d="M19 15c.2 2 .9 2.7 2.9 2.9-2 .2-2.7.9-2.9 2.9-.2-2-.9-2.7-2.9-2.9 2-.2 2.7-.9 2.9-2.9z"/>',
+  shirt: '<path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/>',
+  glasses: '<circle cx="6" cy="15" r="4"/><circle cx="18" cy="15" r="4"/><path d="M14 15a2 2 0 0 0-2-2 2 2 0 0 0-2 2"/><path d="M2.5 13 5 7c.7-1.3 1.4-2 3-2"/><path d="M21.5 13 19 7c-.7-1.3-1.5-2-3-2"/>',
+  footprints: '<path d="M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 10 3.8 10 5.5c0 3.11-2 5.66-2 8.68V16a2 2 0 1 1-4 0Z"/><path d="M20 20v-2.38c0-2.12 1.03-3.12 1-5.62-.03-2.72-1.49-6-4.5-6C14.63 6 14 7.8 14 9.5c0 3.11 2 5.66 2 8.68V20a2 2 0 1 0 4 0Z"/><path d="M16 17h4"/><path d="M4 13h4"/>',
+};
+function moduloPorId(id){ return MODULOS.find(m => m.id === id) || null; }
+function svgModulo(m, estilo){
+  return `<svg viewBox="0 0 24 24" style="${estilo || ''}">${ICONOS_MOD[m.icono] || ICONOS_MOD.sparkles}</svg>`;
+}
+async function cargarModulos(){
+  try{
+    const d = await fetchJson('/api/modulos');
+    MODULOS = (d.modulos || []).slice().sort((a, b) =>
+      ((a.navegacion || {}).orden || 99) - ((b.navegacion || {}).orden || 99));
+  }catch(e){ MODULOS = []; }
+  pintarEstanteria();
+  pintarExplorar();
+}
+function chipEstadoModulo(m){
+  return m.estado === 'activo'
+    ? '<span class="chip-estado ok">Activo</span>'
+    : '<span class="chip-estado prox">Próximamente</span>';
+}
+function pintarEstanteria(){
+  const caja = $('#estanteria-modulos');
+  if(!caja) return;
+  caja.innerHTML = '';
+  for(const m of MODULOS.filter(x => (x.navegacion || {}).enEstanteria)){
+    const b = document.createElement('button');
+    b.className = 'mod-card';
+    b.dataset.modulo = m.id;
+    b.innerHTML =
+      `<span class="m-ico">${svgModulo(m)}</span>` +
+      `<span class="m-main"><span class="m-nombre">${m.nombre} ${chipEstadoModulo(m)}</span>` +
+      `<span class="m-desc" style="display:block">${m.descripcionCorta || ''}</span></span>` +
+      `<span class="m-chev"><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></span>`;
+    b.onclick = () => abrirModulo(m.id);
+    caja.appendChild(b);
+  }
+}
+function abrirModulo(id){
+  const m = moduloPorId(id);
+  if(!m) return;
+  if(m.estado === 'activo'){ catExplorar = m.id; pintarExplorar(); ir('p-explorar'); }
+  else abrirProxima(m);
+}
+function abrirProxima(m){
+  $('#proxima-ico').innerHTML = svgModulo(m,
+    'width:26px;height:26px;stroke:var(--negro);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round');
+  $('#proxima-titulo').textContent = m.nombre;
+  $('#proxima-que').textContent = (m.proxima || {}).quePodras || '';
+  $('#proxima-preparando').textContent = (m.proxima || {}).preparando || '';
+  ir('p-proxima');
+}
+function pintarChipsExplorar(){
+  const caja = $('#chips-cat');
+  if(!caja) return;
+  caja.innerHTML = '';
+  for(const m of MODULOS.filter(x => (x.navegacion || {}).enExplorar)){
+    const b = document.createElement('button');
+    b.className = 'chip-cat' + (m.estado === 'activo' && m.id === catExplorar ? ' on' : '');
+    b.dataset.modulo = m.id;
+    b.textContent = (m.navegacion || {}).etiquetaExplorar || m.nombre;
+    b.onclick = () => {
+      if(m.estado === 'activo'){ catExplorar = m.id; pintarExplorar(); }
+      else abrirProxima(m);
+    };
+    caja.appendChild(b);
+  }
+}
+function pintarExplorar(){
+  pintarChipsExplorar();
+  const grid = $('#explorar-grid');
+  const vacio = $('#explorar-vacio');
+  $('#sin-resultados-exp').style.display = 'none';
+  const m = moduloPorId(catExplorar);
+  if(!m || m.id !== 'belleza'){
+    /* Módulo activo sin catálogo propio cargado en esta superficie
+       (p. ej. recién activado por configuración): estado honesto,
+       sin productos inventados. */
+    grid.innerHTML = '';
+    if(m) $('#vacio-titulo').textContent = m.nombre + ': aún sin productos verificados';
+    vacio.style.display = 'block';
+    return;
+  }
+  vacio.style.display = 'none';
+  grid.innerHTML = '';
+  for(const s of estado.carta) grid.appendChild(tarjetaProducto(s));
+  aplicarBusquedaExplorar();
+}
+function aplicarBusquedaExplorar(){
+  if(catExplorar !== 'belleza') return;
+  const q = normalizar($('#inp-buscar-exp').value.trim());
+  let visibles = 0;
+  $$('#explorar-grid .prod-card').forEach(c => {
+    const ok = !q || (c.dataset.busqueda || '').includes(q);
+    c.style.display = ok ? '' : 'none';
+    if(ok) visibles++;
+  });
+  const aviso = $('#sin-resultados-exp');
+  if(q && !visibles){
+    aviso.textContent = 'Ningún producto coincide con «' + $('#inp-buscar-exp').value.trim() +
+      '». Prueba con «cejas», «henna» o «laminación».';
+    aviso.style.display = 'block';
+  }else{
+    aviso.style.display = 'none';
+  }
+}
+$('#inp-buscar-exp').addEventListener('input', aplicarBusquedaExplorar);
+$('#inp-buscar-exp').addEventListener('keydown', e => {
+  if(e.key === 'Enter'){ e.preventDefault(); $('#form-buscar-exp').requestSubmit(); }
+});
+$('#form-buscar-exp').addEventListener('submit', e => {
+  e.preventDefault();
+  if(catExplorar !== 'belleza'){ catExplorar = 'belleza'; }
+  pintarExplorar();
+});
+$('#btn-exp-salon').onclick = () => ir('p-salon');
+
+/* ---------- Inicio modular: accesos ---------- */
+$('#btn-hero-reservar').onclick = () => { catExplorar = 'belleza'; pintarExplorar(); ir('p-explorar'); };
+$('#btn-hero-analizar').onclick = () => {
+  if(estado.analisis) return ir('p-resultado');
+  ir($('#check-consentimiento').checked ? 'p-foto' : 'p-consentimiento');
+};
+$('#btn-home-cejas').onclick = () => { catExplorar = 'belleza'; pintarExplorar(); ir('p-explorar'); };
+
+/* ---------- Probador: hub ---------- */
+$('#btn-prob-cejas').onclick = () => {
+  if(estado.analisis) return ir('p-resultado');
+  ir($('#check-consentimiento').checked ? 'p-foto' : 'p-consentimiento');
+};
+$('#btn-prob-moda').onclick = () => {
+  const m = moduloPorId('moda_probador');
+  if(m) abrirProxima(m);
+};
+$('#btn-prob-micita').onclick = () => { mostrarMiCita(); ir('p-micita'); };
+$('#btn-perfil-micita').onclick = () => { mostrarMiCita(); ir('p-micita'); };
+
+/* ---------- Mis guardados y Mis looks (Perfil) ---------- */
+function mostrarGuardados(){
+  const caja = $('#guardados-lista');
+  const lista = leerLista(CLAVE_GUARDADOS);
+  if(!lista.length){
+    caja.innerHTML = '<p class="mini">Aún no has guardado ningún producto. En Explorar, toca el marcador de un producto para guardarlo aquí.</p>';
+    return;
+  }
+  caja.innerHTML = '';
+  for(const nombre of lista){
+    const s = datosServicio(nombre);
+    const div = document.createElement('div');
+    div.className = 'item-local';
+    div.innerHTML =
+      `<span class="il-main"><b>${nombre}</b>` +
+      (s ? `<br>${s.precio_etiqueta} · ${s.duracion_min} min · Ari Vivas Beauty` : '') + `</span>` +
+      `<button class="il-btn" data-acc="reservar">Reservar</button>` +
+      `<button class="il-x" data-acc="quitar" aria-label="Quitar ${nombre} de Mis guardados">${SVG_X}</button>`;
+    div.querySelector('[data-acc="reservar"]').onclick = () => {
+      prepararReserva(nombre); ir('p-reserva'); mostrarPaso(2); cargarHuecos();
+    };
+    div.querySelector('[data-acc="quitar"]').onclick = () => {
+      alternarGuardado(nombre);
+      mostrarGuardados();
+      pintarExplorar();
+    };
+    caja.appendChild(div);
+  }
+}
+function mostrarLooks(){
+  const caja = $('#looks-lista');
+  const lista = leerLista(CLAVE_LOOKS);
+  if(!lista.length){
+    caja.innerHTML = '<p class="mini">Aún no has guardado ningún look. Cuando la IA analice tus cejas, podrás guardar el resultado aquí (sin la foto).</p>';
+    return;
+  }
+  caja.innerHTML = '';
+  lista.slice().reverse().forEach((look, iRev) => {
+    const i = lista.length - 1 - iRev;
+    const div = document.createElement('div');
+    div.className = 'item-local';
+    div.innerHTML =
+      `<span class="il-main"><b>${look.recomendado}</b><br>` +
+      `${look.fechaTxt || ''}${look.resumen ? ' · ' + look.resumen : ''}</span>` +
+      `<button class="il-btn" data-acc="reservar">Reservar</button>` +
+      `<button class="il-x" data-acc="quitar" aria-label="Borrar este look">${SVG_X}</button>`;
+    div.querySelector('[data-acc="reservar"]').onclick = () => {
+      prepararReserva(look.recomendado); ir('p-reserva'); mostrarPaso(2); cargarHuecos();
+    };
+    div.querySelector('[data-acc="quitar"]').onclick = () => {
+      const l = leerLista(CLAVE_LOOKS);
+      l.splice(i, 1);
+      escribirLista(CLAVE_LOOKS, l);
+      mostrarLooks();
+    };
+    caja.appendChild(div);
+  });
+}
+$('#btn-guardar-look').onclick = () => {
+  if(!estado.analisis) return;
+  const a = estado.analisis;
+  const lista = leerLista(CLAVE_LOOKS);
+  lista.push({
+    recomendado: a.servicio_recomendado,
+    alternativo: a.servicio_alternativo || null,
+    resumen: String(a.resumen || '').slice(0, 140),
+    fechaTxt: new Date().toLocaleDateString('es-ES', {day: 'numeric', month: 'long'}),
+  });
+  escribirLista(CLAVE_LOOKS, lista);
+  $('#look-guardado').style.display = 'block';
+};
+
+
 /* ---------- arranque ---------- */
+actualizarConexion();
 cargarCarta();
+cargarModulos();
 ir('p-inicio');
 </script>
 </body>

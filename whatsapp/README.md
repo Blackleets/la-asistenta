@@ -1,7 +1,8 @@
 # La Asistenta · Receptor de WhatsApp (webhook)
 
-Receptor mínimo de **WhatsApp Cloud API** (stdlib de Python, sin dependencias)
-que pasa cada mensaje a Hermes Agent y devuelve la respuesta lista para la API.
+Receptor mínimo de **WhatsApp Cloud API** y **Twilio WhatsApp Sandbox**
+(stdlib de Python, sin dependencias) que pasa cada mensaje a Hermes Agent y
+devuelve la respuesta por el mismo canal de entrada.
 
 > Nota de diseño: Hermes trae además su propio gateway nativo de WhatsApp
 > Cloud (`hermes whatsapp-cloud` / `hermes gateway`), que es la vía del plan
@@ -69,6 +70,27 @@ Sin `WHATSAPP_TOKEN`/`WHATSAPP_PHONE_NUMBER_ID` el servidor funciona en
 en el cuerpo del 200 y en `logs/webhook.log`. Perfecto para probar; inútil
 para clientas reales.
 
+## Ruta C: Twilio WhatsApp Sandbox
+
+La URL a configurar en Twilio para mensajes entrantes es:
+
+```text
+https://<tu-url-publica>/twilio/webhook
+```
+
+Twilio envía `From`, `Body`, `ProfileName` y `MessageSid` como formulario.
+El servidor deduplica por `MessageSid`, reutiliza la misma sesión de Hermes
+`wa-<telefono>` y, cuando están configurados `TWILIO_ACCOUNT_SID` y
+`TWILIO_AUTH_TOKEN`, confirma el webhook de inmediato y envía la respuesta
+después mediante la API de Twilio. Ese diseño evita depender del tiempo que
+Hermes tarda en generar la respuesta. Sin credenciales, la ruta devuelve la
+respuesta en TwiML y sirve solo para pruebas locales.
+
+En la consola de Twilio, el Sandbox muestra el número compartido y el código
+`join ...` que cada móvil de prueba debe enviar una vez por WhatsApp. Las
+credenciales se guardan exclusivamente en el `.env` local o en la bóveda;
+no se pegan en el código, el repo ni los chats.
+
 ## Ficheros
 
 | Fichero | Qué es |
@@ -81,10 +103,10 @@ para clientas reales.
 
 ## Limitaciones honestas de esta pieza mínima
 
-- Procesa cada mensaje **en línea** antes de responder 200: un turno tarda lo
-  que Hermes (~8–25 s). Meta tolera el webhook lento en la práctica de la
-  demo, pero en producción lo correcto es responder 200 al instante y
-  procesar en segundo plano (el gateway nativo de Hermes ya trabaja así).
+- La ruta de Meta procesa cada mensaje **en línea** antes de responder 200:
+  un turno tarda lo que Hermes (~8–25 s). La ruta de Twilio con credenciales
+  responde de inmediato y procesa en segundo plano; sin credenciales usa
+  TwiML síncrono solo para pruebas locales.
 - La sesión de Hermes se identifica por el número (`wa-<telefono>`): si la
   clienta cambia de número, empieza conversación nueva.
 - El registro de la cita lo hace el modelo llamando a la herramienta de

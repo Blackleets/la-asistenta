@@ -18,14 +18,54 @@ Endpoints:
   GET  /servicios                  → carta real del salón
   GET  /citas?fecha=YYYY-MM-DD     → citas de ese día (sin fecha: todas)
   POST /citas                      → alta {nombre, servicio, fecha, hora,
-                                       telefono?, notas?} (precio y duración
-                                       salen de la carta, no del cliente).
-                                       Con guarda en el propio endpoint:
-                                       horario del salón y anti-solape →
-                                       409 con «alternativas» si el hueco
-                                       no es reservable (mismo patrón que
-                                       el servidor web de la clienta).
-  POST /citas/<id>/cancelar        → estado = «cancelada»
+                                       telefono?, notas?, origen?} (precio y
+                                       duración salen de la carta, no del
+                                       cliente). v4: admite además
+                                       {servicios: [nombres]} — selección
+                                       múltiple (pack): UNA cita con el
+                                       nombre legible «A + B», con precio y
+                                       duración SUMADOS de la carta, y la
+                                       guarda usa la duración total. El
+                                       contrato de un servicio no cambia.
+                                       Con guarda en el propio
+                                       endpoint: horario del salón y
+                                       anti-solape → 409 con «alternativas»
+                                       si el hueco no es reservable (mismo
+                                       patrón que el servidor web).
+                                       La respuesta incluye el código humano
+                                       (AS-XXXX) y el «enlace» mágico
+                                       post-reserva (el token en claro SOLO
+                                       viaja en esta respuesta; en la BD
+                                       queda únicamente su hash).
+  POST /citas/<id>/cancelar        → estado = «cancelada» (+ evento del
+                                       embudo y lista de espera: las
+                                       entradas compatibles pasan a
+                                       «por_avisar»)
+  POST /citas/<id>/estado          → {estado: «cumplida»|«no_show»} desde
+                                       «confirmada». Al cumplirse se crea
+                                       el agradecimiento en la bandeja de
+                                       salida (mecánica post-cita).
+  GET  /enlace/<hash>              → cita pública (campos seguros) por el
+                                       hash del token del enlace mágico.
+  POST /enlace/<hash>/cancelar     → cancela esa cita (misma semántica).
+  POST /enlace/<hash>/reagendar    → {fecha, hora}: mueve la cita (mismo
+                                       id, guarda anti-solape excluyéndose
+                                       a sí misma) → 409 con alternativas.
+  GET  /enlace/<hash>/huecos       → ?fecha=YYYY-MM-DD: huecos reales para
+                                       reagendar (sin contarse a sí misma).
+  POST /enlace/<hash>/prep         → mini-formulario de preparación ligado
+                                       a la cita {tratamiento_reciente,
+                                       retinol}.
+  GET  /lista-espera               → ?estado=…: entradas (panel de Arianna)
+  POST /lista-espera               → alta {nombre, telefono?, servicio,
+                                       fecha_pref?, hora_pref?}
+  POST /lista-espera/<id>/estado   → {estado} (atendida, descartada…)
+  POST /eventos                    → anota un evento del embudo
+                                       {tipo, cita_id?, origen?}
+  GET  /embudo                     → ?desde&hasta: conteos del embudo
+  GET  /bandeja                    → ?estado=…: bandeja de salida con el
+                                       enlace wa.me de un toque por mensaje
+  POST /bandeja/<id>/estado        → {estado} (enviada, descartada…)
 """
 
 import argparse
@@ -36,7 +76,10 @@ import sqlite3
 import sys
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from urllib.parse import urlparse, parse_qs
+from urllib.parse import urlparse, parse_qs, quote
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import agenda_comun as comun
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.environ.get("AGENDA_DB", os.path.join(BASE_DIR, "agenda.db"))
@@ -87,6 +130,7 @@ def conectar():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     conn.execute(ESQUEMA)
+    comun.migrar(conn)  # migración aditiva: token_hash, prep, tablas nuevas
     return conn
 
 
@@ -127,13 +171,108 @@ def _alternativas(ocupados, apertura, cierre, duracion):
     return libres
 
 
+def etiqueta_de(servicio, precio_eur):
+    """Etiqueta de precio visible de una cita.
+
+    Para UN servicio, la de la carta («Consultar» se guarda como 0.0 en la
+    BD porque la columna es NOT NULL: la etiqueta la pone la carta, no el
+    número). Para un PACK («A + B», v4), la etiqueta se compone del TOTAL
+    guardado — que ya es la suma real de la carta — y, si algún componente
+    es «a consultar», se dice: nunca se presenta un importe parcial como
+    si fuera el total.
+    """
+    carta = POR_NOMBRE.get(servicio)
+    if carta:
+        return carta["precio_etiqueta"]
+    if servicio and " + " in servicio:
+        partes = servicio.split(" + ")
+        if all(p in POR_NOMBRE for p in partes):
+            total = float(precio_eur or 0.0)
+            etq = f"{int(total)} €" if total.is_integer() else f"{total:.2f} €"
+            if any(POR_NOMBRE[p]["precio_eur"] is None for p in partes):
+                etq += " + a consultar"
+            return etq
+    return None
+
+
 def fila_a_cita(row):
     cita = dict(row)
-    carta = POR_NOMBRE.get(cita["servicio"])
-    # «Consultar» se guarda como 0.0 (la columna es NOT NULL): la etiqueta
-    # visible la pone la carta, no el número.
-    cita["precio_etiqueta"] = carta["precio_etiqueta"] if carta else None
+    cita["precio_etiqueta"] = etiqueta_de(cita["servicio"], cita["precio_eur"])
+    # El hash del token del enlace mágico NUNCA sale de la API.
+    cita.pop("token_hash", None)
+    cita["codigo"] = comun.codigo_cita(cita["id"])
+    cita["prep"] = comun.prep_de(cita)
     return cita
+
+
+def cita_publica(row):
+    """Campos seguros de una cita para la página del enlace mágico:
+    solo lo de ESA cita, sin teléfono ni notas internas."""
+    cita = fila_a_cita(row)
+    return {k: cita.get(k) for k in (
+        "id", "codigo", "nombre", "servicio", "fecha", "hora",
+        "precio_eur", "precio_etiqueta", "duracion_min", "estado", "prep")}
+
+
+def huecos_de(conn, servicio, fecha, excluir_id=None, duracion=None):
+    """Huecos reales de inicio (rejilla de 15 min) para un servicio y día.
+
+    Devuelve (lista, None) o (None, motivo). excluir_id ignora la propia
+    cita al reagendar (su hueco actual no debe bloquearla a sí misma).
+    duracion (v4): duración en minutos a usar en vez de la del servicio —
+    la reagendación de un PACK usa la duración total ya guardada en la
+    cita (su «servicio» es «A + B» y no está en la carta). Sin duracion,
+    el comportamiento es el de siempre.
+    """
+    if duracion is None:
+        if servicio not in POR_NOMBRE:
+            return None, "servicio fuera de la carta real"
+        duracion = int(POR_NOMBRE[servicio]["duracion_min"])
+    else:
+        duracion = int(duracion)
+    try:
+        dia = datetime.strptime(fecha, "%Y-%m-%d").date()
+    except (ValueError, TypeError):
+        return None, "fecha no válida"
+    ventana = VENTANA[dia.weekday()]
+    if ventana is None:
+        return [], "domingo cerrado"
+    apertura, cierre = ventana
+    ocupados = [(i, ini, fin) for (i, ini, fin) in _confirmadas(conn, fecha)
+                if i != excluir_id]
+    return _alternativas_todas(ocupados, apertura, cierre, duracion), None
+
+
+def _alternativas_todas(ocupados, apertura, cierre, duracion):
+    """Como _alternativas pero sin tope de 8 (la lista completa)."""
+    libres = []
+    t = apertura
+    while t + duracion <= cierre:
+        if all(t + duracion <= o_ini or t >= o_fin for _, o_ini, o_fin in ocupados):
+            libres.append(_a_hora(t))
+        t += PASO_MIN
+    return libres
+
+
+def _fila_por_hash(conn, token_hash):
+    return conn.execute(
+        "SELECT * FROM citas WHERE token_hash = ?", (token_hash,)
+    ).fetchone()
+
+
+def _cancelar_en_bd(conn, fila, origen_evento):
+    """Semántica única de cancelación: marca 'cancelada' (no borra),
+    anota el evento y libera el hueco para la lista de espera."""
+    conn.execute("UPDATE citas SET estado = 'cancelada' WHERE id = ?", (fila["id"],))
+    comun.registrar_evento(conn, "cancelada", fila["id"], origen_evento)
+    comun.marcar_por_avisar(conn, fila["servicio"], fila["fecha"])
+    # Pack (v4): el hueco liberado también avisa a quien espera por cada
+    # componente del pack (la lista de espera es por servicio suelto).
+    if " + " in (fila["servicio"] or ""):
+        for parte in fila["servicio"].split(" + "):
+            if parte in POR_NOMBRE:
+                comun.marcar_por_avisar(conn, parte, fila["fecha"])
+    conn.commit()
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -200,6 +339,107 @@ class Handler(BaseHTTPRequestHandler):
                 ).fetchall()
             conn.close()
             return self._json(200, {"citas": [fila_a_cita(f) for f in filas]})
+        if ruta.path == "/embudo":
+            qs = parse_qs(ruta.query)
+            desde = (qs.get("desde") or [None])[0]
+            hasta = (qs.get("hasta") or [None])[0]
+            if desde and not FECHA_RE.match(desde):
+                return self._json(400, {"error": "desde debe ser YYYY-MM-DD"})
+            if hasta and not FECHA_RE.match(hasta):
+                return self._json(400, {"error": "hasta debe ser YYYY-MM-DD"})
+            conn = conectar()
+            cond, params = [], []
+            if desde:
+                cond.append("substr(ts, 1, 10) >= ?")
+                params.append(desde)
+            if hasta:
+                cond.append("substr(ts, 1, 10) <= ?")
+                params.append(hasta)
+            donde = (" WHERE " + " AND ".join(cond)) if cond else ""
+            por_tipo = dict(conn.execute(
+                f"SELECT tipo, COUNT(*) FROM eventos{donde} GROUP BY tipo",
+                params).fetchall())
+            por_origen = dict(conn.execute(
+                f"SELECT origen, COUNT(*) FROM eventos{donde} GROUP BY origen",
+                params).fetchall())
+            conn.close()
+            return self._json(200, {
+                "desde": desde, "hasta": hasta,
+                "total": sum(por_tipo.values()),
+                "por_tipo": por_tipo, "por_origen": por_origen,
+            })
+        if ruta.path == "/lista-espera":
+            qs = parse_qs(ruta.query)
+            estado = (qs.get("estado") or [None])[0]
+            conn = conectar()
+            if estado:
+                filas = conn.execute(
+                    "SELECT * FROM lista_espera WHERE estado = ? ORDER BY creado_en",
+                    (estado,)).fetchall()
+            else:
+                filas = conn.execute(
+                    "SELECT * FROM lista_espera ORDER BY creado_en").fetchall()
+            conn.close()
+            return self._json(200, {"lista_espera": [dict(f) for f in filas]})
+        if ruta.path == "/bandeja":
+            qs = parse_qs(ruta.query)
+            estado = (qs.get("estado") or [None])[0]
+            conn = conectar()
+            if estado:
+                filas = conn.execute(
+                    """SELECT b.*, c.nombre, c.servicio, c.fecha, c.hora,
+                              c.telefono FROM bandeja_salida b
+                       JOIN citas c ON c.id = b.cita_id
+                       WHERE b.estado = ? ORDER BY b.creado_en""",
+                    (estado,)).fetchall()
+            else:
+                filas = conn.execute(
+                    """SELECT b.*, c.nombre, c.servicio, c.fecha, c.hora,
+                              c.telefono FROM bandeja_salida b
+                       JOIN citas c ON c.id = b.cita_id
+                       ORDER BY b.creado_en""").fetchall()
+            conn.close()
+            salida = []
+            for f in filas:
+                d = dict(f)
+                d["codigo"] = comun.codigo_cita(d["cita_id"])
+                tel = re.sub(r"\D", "", d.get("telefono") or "")
+                # Enlace de UN toque: wa.me abre WhatsApp con el texto
+                # precargado; enviarlo sí es posible (lo pulsa Arianna
+                # desde su propio WhatsApp, no la API de Twilio).
+                d["wa_link"] = (
+                    f"https://wa.me/{tel}?text={quote(d['texto'])}" if tel else None)
+                salida.append(d)
+            return self._json(200, {"bandeja": salida})
+        m = re.match(r"^/enlace/([0-9a-f]{64})$", ruta.path)
+        if m:
+            conn = conectar()
+            fila = _fila_por_hash(conn, m.group(1))
+            conn.close()
+            if not fila:
+                return self._json(404, {"error": "enlace no válido o caducado"})
+            return self._json(200, {"cita": cita_publica(fila)})
+        m = re.match(r"^/enlace/([0-9a-f]{64})/huecos$", ruta.path)
+        if m:
+            qs = parse_qs(ruta.query)
+            fecha = (qs.get("fecha") or [""])[0]
+            if not FECHA_RE.match(fecha):
+                return self._json(400, {"error": "fecha debe ser YYYY-MM-DD"})
+            conn = conectar()
+            fila = _fila_por_hash(conn, m.group(1))
+            if not fila:
+                conn.close()
+                return self._json(404, {"error": "enlace no válido o caducado"})
+            # La duración guardada en la cita manda: para un servicio es
+            # la de la carta (idéntico a antes); para un pack, la total.
+            libres, motivo = huecos_de(conn, fila["servicio"], fecha,
+                                       excluir_id=fila["id"],
+                                       duracion=int(fila["duracion_min"]))
+            conn.close()
+            if libres is None:
+                return self._json(400, {"error": motivo})
+            return self._json(200, {"servicio": fila["servicio"], "fecha": fecha,
+                                    "huecos": libres, "motivo": motivo})
         return self._json(404, {"error": "ruta no encontrada"})
 
     def do_POST(self):
@@ -214,11 +454,40 @@ class Handler(BaseHTTPRequestHandler):
             if not fila:
                 conn.close()
                 return self._json(404, {"error": "cita no encontrada"})
-            conn.execute("UPDATE citas SET estado = 'cancelada' WHERE id = ?", (cid,))
-            conn.commit()
+            if fila["estado"] != "cancelada":
+                _cancelar_en_bd(conn, fila, "web")
             fila = conn.execute("SELECT * FROM citas WHERE id = ?", (cid,)).fetchone()
             conn.close()
             return self._json(200, {"cita": fila_a_cita(fila)})
+        m = re.match(r"^/citas/(\d+)/estado$", ruta.path)
+        if m:
+            return self._cambiar_estado(int(m.group(1)))
+        if ruta.path == "/eventos":
+            datos = self._leer_json()
+            if datos is None:
+                return self._json(400, {"error": "JSON no válido"})
+            tipo = (datos.get("tipo") or "").strip()
+            if tipo not in comun.TIPOS_EVENTO:
+                return self._json(400, {"error": "tipo de evento no válido"})
+            conn = conectar()
+            comun.registrar_evento(conn, tipo, datos.get("cita_id"),
+                                   datos.get("origen") or "web")
+            conn.commit()
+            conn.close()
+            return self._json(201, {"ok": True})
+        if ruta.path == "/lista-espera":
+            return self._alta_lista_espera()
+        m = re.match(r"^/lista-espera/(\d+)/estado$", ruta.path)
+        if m:
+            return self._estado_simple("lista_espera", int(m.group(1)),
+                                       ("esperando", "por_avisar", "atendida", "descartada"))
+        m = re.match(r"^/bandeja/(\d+)/estado$", ruta.path)
+        if m:
+            return self._estado_simple("bandeja_salida", int(m.group(1)),
+                                       ("pendiente", "enviada", "descartada"))
+        m = re.match(r"^/enlace/([0-9a-f]{64})/(cancelar|reagendar|prep)$", ruta.path)
+        if m:
+            return self._enlace_post(m.group(1), m.group(2))
         if ruta.path == "/citas":
             datos = self._leer_json()
             if datos is None:
@@ -229,14 +498,35 @@ class Handler(BaseHTTPRequestHandler):
             hora = (datos.get("hora") or "").strip()
             if not nombre:
                 return self._json(400, {"error": "falta el nombre de la clienta"})
-            if servicio not in POR_NOMBRE:
+            # v4 — selección múltiple (pack), contrato compatible:
+            # «servicios» (lista de nombres de la carta) manda si viene;
+            # «servicio» (uno solo) sigue funcionando exactamente igual.
+            # La cita es UNA: nombre legible «A + B», precio y duración
+            # SUMADOS desde la carta (nunca del cliente), y la guarda de
+            # abajo trabaja con la duración total.
+            nombres = None
+            crudos = datos.get("servicios")
+            if isinstance(crudos, list) and crudos:
+                nombres = []
+                for crudo in crudos:
+                    crudo = crudo.strip() if isinstance(crudo, str) else ""
+                    if crudo not in POR_NOMBRE:
+                        return self._json(400, {
+                            "error": "servicio fuera de la carta real"})
+                    if crudo not in nombres:
+                        nombres.append(crudo)
+            elif servicio in POR_NOMBRE:
+                nombres = [servicio]
+            if not nombres:
                 return self._json(400, {"error": "servicio fuera de la carta real"})
             if not FECHA_RE.match(fecha):
                 return self._json(400, {"error": "fecha debe ser YYYY-MM-DD"})
             if not HORA_RE.match(hora):
                 return self._json(400, {"error": "hora debe ser HH:MM (24 h)"})
-            carta = POR_NOMBRE[servicio]
-            duracion = int(carta["duracion_min"])
+            servicio = " + ".join(nombres)
+            duracion = sum(int(POR_NOMBRE[n]["duracion_min"]) for n in nombres)
+            precio_total = sum(
+                POR_NOMBRE[n]["precio_eur"] or 0.0 for n in nombres)
             # --- Guarda de la agenda (la misma para todos los canales) ---
             # Fecha real (no basta el patrón: hacen falta el día de semana).
             try:
@@ -276,28 +566,234 @@ class Handler(BaseHTTPRequestHandler):
                              f"partir de las {libre_desde}",
                     "alternativas": alternativas,
                 })
+            origen = (datos.get("origen") or "app").strip()
+            if origen not in ("app", "web", "whatsapp"):
+                origen = "app"
+            # Enlace mágico: se genera el token y en la BD solo queda su hash.
+            token, token_hash = comun.nuevo_token()
             cur = conn.execute(
                 """INSERT INTO citas
                    (creado_en, nombre, servicio, fecha, hora, precio_eur,
-                    duracion_min, estado, origen, telefono, notas)
-                   VALUES (?, ?, ?, ?, ?, ?, ?, 'confirmada', 'app', ?, ?)""",
+                    duracion_min, estado, origen, telefono, notas, token_hash)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, 'confirmada', ?, ?, ?, ?)""",
                 (
                     datetime.now(timezone.utc).isoformat(timespec="seconds"),
                     nombre,
                     servicio,
                     fecha,
                     hora,
-                    carta["precio_eur"] if carta["precio_eur"] is not None else 0.0,
-                    carta["duracion_min"],
+                    precio_total,
+                    duracion,
+                    origen,
                     (datos.get("telefono") or None),
                     (datos.get("notas") or None),
+                    token_hash,
                 ),
             )
+            cita_id = cur.lastrowid
+            comun.registrar_evento(conn, "reserva_confirmada", cita_id,
+                                   "whatsapp" if origen == "whatsapp" else "web")
             conn.commit()
-            fila = conn.execute("SELECT * FROM citas WHERE id = ?", (cur.lastrowid,)).fetchone()
+            fila = conn.execute("SELECT * FROM citas WHERE id = ?", (cita_id,)).fetchone()
             conn.close()
-            return self._json(201, {"cita": fila_a_cita(fila)})
+            cita = fila_a_cita(fila)
+            # El token en claro SOLO existe en esta respuesta (y en el
+            # enlace que la clienta guarda); no se puede recuperar después.
+            cita["enlace"] = comun.enlace_cita(token)
+            return self._json(201, {"cita": cita})
         return self._json(404, {"error": "ruta no encontrada"})
+
+    # ---------- mecánicas: estados, lista de espera, bandeja, enlace ----------
+    def _cambiar_estado(self, cid):
+        datos = self._leer_json()
+        if datos is None:
+            return self._json(400, {"error": "JSON no válido"})
+        nuevo = (datos.get("estado") or "").strip()
+        if nuevo not in ("cumplida", "no_show"):
+            return self._json(400, {"error": "estado debe ser «cumplida» o «no_show»"})
+        conn = conectar()
+        fila = conn.execute("SELECT * FROM citas WHERE id = ?", (cid,)).fetchone()
+        if not fila:
+            conn.close()
+            return self._json(404, {"error": "cita no encontrada"})
+        if fila["estado"] == nuevo:
+            conn.close()
+            return self._json(200, {"cita": fila_a_cita(fila), "sin_cambio": True})
+        if fila["estado"] != "confirmada":
+            conn.close()
+            return self._json(409, {
+                "error": f"una cita «{fila['estado']}» no puede pasar a «{nuevo}»"})
+        conn.execute("UPDATE citas SET estado = ? WHERE id = ?", (nuevo, cid))
+        comun.registrar_evento(
+            conn, "cita_cumplida" if nuevo == "cumplida" else "no_show", cid, "web")
+        if nuevo == "cumplida":
+            # Post-cita: agradecimiento a la bandeja de salida (pendiente
+            # de que Arianna lo envíe con un toque vía wa.me).
+            comun.crear_gracias(conn, dict(fila))
+        conn.commit()
+        fila = conn.execute("SELECT * FROM citas WHERE id = ?", (cid,)).fetchone()
+        conn.close()
+        return self._json(200, {"cita": fila_a_cita(fila)})
+
+    def _alta_lista_espera(self):
+        datos = self._leer_json()
+        if datos is None:
+            return self._json(400, {"error": "JSON no válido"})
+        nombre = (datos.get("nombre") or "").strip()
+        servicio = (datos.get("servicio") or "").strip()
+        fecha_pref = (datos.get("fecha_pref") or "").strip() or None
+        hora_pref = (datos.get("hora_pref") or "").strip() or None
+        if len(nombre) < 2 or len(nombre) > 60:
+            return self._json(400, {"error": "escribe tu nombre (2–60 caracteres)"})
+        if servicio not in POR_NOMBRE:
+            return self._json(400, {"error": "servicio fuera de la carta real"})
+        if fecha_pref is not None:
+            if not FECHA_RE.match(fecha_pref):
+                return self._json(400, {"error": "fecha_pref debe ser YYYY-MM-DD"})
+            try:
+                datetime.strptime(fecha_pref, "%Y-%m-%d")
+            except ValueError:
+                return self._json(400, {"error": "fecha_pref no válida"})
+        if hora_pref is not None and not HORA_RE.match(hora_pref):
+            return self._json(400, {"error": "hora_pref debe ser HH:MM (24 h)"})
+        conn = conectar()
+        cur = conn.execute(
+            """INSERT INTO lista_espera
+               (creado_en, nombre, telefono, servicio, fecha_pref, hora_pref,
+                estado, notas)
+               VALUES (?, ?, ?, ?, ?, ?, 'esperando', ?)""",
+            (
+                datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                nombre,
+                (datos.get("telefono") or "").strip() or None,
+                servicio, fecha_pref, hora_pref,
+                (datos.get("notas") or "").strip() or None,
+            ),
+        )
+        entrada_id = cur.lastrowid
+        comun.registrar_evento(conn, "lista_espera_alta", None,
+                               datos.get("origen") or "web")
+        conn.commit()
+        fila = conn.execute(
+            "SELECT * FROM lista_espera WHERE id = ?", (entrada_id,)).fetchone()
+        conn.close()
+        return self._json(201, {"entrada": dict(fila)})
+
+    def _estado_simple(self, tabla, fila_id, validos):
+        datos = self._leer_json()
+        if datos is None:
+            return self._json(400, {"error": "JSON no válido"})
+        nuevo = (datos.get("estado") or "").strip()
+        if nuevo not in validos:
+            return self._json(400, {
+                "error": "estado debe ser uno de: " + ", ".join(validos)})
+        conn = conectar()
+        fila = conn.execute(
+            f"SELECT * FROM {tabla} WHERE id = ?", (fila_id,)).fetchone()
+        if not fila:
+            conn.close()
+            return self._json(404, {"error": "registro no encontrado"})
+        conn.execute(f"UPDATE {tabla} SET estado = ? WHERE id = ?", (nuevo, fila_id))
+        conn.commit()
+        fila = conn.execute(
+            f"SELECT * FROM {tabla} WHERE id = ?", (fila_id,)).fetchone()
+        conn.close()
+        return self._json(200, {"registro": dict(fila)})
+
+    def _enlace_post(self, token_hash, accion):
+        conn = conectar()
+        fila = _fila_por_hash(conn, token_hash)
+        if not fila:
+            conn.close()
+            return self._json(404, {"error": "enlace no válido o caducado"})
+        if accion == "cancelar":
+            if fila["estado"] != "cancelada":
+                _cancelar_en_bd(conn, fila, "web")
+            fila = conn.execute(
+                "SELECT * FROM citas WHERE id = ?", (fila["id"],)).fetchone()
+            conn.close()
+            return self._json(200, {"cita": cita_publica(fila)})
+        if accion == "prep":
+            datos = self._leer_json()
+            if datos is None:
+                conn.close()
+                return self._json(400, {"error": "JSON no válido"})
+            tratamiento = (datos.get("tratamiento_reciente") or "").strip()
+            retinol = (datos.get("retinol") or "").strip()
+            if not tratamiento or len(tratamiento) > 300:
+                conn.close()
+                return self._json(400, {
+                    "error": "cuéntanos si llevas algún tratamiento reciente en las cejas"})
+            if not retinol or len(retinol) > 120:
+                conn.close()
+                return self._json(400, {
+                    "error": "cuéntanos si usas productos con retinol en la zona"})
+            prep = {
+                "tratamiento_reciente": tratamiento,
+                "retinol": retinol,
+                "respondido_en": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+            }
+            conn.execute("UPDATE citas SET prep = ? WHERE id = ?",
+                         (json.dumps(prep, ensure_ascii=False), fila["id"]))
+            conn.commit()
+            fila = conn.execute(
+                "SELECT * FROM citas WHERE id = ?", (fila["id"],)).fetchone()
+            conn.close()
+            return self._json(200, {"cita": cita_publica(fila)})
+        # accion == "reagendar"
+        datos = self._leer_json()
+        if datos is None:
+            conn.close()
+            return self._json(400, {"error": "JSON no válido"})
+        fecha = (datos.get("fecha") or "").strip()
+        hora = (datos.get("hora") or "").strip()
+        if not FECHA_RE.match(fecha) or not HORA_RE.match(hora):
+            conn.close()
+            return self._json(400, {"error": "fecha u hora no válidas"})
+        if fila["estado"] != "confirmada":
+            conn.close()
+            return self._json(409, {
+                "error": "solo se puede reagendar una cita confirmada"})
+        if fecha == fila["fecha"] and hora == fila["hora"]:
+            conn.close()
+            return self._json(200, {"cita": cita_publica(fila), "sin_cambio": True})
+        try:
+            dia = datetime.strptime(fecha, "%Y-%m-%d").date()
+        except ValueError:
+            conn.close()
+            return self._json(400, {"error": "fecha no válida"})
+        ventana = VENTANA[dia.weekday()]
+        if ventana is None:
+            conn.close()
+            return self._json(409, {"error": "el salón cierra los domingos",
+                                    "alternativas": []})
+        apertura, cierre = ventana
+        inicio, fin = _a_minutos(hora), _a_minutos(hora) + int(fila["duracion_min"])
+        ocupados = [(i, ini, fin_) for (i, ini, fin_) in _confirmadas(conn, fecha)
+                    if i != fila["id"]]
+        if inicio < apertura or fin > cierre or any(
+                inicio < o_fin and o_ini < fin for _, o_ini, o_fin in ocupados):
+            alternativas = _alternativas(ocupados, apertura, cierre,
+                                         int(fila["duracion_min"]))
+            conn.close()
+            return self._json(409, {
+                "error": "ese hueco no está libre; prueba con otra hora",
+                "alternativas": alternativas})
+        vieja_fecha, viejo_servicio = fila["fecha"], fila["servicio"]
+        conn.execute("UPDATE citas SET fecha = ?, hora = ? WHERE id = ?",
+                     (fecha, hora, fila["id"]))
+        comun.registrar_evento(conn, "reagendada", fila["id"], "web")
+        # El hueco viejo queda libre: puede avisar a la lista de espera.
+        comun.marcar_por_avisar(conn, viejo_servicio, vieja_fecha)
+        if " + " in (viejo_servicio or ""):  # pack: también por componente
+            for parte in viejo_servicio.split(" + "):
+                if parte in POR_NOMBRE:
+                    comun.marcar_por_avisar(conn, parte, vieja_fecha)
+        conn.commit()
+        fila = conn.execute(
+            "SELECT * FROM citas WHERE id = ?", (fila["id"],)).fetchone()
+        conn.close()
+        return self._json(200, {"cita": cita_publica(fila)})
 
 
 def main():

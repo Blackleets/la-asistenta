@@ -1,0 +1,19 @@
+# Truss de FASHN VTON v1.5 (Apache 2.0) para LA ASISTENTA.
+# Despliegue: la-asistenta-fashn-vton en Baseten, GPU L4 (la más pequeña
+# con bf16 digno: el modelo trabaja en bfloat16, Ampere+; la T4 es Turing).
+# Coste en reposo: autoscaling con min_replicas 0 (escalado a cero) —
+# se ajusta por API tras el despliegue y queda registrado en ESTADO.
+model_name: la-asistenta-fashn-vton
+model_framework: custom
+model_type: custom
+python_version: py311
+requirements_file: requirements.txt
+resources:
+  cpu: "4"
+  memory: 16Gi
+  accelerator: L4
+  use_gpu: true
+runtime:
+  predict_concurrency: 1
+# Sin model_cache: los pesos (~2,3 GB) se descargan de HuggingFace en load()
+# en cada arranque en frío. Suficiente para la prueba; optimizar si pasa a producción.

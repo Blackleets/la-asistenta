@@ -10,6 +10,12 @@ El transporte MCP por stdio es JSON-RPC 2.0 delimitado por saltos de línea.
 
 La base de datos vive junto a este fichero (agenda.db) y se puede mover con
 la variable de entorno AGENDA_DB.
+
+Mecánicas compartidas con la API (agenda_comun.py): código humano de la
+cita (AS-XXXX), enlace mágico post-reserva (en la BD solo el hash del
+token), eventos del embudo y lista de espera activa (al cancelar, las
+entradas compatibles pasan a «por_avisar»; el aviso saliente NO se envía:
+Twilio trial no lo permite, error 21654).
 """
 import json
 import os
@@ -19,6 +25,21 @@ from datetime import datetime, timezone
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.environ.get("AGENDA_DB", os.path.join(BASE_DIR, "agenda.db"))
+
+sys.path.insert(0, BASE_DIR)
+import agenda_comun as comun
+
+# Carta REAL del salón (la misma que la API y el SOUL; no inventar otra).
+CARTA = {
+    "Diseño de cejas": (18.0, 25),
+    "Ombré Brows Henna": (30.0, 65),
+    "Brow Lamination": (45.0, 65),
+    "Depilación rápida": (None, 12),
+}
+# Ventana de apertura por día de semana (lunes=0 … domingo=6; None=cerrado).
+VENTANA = {0: (600, 1200), 1: (600, 1200), 2: (600, 1200), 3: (600, 1200),
+           4: (600, 1200), 5: (600, 840), 6: None}
+PASO_MIN = 15
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS citas (
@@ -42,6 +63,7 @@ CREATE INDEX IF NOT EXISTS idx_citas_fecha ON citas(fecha, hora);
 def db():
     conn = sqlite3.connect(DB_PATH)
     conn.executescript(SCHEMA)
+    comun.migrar(conn)  # migración aditiva compartida con la API
     return conn
 
 
@@ -99,11 +121,13 @@ def registrar_cita(args):
                 "no registres nada hasta que ella elija la nueva hora y la "
                 "confirme con el flujo habitual (resumen → su sí → registro)."
             )
+        # Enlace mágico: token nuevo; en la BD solo se guarda su hash.
+        token, token_hash = comun.nuevo_token()
         cur = conn.execute(
             """INSERT INTO citas
                (creado_en, nombre, servicio, fecha, hora, precio_eur,
-                duracion_min, estado, origen, telefono, notas)
-               VALUES (?, ?, ?, ?, ?, ?, ?, 'confirmada', ?, ?, ?)""",
+                duracion_min, estado, origen, telefono, notas, token_hash)
+               VALUES (?, ?, ?, ?, ?, ?, ?, 'confirmada', ?, ?, ?, ?)""",
             (
                 datetime.now(timezone.utc).isoformat(timespec="seconds"),
                 str(args["nombre"]).strip(),
@@ -115,19 +139,28 @@ def registrar_cita(args):
                 str(args.get("origen") or "whatsapp"),
                 (str(args["telefono"]).strip() if args.get("telefono") else None),
                 (str(args["notas"]).strip() if args.get("notas") else None),
+                token_hash,
             ),
         )
-        conn.commit()
         cita_id = cur.lastrowid
+        comun.registrar_evento(conn, "reserva_confirmada", cita_id, "whatsapp")
+        conn.commit()
     finally:
         conn.close()
+    codigo = comun.codigo_cita(cita_id)
+    enlace = comun.enlace_cita(token)
     return {
         "ok": True,
         "id": cita_id,
+        "codigo": codigo,
+        "enlace": enlace,
         "resumen": (
-            f"Cita #{cita_id} registrada: {args['servicio']} para {args['nombre']}, "
+            f"Cita {codigo} registrada: {args['servicio']} para {args['nombre']}, "
             f"{args['fecha']} a las {args['hora']} "
-            f"({args['precio_eur']} €, {args['duracion_min']} min, estado: confirmada)"
+            f"({args['precio_eur']} €, {args['duracion_min']} min, estado: confirmada). "
+            f"Enlace de la clienta (inclúyelo LITERAL en tu mensaje de "
+            f"confirmación; desde ahí puede ver, cancelar o reagendar su "
+            f"cita y responder dos preguntas de preparación): {enlace}"
         ),
     }
 
@@ -148,12 +181,168 @@ def consultar_citas(args):
         conn.close()
     citas = [
         {
-            "id": r[0], "nombre": r[1], "servicio": r[2], "hora": r[3],
-            "precio_eur": r[4], "duracion_min": r[5], "estado": r[6], "origen": r[7],
+            "id": r[0], "codigo": comun.codigo_cita(r[0]), "nombre": r[1],
+            "servicio": r[2], "hora": r[3], "precio_eur": r[4],
+            "duracion_min": r[5], "estado": r[6], "origen": r[7],
         }
         for r in rows
     ]
     return {"ok": True, "fecha": fecha, "total": len(citas), "citas": citas}
+
+
+def consultar_disponibilidad(args):
+    """Huecos REALES de inicio para un servicio y un día, paginados.
+
+    Pensada para proponer 3–5 horas concretas y ofrecer «ver más
+    horarios» con el desplazamiento siguiente. Anota el evento del
+    embudo «hueco_propuesto».
+    """
+    servicio = (str(args["servicio"]).strip() if args.get("servicio") else None)
+    if servicio not in CARTA:
+        raise ValueError(
+            "Servicio fuera de la carta real. La carta es: "
+            + ", ".join(CARTA.keys()))
+    fecha = args.get("fecha")
+    if not fecha:
+        raise ValueError("Falta la fecha (YYYY-MM-DD)")
+    dia = datetime.strptime(fecha, "%Y-%m-%d").date()
+    limite = max(1, min(int(args.get("limite") or 5), 12))
+    desplazamiento = max(0, int(args.get("desplazamiento") or 0))
+    conn = db()
+    try:
+        ventana = VENTANA[dia.weekday()]
+        if ventana is None:
+            comun.registrar_evento(conn, "hueco_propuesto", None, "whatsapp")
+            conn.commit()
+            return {"ok": True, "servicio": servicio, "fecha": fecha,
+                    "huecos": [], "total_libres": 0, "hay_mas": False,
+                    "motivo": "domingo cerrado"}
+        apertura, cierre = ventana
+        duracion = int(CARTA[servicio][1])
+        existentes = conn.execute(
+            """SELECT hora, duracion_min FROM citas
+               WHERE fecha = ? AND estado = 'confirmada' ORDER BY hora""",
+            (fecha,),
+        ).fetchall()
+        ocupados = [(_a_minutos(r[0]), _a_minutos(r[0]) + int(r[1]))
+                    for r in existentes]
+        libres = []
+        t = apertura
+        while t + duracion <= cierre:
+            if all(t + duracion <= o_ini or t >= o_fin for o_ini, o_fin in ocupados):
+                libres.append(_a_hora(t))
+            t += PASO_MIN
+        comun.registrar_evento(conn, "hueco_propuesto", None, "whatsapp")
+        conn.commit()
+    finally:
+        conn.close()
+    pagina = libres[desplazamiento:desplazamiento + limite]
+    hay_mas = desplazamiento + limite < len(libres)
+    return {
+        "ok": True, "servicio": servicio, "fecha": fecha,
+        "huecos": pagina, "total_libres": len(libres), "hay_mas": hay_mas,
+        "siguiente_desplazamiento": (desplazamiento + limite) if hay_mas else None,
+    }
+
+
+def apuntar_lista_espera(args):
+    """Apunta a una clienta en la lista de espera activa.
+
+    Si luego se libera un hueco compatible (una cancelación de su
+    servicio en su fecha preferida), su entrada pasa a «por_avisar».
+    El aviso saliente NO se envía automáticamente (Twilio trial lo
+    impide); no prometas a la clienta que le escribiremos: dile que
+    queda apuntada y que puede escribirnos para consultar su hueco.
+    """
+    nombre = (str(args["nombre"]).strip() if args.get("nombre") else None)
+    servicio = (str(args["servicio"]).strip() if args.get("servicio") else None)
+    if not nombre:
+        raise ValueError("Falta el nombre de la clienta")
+    if servicio not in CARTA:
+        raise ValueError(
+            "Servicio fuera de la carta real. La carta es: "
+            + ", ".join(CARTA.keys()))
+    fecha_pref = (str(args["fecha_pref"]).strip() if args.get("fecha_pref") else None)
+    if fecha_pref:
+        datetime.strptime(fecha_pref, "%Y-%m-%d")
+    hora_pref = (str(args["hora_pref"]).strip() if args.get("hora_pref") else None)
+    if hora_pref:
+        datetime.strptime(hora_pref, "%H:%M")
+    conn = db()
+    try:
+        cur = conn.execute(
+            """INSERT INTO lista_espera
+               (creado_en, nombre, telefono, servicio, fecha_pref, hora_pref,
+                estado, notas)
+               VALUES (?, ?, ?, ?, ?, ?, 'esperando', ?)""",
+            (
+                datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                nombre,
+                (str(args["telefono"]).strip() if args.get("telefono") else None),
+                servicio, fecha_pref, hora_pref,
+                (str(args["notas"]).strip() if args.get("notas") else None),
+            ),
+        )
+        entrada_id = cur.lastrowid
+        comun.registrar_evento(conn, "lista_espera_alta", None, "whatsapp")
+        conn.commit()
+    finally:
+        conn.close()
+    return {
+        "ok": True, "id": entrada_id,
+        "resumen": (
+            f"{nombre} quedó apuntada en la lista de espera para {servicio}"
+            + (f" el {fecha_pref}" if fecha_pref else "")
+            + (f" sobre las {hora_pref}" if hora_pref else "")
+            + ". Si se libera un hueco compatible, su entrada pasará a "
+              "«por_avisar» en el panel del salón."
+        ),
+    }
+
+
+def consultar_lista_espera(args):
+    """Consulta la lista de espera de UNA clienta por su teléfono.
+
+    Úsala al abrir una conversación: si la clienta tiene una entrada en
+    «por_avisar», es que se liberó un hueco compatible con lo que
+    esperaba y puedes ofrecérselo en ese momento.
+    """
+    telefono = (str(args["telefono"]).strip() if args.get("telefono") else "")
+    digitos = "".join(c for c in telefono if c.isdigit())
+    if len(digitos) < 9:
+        raise ValueError("Hace falta el teléfono de la clienta (al menos 9 dígitos)")
+    sufijo = digitos[-9:]
+    conn = db()
+    try:
+        rows = conn.execute(
+            """SELECT id, nombre, servicio, fecha_pref, hora_pref, estado
+               FROM lista_espera
+               WHERE telefono IS NOT NULL
+                 AND replace(replace(replace(telefono, ' ', ''), '+', ''), '-', '')
+                     LIKE '%' || ?
+               ORDER BY creado_en""",
+            (sufijo,),
+        ).fetchall()
+    finally:
+        conn.close()
+    entradas = [
+        {"id": r[0], "nombre": r[1], "servicio": r[2], "fecha_pref": r[3],
+         "hora_pref": r[4], "estado": r[5]}
+        for r in rows
+    ]
+    por_avisar = [e for e in entradas if e["estado"] == "por_avisar"]
+    return {
+        "ok": True, "entradas": entradas,
+        "hay_hueco_liberado": bool(por_avisar),
+        "resumen": (
+            "Se liberó un hueco compatible con lo que esta clienta esperaba "
+            f"({por_avisar[0]['servicio']}"
+            + (f", {por_avisar[0]['fecha_pref']}" if por_avisar and por_avisar[0]['fecha_pref'] else "")
+            + "): ofréceselo en esta conversación."
+            if por_avisar else
+            "Esta clienta no tiene ningún hueco liberado pendiente de aviso."
+        ),
+    }
 
 
 def cancelar_cita(args):
@@ -164,6 +353,11 @@ def cancelar_cita(args):
     el detalle para que se pida el id o la hora).
     """
     cita_id = args.get("id")
+    if not cita_id and args.get("codigo"):
+        # La clienta puede localizar su cita por su código humano AS-XXXX.
+        cita_id = comun.id_desde_codigo(args["codigo"])
+        if not cita_id:
+            raise ValueError(f"Código de cita no válido: {args['codigo']}")
     nombre = (str(args["nombre"]).strip() if args.get("nombre") else None)
     fecha = args.get("fecha")
     if fecha:
@@ -204,13 +398,21 @@ def cancelar_cita(args):
             )
         r = candidatas[0]
         conn.execute("UPDATE citas SET estado = 'cancelada' WHERE id = ?", (r[0],))
+        comun.registrar_evento(conn, "cancelada", r[0], "whatsapp")
+        # El hueco queda libre: la lista de espera compatible pasa a
+        # «por_avisar» (sin envío automático: no es posible con Twilio
+        # trial, y nunca se finge enviado).
+        n_aviso = comun.marcar_por_avisar(conn, r[2], r[3])
         conn.commit()
     finally:
         conn.close()
     return {
-        "ok": True, "id": r[0], "estado": "cancelada",
+        "ok": True, "id": r[0], "codigo": comun.codigo_cita(r[0]),
+        "estado": "cancelada",
+        "lista_espera_por_avisar": n_aviso,
         "resumen": (
-            f"Cita #{r[0]} cancelada: {r[2]} de {r[1]}, {r[3]} a las {r[4]}. "
+            f"Cita {comun.codigo_cita(r[0])} cancelada: {r[2]} de {r[1]}, "
+            f"{r[3]} a las {r[4]}. "
             "El registro se conserva en la agenda con estado 'cancelada'."
         ),
     }
@@ -229,7 +431,9 @@ TOOLS = [
             "agenda; en ese caso explica el conflicto, ofrece la alternativa "
             "libre más cercana y espera a que la clienta elija y confirme la "
             "nueva hora antes de volver a llamarla. "
-            "Devuelve el identificador de la cita registrada."
+            "Devuelve el id, el código humano de la cita (AS-XXXX) y el "
+            "enlace mágico de la clienta: incluye SIEMPRE el código y el "
+            "enlace literal en tu mensaje de confirmación."
         ),
         "inputSchema": {
             "type": "object",
@@ -270,17 +474,82 @@ TOOLS = [
             "Cancela una cita ya registrada: la marca como 'cancelada' en la "
             "agenda (el registro NO se borra). Úsala SOLO cuando la clienta "
             "haya confirmado expresamente que quiere cancelar ESA cita. "
-            "Localízala por su id, o por nombre de la clienta y fecha de la "
-            "cita (YYYY-MM-DD); si nombre+fecha dan varias citas, la "
-            "herramienta lo avisa para que pidas el id o la hora."
+            "Localízala por su id, por su código humano (AS-XXXX, el que "
+            "recibió en su confirmación), o por nombre de la clienta y fecha "
+            "de la cita (YYYY-MM-DD); si nombre+fecha dan varias citas, la "
+            "herramienta lo avisa para que pidas el id o la hora. "
+            "Al cancelar, el hueco liberado marca «por_avisar» en la lista "
+            "de espera compatible (sin enviar ningún mensaje automático)."
         ),
         "inputSchema": {
             "type": "object",
             "properties": {
                 "id": {"type": "integer", "description": "Identificador de la cita, si se conoce"},
+                "codigo": {"type": "string", "description": "Código humano de la cita (AS-XXXX), si la clienta lo da"},
                 "nombre": {"type": "string", "description": "Nombre de la clienta (con fecha, si no hay id)"},
                 "fecha": {"type": "string", "description": "Fecha de la cita en formato YYYY-MM-DD (con nombre, si no hay id)"},
             },
+        },
+    },
+    {
+        "name": "consultar_disponibilidad",
+        "description": (
+            "Huecos REALES libres para un servicio en una fecha, en páginas "
+            "de 3–5 (parámetro limite) con desplazamiento para «ver más "
+            "horarios». Úsala SIEMPRE antes de proponer horas: propón solo "
+            "horas que esta herramienta devuelva, citando servicio, fecha y "
+            "hora explícitos, y ofrece «ver más horarios» llamándola de "
+            "nuevo con siguiente_desplazamiento cuando hay_mas sea true."
+        ),
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "servicio": {"type": "string", "description": "Servicio exacto de la carta, p. ej. 'Diseño de cejas'"},
+                "fecha": {"type": "string", "description": "Fecha en formato YYYY-MM-DD"},
+                "limite": {"type": "integer", "description": "Cuántos huecos devolver (por defecto 5, máximo 12)"},
+                "desplazamiento": {"type": "integer", "description": "Cuántos huecos saltarse (para «ver más horarios»)"},
+            },
+            "required": ["servicio", "fecha"],
+        },
+    },
+    {
+        "name": "apuntar_lista_espera",
+        "description": (
+            "Apunta a la clienta en la lista de espera activa cuando el "
+            "hueco que quiere no existe o el día está completo. Si luego se "
+            "libera un hueco compatible (cancelación de su servicio en su "
+            "fecha preferida), su entrada quedará «por_avisar» en el panel "
+            "del salón. NO prometas que le escribiremos automáticamente: "
+            "con el canal actual el aviso saliente no es posible; dile que "
+            "queda apuntada y que si nos escribe le diremos si se liberó."
+        ),
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "nombre": {"type": "string", "description": "Nombre de la clienta"},
+                "telefono": {"type": "string", "description": "Su WhatsApp (el de esta conversación, si se conoce)"},
+                "servicio": {"type": "string", "description": "Servicio exacto de la carta"},
+                "fecha_pref": {"type": "string", "description": "Fecha preferida YYYY-MM-DD (opcional)"},
+                "hora_pref": {"type": "string", "description": "Hora preferida HH:MM (opcional)"},
+                "notas": {"type": "string", "description": "Notas opcionales"},
+            },
+            "required": ["nombre", "servicio"],
+        },
+    },
+    {
+        "name": "consultar_lista_espera",
+        "description": (
+            "Consulta la lista de espera de la clienta de ESTA conversación "
+            "por su teléfono. Úsala al abrir la conversación cuando conozcas "
+            "su número: si hay_hueco_liberado es true, se liberó un hueco "
+            "compatible con lo que esperaba y debes ofrecérselo."
+        ),
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "telefono": {"type": "string", "description": "Teléfono/WhatsApp de la clienta"},
+            },
+            "required": ["telefono"],
         },
     },
 ]
@@ -289,6 +558,9 @@ HANDLERS = {
     "registrar_cita": registrar_cita,
     "consultar_citas": consultar_citas,
     "cancelar_cita": cancelar_cita,
+    "consultar_disponibilidad": consultar_disponibilidad,
+    "apuntar_lista_espera": apuntar_lista_espera,
+    "consultar_lista_espera": consultar_lista_espera,
 }
 
 

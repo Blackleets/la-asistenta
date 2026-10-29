@@ -12,20 +12,29 @@ en la documentación y las pruebas son **personas ficticias de
 simulación** (Carmen, Lucía, Marta, Elena…), generados en sesiones de
 prueba locales.
 
-## Estado honesto (28/10/2026)
+## Estado honesto (29/10/2026 — ver `AUDITORIA_ORDEN_MAESTRA.md`)
 
 | Pieza | Estado |
 |---|---|
 | Cerebro: Hermes Agent + Muse Spark (Baseten) | ✅ Operativo, conversación completa probada; también DENTRO de la máquina InstaBox |
-| Agenda real (SQLite) con herramientas registrar/consultar/cancelar | ✅ Operativa, con guarda anti-solape probada |
-| Receptor de WhatsApp (webhook Cloud API + ruta Twilio) | ✅ Corriendo en InstaBox tras URL pública; probado con payloads forma-Meta y forma-Twilio en local |
-| **Web de la clienta** (consentimiento → foto → análisis → reserva) | ✅ Operativa en https://8090-agqyfjnmnvcrrnfraerzrpu5ye.instabox.tech — QA visual 412×915 y batería E2E 11/11 |
+| Agenda real (SQLite) con herramientas registrar/consultar/cancelar | ✅ Operativa, con guarda anti-solape probada en el propio endpoint de la API (batería 8/8) |
+| Receptor de WhatsApp (webhook Cloud API + ruta Twilio) | ✅ Corriendo en InstaBox tras URL pública |
+| **Web de la clienta (PWA)** (consentimiento → foto → análisis → reserva) | ✅ Operativa en https://8090-agqyfjnmnvcrrnfraerzrpu5ye.instabox.tech — baterías web 19/19 · mecánicas 20/20 · QA 43/43 (29/10) |
+| **Plataforma modular** (registro `web/modulos.json`) | ✅ Belleza es el único módulo activo; moda/probador, gafas y calzado se muestran como «próximamente» sin fingir funciones. Activación por configuración demostrada en prueba (6/6) |
+| Mecánicas de reserva | ✅ Enlace mágico con hash, código AS-XXXX, pack de servicios con total, .ics real, lista de espera, embudo medido, post-cita por wa.me |
 | Canal WhatsApp directo de Meta | ⛔ Bloqueado en la cuenta (permiso temporal denegado + límite de portfolios) |
-| Canal WhatsApp vía Twilio Sandbox | ⏳ Todo cableado en el servidor; falta pegar la URL del webhook en la consola web de Twilio (paso manual del titular) |
-| App Android de la dueña (panel) | ✅ APK construido y firmado; cara verificada con capturas |
-| Análisis de cejas con foto (Spark visión) | ✅ Probado en local, en la máquina y desde la web (34,28 s medidos) |
+| Canal WhatsApp vía Twilio Sandbox | ✅ Reparado: la respuesta viaja en el TwiML del propio webhook (el trial rechaza el texto libre por API); autoprueba firmada 200 en 4,51 s. Pendiente solo la confirmación con un mensaje real |
+| App Android de la dueña (panel) | ⚠️ APK v2 construido y firmado; desactualizada respecto a las mecánicas del 28/10 |
+| Análisis de cejas con foto (Spark visión) | ✅ En producción, asíncrono con sondeo (inmune a los picos de latencia de Baseten) |
+| Probador virtual (módulo futuro) | 💤 Preparado y dormido por decisión de producto: investigación de modelos en `MODELOS_TRYON.md`, contratos en `probador/INTERFACES.md`, adaptador FASHN construido (lógica 5/5). Ninguna generación ejecutada: el despliegue está bloqueado porque la clave de Baseten es solo de inferencia |
 | Vista previa generada (Muse Image) | ⛔ Sin acceso verificado a ningún modelo de imagen (falta la clave de equipo de la Meta Model API) |
 | Segmentación (SAM 3.1) | ⛔ Sin ruta de acceso verificada |
+
+> Nota de binarios: por la mecánica de publicación (snapshot de texto),
+> este repo no incluye las fotografías del salón, los iconos PNG, las
+> fuentes ni las capturas de QA; el código que las sirve y los scripts
+> que las generan/verifican sí están (`web/generar_iconos.py`,
+> `web/qa*/`).
 
 El estado vivo y detallado está en `ESTADO_PROYECTO.md`; la migración a la
 máquina, en `MIGRACION_INSTABOX.md`, y la ruta de Twilio, en
@@ -35,7 +44,12 @@ WhatsApp: una cita hecha en la web se ve en la app de la dueña.
 
 El detalle, con evidencias y límites, está en los informes del repo:
 `H0_INFORME.md`, `H3_TECNICO.md`, `PRUEBAS_ROBUSTEZ.md`, `H2_PREP.md`,
-`APP_BUILD.md`, `APP_V2.md` y `AUDITORIA_PUBLICACION.md`.
+`APP_BUILD.md`, `APP_V2.md`, `AUDITORIA_PUBLICACION.md` y la auditoría
+de la Orden Maestra en `AUDITORIA_ORDEN_MAESTRA.md` (inventario
+verificado, diferencias interfaz↔backend, cola priorizada y bloqueos
+con su desbloqueo exacto). La especificación de experiencia medida
+está en `ESPEC_REFERENCIA.md`; el diagnóstico del probador, en
+`DIAGNOSTICO_PROBADOR.md`.
 
 ## Arquitectura
 
