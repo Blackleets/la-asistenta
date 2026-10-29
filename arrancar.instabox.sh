@@ -10,6 +10,11 @@ mkdir -p "$RUN"
 export HERMES_HOME="$BASE/hermes-home"
 export HERMES_RUNTIME_DIR="$BASE/hermes-runtime"
 export HERMES_BIN="$HOME/.local/bin/hermes"
+# Token de la API de agenda SOLO desde agenda.env (0600, fuera del
+# repo: hallazgo D7/Fase 2). Los servicios ya no llevan ningún literal.
+if [ -f "$BASE/agenda/agenda.env" ]; then
+  set -a; . "$BASE/agenda/agenda.env"; set +a
+fi
 
 levantar() {
   # $1 nombre, $2 puerto, $3 comando...

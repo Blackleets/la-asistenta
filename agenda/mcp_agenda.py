@@ -29,6 +29,11 @@ DB_PATH = os.environ.get("AGENDA_DB", os.path.join(BASE_DIR, "agenda.db"))
 sys.path.insert(0, BASE_DIR)
 import agenda_comun as comun
 
+# Este MCP sirve a la operadora del negocio piloto (Fase 2, D2): todas
+# sus consultas y escrituras llevan ese alcance. Otro negocio tendrá su
+# propia instancia/configuración (AGENDA_NEGOCIO_ID).
+NEGOCIO = os.environ.get("AGENDA_NEGOCIO_ID", comun.NEGOCIO_DEFECTO)
+
 # Carta REAL del salón (la misma que la API y el SOUL; no inventar otra).
 CARTA = {
     "Diseño de cejas": (18.0, 25),
@@ -61,7 +66,8 @@ CREATE INDEX IF NOT EXISTS idx_citas_fecha ON citas(fecha, hora);
 
 
 def db():
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=30)
+    conn.execute("PRAGMA busy_timeout = 30000")
     conn.executescript(SCHEMA)
     comun.migrar(conn)  # migración aditiva compartida con la API
     return conn
@@ -89,16 +95,57 @@ def registrar_cita(args):
     duracion = int(args["duracion_min"])
     inicio = _a_minutos(hora)
     fin = inicio + duracion
+    clave_idem = (str(args["clave_idempotencia"]).strip()
+                  if args.get("clave_idempotencia") else "")
+    huella = None
+    if clave_idem:
+        huella = comun.huella_idempotencia({
+            "nombre": str(args["nombre"]).strip(),
+            "servicio": str(args["servicio"]).strip(),
+            "fecha": fecha, "hora": hora,
+            "precio_eur": float(args["precio_eur"]),
+            "duracion_min": duracion,
+            "telefono": (str(args["telefono"]).strip()
+                         if args.get("telefono") else None),
+        })
     conn = db()
     try:
+        # Comprobación + inserción en UNA transacción con bloqueo de
+        # escritura (BEGIN IMMEDIATE, Fase 2): entre comprobar e insertar
+        # no puede colarse otra creación (ni de este MCP ni de la API).
+        conn.execute("BEGIN IMMEDIATE")
+        if clave_idem:
+            previa = comun.buscar_idempotencia(conn, NEGOCIO, clave_idem)
+            if previa is not None:
+                if previa["huella"] != huella:
+                    raise ValueError(
+                        "Esa clave de idempotencia ya se usó con otros datos "
+                        "de cita: no se registró nada.")
+                fila = conn.execute(
+                    "SELECT id, nombre, servicio, fecha, hora FROM citas "
+                    "WHERE id = ?", (previa["cita_id"],)).fetchone()
+                conn.commit()
+                return {
+                    "ok": True, "id": fila[0], "idempotente": True,
+                    "codigo": comun.codigo_cita(fila[0]),
+                    "resumen": (
+                        f"La cita {comun.codigo_cita(fila[0])} ya estaba "
+                        f"registrada ({fila[2]} para {fila[1]}, {fila[3]} a "
+                        f"las {fila[4]}): es el reintento de la misma "
+                        "petición, no se duplicó. El enlace mágico no se "
+                        "puede repetir (solo viajó en la primera respuesta); "
+                        "confírmale a la clienta su código de cita."
+                    ),
+                }
         # Comprobación de solape ANTES de escribir: si el intervalo
         # [hora, hora+duracion) se cruza con el de cualquier cita
-        # 'confirmada' de esa fecha, no se registra nada. Las canceladas
-        # no bloquean el hueco.
+        # 'confirmada' de ESE negocio en esa fecha, no se registra nada.
+        # Las canceladas no bloquean el hueco.
         existentes = conn.execute(
             """SELECT id, nombre, servicio, hora, duracion_min FROM citas
-               WHERE fecha = ? AND estado = 'confirmada' ORDER BY hora""",
-            (fecha,),
+               WHERE fecha = ? AND estado = 'confirmada' AND negocio_id = ?
+               ORDER BY hora""",
+            (fecha, NEGOCIO),
         ).fetchall()
         conflictos = []
         for r in existentes:
@@ -126,8 +173,9 @@ def registrar_cita(args):
         cur = conn.execute(
             """INSERT INTO citas
                (creado_en, nombre, servicio, fecha, hora, precio_eur,
-                duracion_min, estado, origen, telefono, notas, token_hash)
-               VALUES (?, ?, ?, ?, ?, ?, ?, 'confirmada', ?, ?, ?, ?)""",
+                duracion_min, estado, origen, telefono, notas, token_hash,
+                negocio_id)
+               VALUES (?, ?, ?, ?, ?, ?, ?, 'confirmada', ?, ?, ?, ?, ?)""",
             (
                 datetime.now(timezone.utc).isoformat(timespec="seconds"),
                 str(args["nombre"]).strip(),
@@ -140,11 +188,22 @@ def registrar_cita(args):
                 (str(args["telefono"]).strip() if args.get("telefono") else None),
                 (str(args["notas"]).strip() if args.get("notas") else None),
                 token_hash,
+                NEGOCIO,
             ),
         )
         cita_id = cur.lastrowid
-        comun.registrar_evento(conn, "reserva_confirmada", cita_id, "whatsapp")
+        comun.registrar_evento(conn, "reserva_confirmada", cita_id, "whatsapp",
+                               NEGOCIO)
+        if clave_idem:
+            comun.guardar_idempotencia(conn, NEGOCIO, clave_idem, huella,
+                                       cita_id)
         conn.commit()
+    except Exception:
+        try:
+            conn.rollback()
+        except Exception:
+            pass
+        raise
     finally:
         conn.close()
     codigo = comun.codigo_cita(cita_id)
@@ -174,8 +233,8 @@ def consultar_citas(args):
     try:
         rows = conn.execute(
             """SELECT id, nombre, servicio, hora, precio_eur, duracion_min, estado, origen
-               FROM citas WHERE fecha = ? ORDER BY hora""",
-            (fecha,),
+               FROM citas WHERE fecha = ? AND negocio_id = ? ORDER BY hora""",
+            (fecha, NEGOCIO),
         ).fetchall()
     finally:
         conn.close()
@@ -212,7 +271,8 @@ def consultar_disponibilidad(args):
     try:
         ventana = VENTANA[dia.weekday()]
         if ventana is None:
-            comun.registrar_evento(conn, "hueco_propuesto", None, "whatsapp")
+            comun.registrar_evento(conn, "hueco_propuesto", None, "whatsapp",
+                                   NEGOCIO)
             conn.commit()
             return {"ok": True, "servicio": servicio, "fecha": fecha,
                     "huecos": [], "total_libres": 0, "hay_mas": False,
@@ -221,8 +281,9 @@ def consultar_disponibilidad(args):
         duracion = int(CARTA[servicio][1])
         existentes = conn.execute(
             """SELECT hora, duracion_min FROM citas
-               WHERE fecha = ? AND estado = 'confirmada' ORDER BY hora""",
-            (fecha,),
+               WHERE fecha = ? AND estado = 'confirmada' AND negocio_id = ?
+               ORDER BY hora""",
+            (fecha, NEGOCIO),
         ).fetchall()
         ocupados = [(_a_minutos(r[0]), _a_minutos(r[0]) + int(r[1]))
                     for r in existentes]
@@ -232,7 +293,8 @@ def consultar_disponibilidad(args):
             if all(t + duracion <= o_ini or t >= o_fin for o_ini, o_fin in ocupados):
                 libres.append(_a_hora(t))
             t += PASO_MIN
-        comun.registrar_evento(conn, "hueco_propuesto", None, "whatsapp")
+        comun.registrar_evento(conn, "hueco_propuesto", None, "whatsapp",
+                               NEGOCIO)
         conn.commit()
     finally:
         conn.close()
@@ -273,18 +335,20 @@ def apuntar_lista_espera(args):
         cur = conn.execute(
             """INSERT INTO lista_espera
                (creado_en, nombre, telefono, servicio, fecha_pref, hora_pref,
-                estado, notas)
-               VALUES (?, ?, ?, ?, ?, ?, 'esperando', ?)""",
+                estado, notas, negocio_id)
+               VALUES (?, ?, ?, ?, ?, ?, 'esperando', ?, ?)""",
             (
                 datetime.now(timezone.utc).isoformat(timespec="seconds"),
                 nombre,
                 (str(args["telefono"]).strip() if args.get("telefono") else None),
                 servicio, fecha_pref, hora_pref,
                 (str(args["notas"]).strip() if args.get("notas") else None),
+                NEGOCIO,
             ),
         )
         entrada_id = cur.lastrowid
-        comun.registrar_evento(conn, "lista_espera_alta", None, "whatsapp")
+        comun.registrar_evento(conn, "lista_espera_alta", None, "whatsapp",
+                               NEGOCIO)
         conn.commit()
     finally:
         conn.close()
@@ -317,11 +381,11 @@ def consultar_lista_espera(args):
         rows = conn.execute(
             """SELECT id, nombre, servicio, fecha_pref, hora_pref, estado
                FROM lista_espera
-               WHERE telefono IS NOT NULL
+               WHERE telefono IS NOT NULL AND negocio_id = ?
                  AND replace(replace(replace(telefono, ' ', ''), '+', ''), '-', '')
                      LIKE '%' || ?
                ORDER BY creado_en""",
-            (sufijo,),
+            (NEGOCIO, sufijo),
         ).fetchall()
     finally:
         conn.close()
@@ -366,14 +430,16 @@ def cancelar_cita(args):
     try:
         if cita_id:
             rows = conn.execute(
-                "SELECT id, nombre, servicio, fecha, hora, estado FROM citas WHERE id = ?",
-                (int(cita_id),),
+                """SELECT id, nombre, servicio, fecha, hora, estado FROM citas
+                   WHERE id = ? AND negocio_id = ?""",
+                (int(cita_id), NEGOCIO),
             ).fetchall()
         elif nombre and fecha:
             rows = conn.execute(
                 """SELECT id, nombre, servicio, fecha, hora, estado FROM citas
-                   WHERE lower(nombre) = lower(?) AND fecha = ? ORDER BY hora""",
-                (nombre, fecha),
+                   WHERE lower(nombre) = lower(?) AND fecha = ?
+                     AND negocio_id = ? ORDER BY hora""",
+                (nombre, fecha, NEGOCIO),
             ).fetchall()
         else:
             raise ValueError("Indica el id de la cita, o nombre y fecha para localizarla")
@@ -398,11 +464,11 @@ def cancelar_cita(args):
             )
         r = candidatas[0]
         conn.execute("UPDATE citas SET estado = 'cancelada' WHERE id = ?", (r[0],))
-        comun.registrar_evento(conn, "cancelada", r[0], "whatsapp")
+        comun.registrar_evento(conn, "cancelada", r[0], "whatsapp", NEGOCIO)
         # El hueco queda libre: la lista de espera compatible pasa a
         # «por_avisar» (sin envío automático: no es posible con Twilio
         # trial, y nunca se finge enviado).
-        n_aviso = comun.marcar_por_avisar(conn, r[2], r[3])
+        n_aviso = comun.marcar_por_avisar(conn, r[2], r[3], NEGOCIO)
         conn.commit()
     finally:
         conn.close()
@@ -450,6 +516,7 @@ TOOLS = [
                 },
                 "telefono": {"type": "string", "description": "Teléfono/WhatsApp de la clienta si se conoce"},
                 "notas": {"type": "string", "description": "Notas opcionales"},
+                "clave_idempotencia": {"type": "string", "description": "Clave de idempotencia opcional: si una llamada se reintenta con la MISMA clave y los mismos datos, se devuelve la cita ya creada en vez de duplicarla; con la misma clave y datos distintos, se devuelve error."},
             },
             "required": ["nombre", "servicio", "fecha", "hora", "precio_eur", "duracion_min"],
         },

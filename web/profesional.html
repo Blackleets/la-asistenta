@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Área profesional · La Asistenta</title>
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<style>
+@font-face{font-family:'Fraunces';src:url('/fonts/fraunces-normal.woff2') format('woff2');font-weight:400 700;font-style:normal;font-display:swap}
+@font-face{font-family:'Montserrat';src:url('/fonts/montserrat.woff2') format('woff2');font-weight:400 800;font-display:swap}
+:root{
+  /* Misma paleta que la app de la clienta (tokens de marca v5). */
+  --negro:#0d0d0d; --violeta:#6950f3; --violeta-oscuro:#403591;
+  --violeta-tinte:#F0EDFE; --violeta-claro:#BCB0F9; --blanco:#ffffff;
+  --positivo:#1f8900; --tinta:#0d0d0d; --gris:#747a8d;
+  --borde:#dee3e7; --superficie:#f5f5f5; --error:#bb1232; --radio:20px;
+  --sombra:0 10px 30px rgba(13,13,13,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:'Montserrat',system-ui,sans-serif;background:#fff;color:var(--tinta);
+  font-size:15px;line-height:1.45;padding:0 16px calc(28px + env(safe-area-inset-bottom));
+  max-width:560px;margin:0 auto}
+button{font:inherit}
+svg{flex:none}
+.marca{display:flex;align-items:center;gap:9px;padding:18px 2px 6px}
+.marca .estrella{color:var(--violeta);font-size:22px;line-height:1}
+.marca .nombre{font-weight:800;letter-spacing:.14em;font-size:15px}
+.marca .area{margin-left:auto;font-size:11px;font-weight:700;letter-spacing:.08em;
+  color:var(--violeta-oscuro);background:var(--violeta-tinte);border-radius:999px;padding:6px 10px}
+h1{font-family:'Fraunces',serif;font-size:27px;font-weight:600;line-height:1.15;margin:10px 0 4px}
+.sub{color:var(--gris);font-size:13.5px;line-height:1.5}
+.tarjeta{background:#fff;border:1px solid var(--borde);border-radius:var(--radio);
+  padding:20px;box-shadow:var(--sombra);margin:16px 0}
+.tarjeta h2{font-size:19px;font-weight:800;margin-bottom:8px;letter-spacing:-.01em}
+.mini{font-size:12.5px;color:var(--gris);line-height:1.55}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
+  border:none;border-radius:999px;padding:15px 18px;font-size:15px;
+  font-weight:700;cursor:pointer;transition:transform .12s ease,opacity .2s;text-align:center;
+  text-decoration:none;min-height:52px}
+.btn svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:2;
+  stroke-linecap:round;stroke-linejoin:round}
+.btn:active{transform:scale(.985)}
+.btn-primario{background:var(--negro);color:var(--blanco)}
+.btn-violeta{background:var(--violeta);color:#fff}
+.btn-verde{background:var(--positivo);color:#fff}
+.btn-fantasma{background:transparent;color:var(--negro);border:1.5px solid var(--borde)}
+.btn-peq{padding:10px 14px;font-size:13.5px;border-radius:12px;width:auto;min-height:44px}
+.btn[disabled]{opacity:.38;pointer-events:none}
+.enlace{background:none;border:none;color:var(--violeta);font-size:13.5px;
+  font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px;
+  padding:6px 2px;min-height:44px;display:inline-flex;align-items:center}
+.enlace.rojo{color:var(--error)}
+.fila-botones{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.fila-botones .btn{flex:1}
+.campo{display:block;font-size:13px;font-weight:700;margin:16px 0 7px}
+input[type=password],input[type=text]{width:100%;border:1.5px solid var(--borde);
+  border-radius:14px;padding:14px 16px;font:inherit;font-size:16px;background:#fff;color:var(--tinta)}
+input:focus{outline:2px solid var(--violeta);outline-offset:1px;border-color:var(--violeta)}
+.error{color:var(--error);font-size:13.5px;font-weight:600;margin-top:10px;min-height:20px}
+.oculto{display:none!important}
+/* cabecera del panel */
+.panel-top{display:flex;align-items:flex-start;gap:10px;margin-top:8px}
+.panel-top .salir{margin-left:auto}
+/* pestañas */
+.tabs{display:flex;gap:8px;margin:18px 0 4px;position:sticky;top:0;background:#fff;
+  padding:10px 0;z-index:5}
+.tab{flex:1;border:1.5px solid var(--borde);background:var(--superficie);color:var(--tinta);
+  border-radius:999px;padding:11px 4px;font-size:13px;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:6px;min-height:44px}
+.tab.activa{background:var(--negro);color:#fff;border-color:var(--negro)}
+.tab .bolita{background:var(--violeta);color:#fff;border-radius:999px;font-size:11px;
+  min-width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;padding:0 5px}
+.tab.activa .bolita{background:var(--violeta)}
+/* resumen */
+.resumen{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 2px}
+.resumen .dato{background:var(--superficie);border-radius:14px;padding:10px 13px;flex:1;min-width:100px}
+.resumen .dato b{display:block;font-size:20px;font-weight:800}
+.resumen .dato span{font-size:11.5px;color:var(--gris);font-weight:600}
+/* tarjetas de cita */
+.cita{border:1.5px solid var(--borde);border-radius:18px;padding:15px 16px;margin-bottom:12px;background:#fff}
+.cita .arriba{display:flex;gap:12px;align-items:flex-start}
+.cita .hora{font-size:21px;font-weight:800;min-width:58px}
+.cita .hora small{display:block;font-size:11px;color:var(--gris);font-weight:600}
+.cita .quien{flex:1;min-width:0}
+.cita .quien b{font-size:16px}
+.cita .quien .serv{color:var(--gris);font-size:13px;margin-top:1px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+.chip{background:var(--violeta-tinte);border-radius:999px;padding:5px 10px;font-size:12px;font-weight:600}
+.chip.estado-confirmada{background:var(--violeta-tinte);color:var(--violeta-oscuro)}
+.chip.estado-cumplida{background:#e5f4e0;color:var(--positivo)}
+.chip.estado-cancelada{background:#fdeaea;color:var(--error)}
+.chip.estado-no_show{background:#fdf0e2;color:#b7570b}
+.prep{background:var(--superficie);border-radius:12px;padding:11px 13px;margin-top:11px;font-size:13px}
+.prep b{display:block;font-size:11px;letter-spacing:.06em;color:var(--gris);margin-bottom:5px}
+.prep div+div{margin-top:5px}
+.prep span{color:var(--gris)}
+.vacio{background:var(--superficie);border-radius:16px;padding:20px;text-align:center;
+  color:var(--gris);font-size:14px;line-height:1.55;margin:12px 0}
+.aviso{background:var(--violeta-tinte);border-radius:16px;padding:15px 16px;font-size:13.5px;
+  line-height:1.6;color:var(--tinta);margin:14px 0}
+.aviso b{color:var(--violeta-oscuro)}
+/* agenda por días */
+.dia{border:1.5px solid var(--borde);border-radius:18px;padding:15px 16px;margin-bottom:12px}
+.dia h3{font-size:15.5px;font-weight:800;text-transform:capitalize}
+.dia .fila{display:flex;gap:10px;font-size:13.5px;padding:7px 0;border-bottom:1px dashed var(--borde)}
+.dia .fila:last-of-type{border-bottom:none}
+.dia .fila .h{font-weight:800;min-width:44px}
+.dia .fila .n{flex:1}
+.dia .fila .e{color:var(--gris);font-size:12px}
+.dia .libres{margin-top:9px;font-size:13px;color:var(--gris);line-height:1.6}
+.dia .libres b{color:var(--positivo)}
+/* bandeja */
+.bandeja-item{border:1.5px solid var(--borde);border-radius:18px;padding:15px 16px;margin-bottom:12px}
+.bandeja-item .texto{background:var(--superficie);border-radius:12px;padding:11px 13px;
+  font-size:13px;line-height:1.55;margin-top:9px;white-space:pre-wrap}
+/* embudo */
+.rejilla{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
+.rejilla .celda{background:var(--superficie);border-radius:16px;padding:15px}
+.rejilla .celda b{display:block;font-size:24px;font-weight:800}
+.rejilla .celda span{font-size:12px;color:var(--gris);font-weight:600;line-height:1.4;display:block;margin-top:2px}
+/* servicios */
+.serv-fila{display:flex;gap:10px;align-items:baseline;padding:11px 0;border-bottom:1px dashed var(--borde)}
+.serv-fila:last-child{border-bottom:none}
+.serv-fila .n{flex:1;font-weight:700}
+.serv-fila .d{color:var(--gris);font-size:13px}
+.serv-fila .p{font-weight:800}
+.cargando{color:var(--gris);text-align:center;padding:26px 0;font-size:14px}
+.pie{margin-top:26px;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="marca">
+  <span class="estrella">✦</span><span class="nombre">ASISTENTA</span>
+  <span class="area">ÁREA PROFESIONAL</span>
+</div>
+
+<!-- ACCESO -->
+<section id="vista-acceso">
+  <h1>Tu negocio, en tu mano</h1>
+  <p class="sub">Este es el espacio privado de <b>Ari Vivas Beauty</b>: tus citas
+  de hoy, tu agenda, la lista de espera y tus mensajes pendientes. Entra con la
+  clave de tu negocio.</p>
+  <div class="tarjeta">
+    <label class="campo" for="clave">Clave del negocio</label>
+    <input type="password" id="clave" autocomplete="current-password"
+           placeholder="Tu clave" enterkeyhint="go">
+    <p class="error" id="acceso-error" role="alert"></p>
+    <button class="btn btn-primario" id="btn-entrar">
+      <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Entrar
+    </button>
+    <p class="mini" style="margin-top:12px">Sin la clave, esta página no muestra
+    ningún dato de tu negocio. La sesión dura 8 horas en este dispositivo.</p>
+  </div>
+  <p class="mini" style="text-align:center">¿Eres una clienta?
+  <a href="/" style="color:var(--violeta);font-weight:700">Ir a la app de reservas</a></p>
+</section>
+
+<!-- PANEL -->
+<section id="vista-panel" class="oculto">
+  <div class="panel-top">
+    <div>
+      <h1 id="panel-titulo">Hoy en tu salón</h1>
+      <p class="sub" id="panel-fecha">Cargando…</p>
+    </div>
+    <button class="enlace salir" id="btn-salir">Salir</button>
+  </div>
+
+  <nav class="tabs" aria-label="Secciones del área profesional">
+    <button class="tab activa" data-tab="hoy">Hoy</button>
+    <button class="tab" data-tab="agenda">Agenda</button>
+    <button class="tab" data-tab="espera">Por avisar <span class="bolita oculto" id="bolita-espera">0</span></button>
+    <button class="tab" data-tab="panel">Mi negocio</button>
+  </nav>
+
+  <!-- HOY -->
+  <div id="tab-hoy">
+    <div class="resumen" id="hoy-resumen"></div>
+    <div id="hoy-citas"><p class="cargando">Cargando tus citas de hoy…</p></div>
+    <h2 class="seccion" style="font-size:19px;font-weight:800;margin:22px 0 4px">Mensajes por enviar</h2>
+    <p class="mini" style="margin-bottom:10px">Agradecimientos de clientas que ya
+    vinieron. La Asistenta los prepara; los envías tú con un toque desde tu WhatsApp.</p>
+    <div id="hoy-bandeja"><p class="cargando">Cargando…</p></div>
+  </div>
+
+  <!-- AGENDA -->
+  <div id="tab-agenda" class="oculto">
+    <p class="mini" style="margin:8px 0 12px">Tus próximos 7 días con las citas
+    confirmadas y los huecos libres reales de tu horario
+    (L–V 10:00–20:00 · S 10:00–14:00 · domingos cerrado).</p>
+    <div id="agenda-dias"><p class="cargando">Cargando tu agenda…</p></div>
+  </div>
+
+  <!-- POR AVISAR -->
+  <div id="tab-espera" class="oculto">
+    <div class="aviso"><b>Cómo funciona:</b> cuando se libera un hueco, la clienta
+    pasa a «Por avisar». La Asistenta <b>no puede enviarle el aviso sola</b>:
+    toca «Avisar por WhatsApp» y se abre <b>tu</b> WhatsApp con el mensaje listo;
+    tú lo envías. Al terminar, márcala como atendida.</div>
+    <div id="espera-lista"><p class="cargando">Cargando la lista de espera…</p></div>
+  </div>
+
+  <!-- MI NEGOCIO -->
+  <div id="tab-panel" class="oculto">
+    <h2 style="font-size:19px;font-weight:800;margin:10px 0 4px">Tu embudo</h2>
+    <p class="mini" style="margin-bottom:10px">Lo que ha pasado por tu agenda,
+    contado por La Asistenta desde el primer día.</p>
+    <div class="rejilla" id="panel-embudo"><p class="cargando">Cargando…</p></div>
+
+    <h2 style="font-size:19px;font-weight:800;margin:24px 0 4px">Servicios y horarios</h2>
+    <p class="mini" style="margin-bottom:6px">Tal cual están en tu agenda real:
+    es lo que ven tus clientas al reservar.</p>
+    <div class="tarjeta" style="margin-top:8px">
+      <div id="panel-servicios"><p class="cargando">Cargando tu carta…</p></div>
+      <p class="mini" id="panel-horario" style="margin-top:12px"></p>
+      <div class="fila-botones">
+        <button class="btn btn-fantasma" id="btn-editar-carta">Editar carta u horarios</button>
+      </div>
+      <div class="aviso oculto" id="nota-edicion" style="margin-bottom:0">
+        <b>Por ahora, los cambios los hace La Asistenta por ti.</b>
+        La edición directa desde aquí está en preparación; mientras tanto,
+        pide el cambio de precio, servicio u horario y queda aplicado
+        el mismo día, sin tocar nada técnico.
+      </div>
+    </div>
+  </div>
+
+  <p class="pie mini">La Asistenta · Área profesional de Ari Vivas Beauty</p>
+</section>
+
+<script>
+'use strict';
+const $ = s => document.querySelector(s);
+const CLAVE_SESION = 'la-asistenta-pro-sesion';
+let sesion = sessionStorage.getItem(CLAVE_SESION) || '';
+
+const ICO = {
+  check: '<svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>',
+  wa: '<svg viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>',
+  reloj: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>',
+};
+const ESTADOS = {confirmada: 'Confirmada', cumplida: 'Cumplida ✓',
+                 cancelada: 'Cancelada', no_show: 'No vino'};
+
+function esc(t) {
+  return String(t ?? '').replace(/[&<>"']/g, c =>
+    ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
+}
+function fmtFecha(iso, largo) {
+  const d = new Date(iso + 'T12:00:00');
+  return new Intl.DateTimeFormat('es-ES', largo
+    ? {weekday: 'long', day: 'numeric', month: 'long'}
+    : {weekday: 'short', day: 'numeric', month: 'short'}).format(d);
+}
+function waDe(telefono) {
+  const tel = String(telefono || '').replace(/\D/g, '');
+  return tel ? 'https://wa.me/' + tel : null;
+}
+
+async function api(metodo, ruta, cuerpo) {
+  const cab = {'X-Sesion-Pro': sesion};
+  const op = {method: metodo, headers: cab};
+  if (cuerpo !== undefined) {
+    cab['Content-Type'] = 'application/json';
+    op.body = JSON.stringify(cuerpo);
+  }
+  const r = await fetch(ruta, op);
+  let datos = {};
+  try { datos = await r.json(); } catch (e) { /* respuesta vacía */ }
+  if (r.status === 401 && ruta !== '/api/profesional/acceso') {
+    sesion = '';
+    sessionStorage.removeItem(CLAVE_SESION);
+    mostrarAcceso('Tu sesión caducó: entra de nuevo con la clave.');
+    throw new Error('sesión caducada');
+  }
+  return {st: r.status, datos};
+}
+
+/* ---------- acceso ---------- */
+function mostrarAcceso(msg) {
+  $('#vista-panel').classList.add('oculto');
+  $('#vista-acceso').classList.remove('oculto');
+  if (msg) $('#acceso-error').textContent = msg;
+}
+async function entrar() {
+  const clave = $('#clave').value;
+  const err = $('#acceso-error');
+  err.textContent = '';
+  if (!clave) { err.textContent = 'Escribe la clave de tu negocio.'; return; }
+  const btn = $('#btn-entrar');
+  btn.disabled = true;
+  try {
+    const {st, datos} = await api('POST', '/api/profesional/acceso', {clave});
+    if (st === 200 && datos.sesion) {
+      sesion = datos.sesion;
+      sessionStorage.setItem(CLAVE_SESION, sesion);
+      $('#clave').value = '';
+      mostrarPanel();
+      await cargarTodo();
+    } else if (st === 503) {
+      err.textContent = 'El área profesional aún no está activada. Avísanos y la encendemos.';
+    } else if (st === 429) {
+      err.textContent = 'Demasiados intentos seguidos: espera unos minutos.';
+    } else {
+      err.textContent = 'Clave no válida. Revisa que esté bien escrita.';
+    }
+  } catch (e) {
+    err.textContent = 'Sin conexión con tu agenda ahora mismo. Inténtalo en un momento.';
+  } finally {
+    btn.disabled = false;
+  }
+}
+function mostrarPanel() {
+  $('#vista-acceso').classList.add('oculto');
+  $('#vista-panel').classList.remove('oculto');
+}
+async function salir() {
+  try { await api('POST', '/api/profesional/salir'); } catch (e) { /* da igual */ }
+  sesion = '';
+  sessionStorage.removeItem(CLAVE_SESION);
+  mostrarAcceso('');
+}
+
+/* ---------- pestañas ---------- */
+document.querySelectorAll('.tab').forEach(t => {
+  t.onclick = () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.toggle('activa', x === t));
+    ['hoy', 'agenda', 'espera', 'panel'].forEach(n =>
+      $('#tab-' + n).classList.toggle('oculto', n !== t.dataset.tab));
+  };
+});
+
+/* ---------- carga ---------- */
+async function cargarTodo() {
+  await Promise.allSettled([cargarHoy(), cargarAgenda(), cargarEspera(), cargarPanel()]);
+}
+
+async function cargarHoy() {
+  const {st, datos} = await api('GET', '/api/profesional/hoy');
+  if (st !== 200) {
+    $('#hoy-citas').innerHTML = '<div class="vacio">Tu agenda no responde ahora mismo. Prueba a recargar en un momento.</div>';
+    return;
+  }
+  $('#panel-fecha').textContent = 'Ari Vivas Beauty · ' + fmtFecha(datos.fecha, true);
+  const r = datos.resumen || {};
+  $('#hoy-resumen').innerHTML =
+    `<div class="dato"><b>${r.total ?? 0}</b><span>citas hoy</span></div>` +
+    `<div class="dato"><b>${r.confirmada ?? 0}</b><span>por atender</span></div>` +
+    `<div class="dato"><b>${r.cumplida ?? 0}</b><span>cumplidas</span></div>` +
+    `<div class="dato"><b>${(datos.bandeja || []).length}</b><span>mensajes por enviar</span></div>`;
+  const cont = $('#hoy-citas');
+  if (!datos.citas.length) {
+    cont.innerHTML = '<div class="vacio">Hoy no hay citas en tu agenda.<br>Cuando una clienta reserve, aparecerá aquí al momento.</div>';
+  } else {
+    cont.innerHTML = datos.citas.map(tarjetaCita).join('');
+    cont.querySelectorAll('[data-accion]').forEach(b => b.onclick = () => accionCita(b));
+  }
+  pintarBandeja(datos.bandeja || []);
+}
+
+function tarjetaCita(c) {
+  const prep = c.prep ? `<div class="prep"><b>SU PREPARACIÓN</b>
+      <div><span>Tratamiento reciente:</span> ${esc(c.prep.tratamiento_reciente)}</div>
+      <div><span>Retinol/ácidos:</span> ${esc(c.prep.retinol)}</div></div>` : '';
+  const wa = waDe(c.telefono);
+  const escribir = wa ? `<a class="btn btn-verde btn-peq" href="${wa}" target="_blank" rel="noopener">${ICO.wa} Escribir</a>` : '';
+  let acciones = '';
+  if (c.estado === 'confirmada') {
+    acciones = `<div class="fila-botones">
+      <button class="btn btn-primario btn-peq" data-accion="cumplida" data-id="${c.id}">${ICO.check} Cumplida</button>
+      <button class="btn btn-fantasma btn-peq" data-accion="no_show" data-id="${c.id}">No vino</button>
+      ${escribir}
+    </div>
+    <button class="enlace rojo" data-accion="cancelar" data-id="${c.id}">Cancelar esta cita</button>`;
+  } else if (c.estado === 'cumplida') {
+    acciones = '<p class="mini" style="margin-top:10px">Hecha ✓ · su agradecimiento está en «Mensajes por enviar».</p>';
+  }
+  return `<article class="cita">
+    <div class="arriba">
+      <div class="hora">${esc(c.hora)}<small>${c.duracion_min} min</small></div>
+      <div class="quien"><b>${esc(c.nombre)}</b>
+        <div class="serv">${esc(c.servicio)}</div>
+        <div class="chips">
+          <span class="chip">${esc(c.codigo)}</span>
+          <span class="chip">${esc(c.precio_etiqueta || '')}</span>
+          <span class="chip estado-${esc(c.estado)}">${ESTADOS[c.estado] || esc(c.estado)}</span>
+        </div>
+      </div>
+    </div>
+    ${prep}
+    ${acciones}
+  </article>`;
+}
+
+async function accionCita(b) {
+  const id = b.dataset.id, accion = b.dataset.accion;
+  if (accion === 'no_show' && !confirm('¿Seguro? Marcarás que la clienta no vino.')) return;
+  if (accion === 'cancelar' && !confirm('¿Cancelar esta cita? La clienta tendrá que reservar de nuevo.')) return;
+  b.disabled = true;
+  const ruta = accion === 'cancelar'
+    ? `/api/profesional/citas/${id}/cancelar`
+    : `/api/profesional/citas/${id}/estado`;
+  const cuerpo = accion === 'cancelar' ? {} : {estado: accion};
+  const {st} = await api('POST', ruta, cuerpo);
+  if (st !== 200) alert('La agenda no aceptó el cambio. Recarga y prueba de nuevo.');
+  await cargarHoy();
+}
+
+function pintarBandeja(lista) {
+  const cont = $('#hoy-bandeja');
+  if (!lista.length) {
+    cont.innerHTML = '<div class="vacio">No tienes mensajes pendientes.<br>Cuando marques una cita como cumplida, su agradecimiento aparecerá aquí.</div>';
+    return;
+  }
+  cont.innerHTML = lista.map(m => `<article class="bandeja-item">
+      <b>${esc(m.nombre)}</b> <span class="mini">· ${esc(m.servicio)} · ${esc(m.fecha)}</span>
+      <span class="chip" style="margin-left:6px">${esc(m.codigo)}</span>
+      <div class="texto">${esc(m.texto)}</div>
+      <div class="fila-botones">
+        ${m.wa_link
+          ? `<a class="btn btn-verde btn-peq" href="${esc(m.wa_link)}" target="_blank" rel="noopener">${ICO.wa} Enviar por WhatsApp</a>`
+          : '<span class="mini">Sin teléfono guardado de esta clienta.</span>'}
+        <button class="btn btn-fantasma btn-peq" data-bandeja="${m.id}" data-estado="enviada">Ya lo envié</button>
+        <button class="btn btn-fantasma btn-peq" data-bandeja="${m.id}" data-estado="descartada">Descartar</button>
+      </div>
+    </article>`).join('');
+  cont.querySelectorAll('[data-bandeja]').forEach(b => b.onclick = async () => {
+    b.disabled = true;
+    await api('POST', `/api/profesional/bandeja/${b.dataset.bandeja}/estado`,
+              {estado: b.dataset.estado});
+    await cargarHoy();
+  });
+}
+
+/* ---------- agenda ---------- */
+async function cargarAgenda() {
+  const {st, datos} = await api('GET', '/api/profesional/agenda?dias=7');
+  const cont = $('#agenda-dias');
+  if (st !== 200) {
+    cont.innerHTML = '<div class="vacio">Tu agenda no responde ahora mismo.</div>';
+    return;
+  }
+  cont.innerHTML = datos.dias.map(d => {
+    if (d.cerrado) {
+      return `<div class="dia"><h3>${fmtFecha(d.fecha, true)}</h3>
+        <p class="libres">Cerrado (domingo).</p></div>`;
+    }
+    const filas = d.citas.length ? d.citas.map(c =>
+      `<div class="fila"><span class="h">${esc(c.hora)}</span>
+       <span class="n">${esc(c.nombre)} · ${esc(c.servicio)}</span>
+       <span class="e">${ESTADOS[c.estado] || esc(c.estado)}</span></div>`).join('')
+      : '<p class="libres">Sin citas este día.</p>';
+    const libres = (d.libres || []).length
+      ? `<p class="libres"><b>Huecos libres:</b> ${d.libres.map(x => x.desde + '–' + x.hasta).join(' · ')}</p>`
+      : '<p class="libres">Agenda completa: no queda ningún hueco.</p>';
+    return `<div class="dia"><h3>${fmtFecha(d.fecha, true)}</h3>${filas}${libres}</div>`;
+  }).join('');
+}
+
+/* ---------- lista de espera ---------- */
+async function cargarEspera() {
+  const {st, datos} = await api('GET', '/api/profesional/espera');
+  const cont = $('#espera-lista');
+  if (st !== 200) {
+    cont.innerHTML = '<div class="vacio">La lista de espera no responde ahora mismo.</div>';
+    return;
+  }
+  const entradas = datos.lista_espera || [];
+  const porAvisar = entradas.filter(e => e.estado === 'por_avisar');
+  const esperando = entradas.filter(e => e.estado === 'esperando');
+  const bolita = $('#bolita-espera');
+  bolita.textContent = porAvisar.length;
+  bolita.classList.toggle('oculto', porAvisar.length === 0);
+  if (!entradas.length) {
+    cont.innerHTML = '<div class="vacio">Nadie está esperando un hueco ahora.<br>Cuando una clienta se apunte, aparecerá aquí.</div>';
+    return;
+  }
+  const tarjeta = e => `<article class="cita">
+      <div class="quien" style="flex:1"><b>${esc(e.nombre)}</b>
+        <div class="serv">${esc(e.servicio)}${e.fecha_pref ? ' · prefiere el ' + fmtFecha(e.fecha_pref) : ''}${e.hora_pref ? ' a las ' + esc(e.hora_pref) : ''}</div>
+        <div class="chips"><span class="chip ${e.estado === 'por_avisar' ? 'estado-no_show' : ''}">${e.estado === 'por_avisar' ? '¡Hueco liberado!' : 'En espera'}</span></div>
+      </div>
+      <div class="fila-botones">
+        ${e.wa_link
+          ? `<a class="btn btn-verde btn-peq" href="${esc(e.wa_link)}" target="_blank" rel="noopener">${ICO.wa} Avisar por WhatsApp</a>`
+          : '<span class="mini">Sin teléfono guardado: no se le puede avisar desde aquí.</span>'}
+        <button class="btn btn-fantasma btn-peq" data-espera="${e.id}" data-estado="atendida">Atendida</button>
+        <button class="btn btn-fantasma btn-peq" data-espera="${e.id}" data-estado="descartada">Descartar</button>
+      </div>
+    </article>`;
+  cont.innerHTML =
+    (porAvisar.length ? '<h2 style="font-size:17px;font-weight:800;margin:6px 0 10px">Por avisar ahora</h2>' + porAvisar.map(tarjeta).join('') : '') +
+    (esperando.length ? '<h2 style="font-size:17px;font-weight:800;margin:18px 0 10px">En espera de hueco</h2>' + esperando.map(tarjeta).join('') : '');
+  cont.querySelectorAll('[data-espera]').forEach(b => b.onclick = async () => {
+    b.disabled = true;
+    await api('POST', `/api/profesional/espera/${b.dataset.espera}/estado`,
+              {estado: b.dataset.estado});
+    await cargarEspera();
+  });
+}
+
+/* ---------- mi negocio: embudo + carta ---------- */
+const ETIQUETAS_EMBUDO = [
+  ['hueco_propuesto', 'Huecos ofrecidos a clientas'],
+  ['reserva_confirmada', 'Reservas confirmadas'],
+  ['reagendada', 'Citas reagendadas'],
+  ['cancelada', 'Citas canceladas'],
+  ['cita_cumplida', 'Citas cumplidas'],
+  ['no_show', 'Clientas que no vinieron'],
+  ['lista_espera_alta', 'Altas en lista de espera'],
+];
+async function cargarPanel() {
+  const [emb, serv] = await Promise.allSettled([
+    api('GET', '/api/profesional/embudo'),
+    api('GET', '/api/profesional/servicios'),
+  ]);
+  const contE = $('#panel-embudo');
+  if (emb.status === 'fulfilled' && emb.value.st === 200) {
+    const por = emb.value.datos.por_tipo || {};
+    contE.innerHTML = ETIQUETAS_EMBUDO.map(([k, et]) =>
+      `<div class="celda"><b>${por[k] ?? 0}</b><span>${et}</span></div>`).join('');
+  } else {
+    contE.innerHTML = '<div class="vacio">El embudo no responde ahora mismo.</div>';
+  }
+  const contS = $('#panel-servicios');
+  if (serv.status === 'fulfilled' && serv.value.st === 200) {
+    const d = serv.value.datos;
+    contS.innerHTML = d.servicios.map(s =>
+      `<div class="serv-fila"><span class="n">${esc(s.nombre)}</span>
+       <span class="d">${s.duracion_min} min</span>
+       <span class="p">${esc(s.precio_etiqueta)}</span></div>`).join('');
+    const h = d.horario || {};
+    $('#panel-horario').innerHTML =
+      `<b>Horario:</b> lunes a viernes ${esc(h.lunes_viernes || '')} · ` +
+      `sábados ${esc(h.sabado || '')} · domingos ${esc(h.domingo || '')}.`;
+  } else {
+    contS.innerHTML = '<div class="vacio">Tu carta no responde ahora mismo.</div>';
+  }
+}
+
+/* ---------- arranque ---------- */
+$('#btn-entrar').onclick = entrar;
+$('#clave').addEventListener('keydown', e => { if (e.key === 'Enter') entrar(); });
+$('#btn-salir').onclick = salir;
+$('#btn-editar-carta').onclick = () =>
+  $('#nota-edicion').classList.toggle('oculto');
+
+if (sesion) {
+  mostrarPanel();
+  cargarTodo().catch(() => {});
+}
+</script>
+</body>
+</html>

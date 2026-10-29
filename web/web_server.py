@@ -98,7 +98,14 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PORT = int(os.environ.get("WEB_PORT", "8090"))
 AGENDA_API = os.environ.get("AGENDA_API", "http://127.0.0.1:8081").rstrip("/")
-AGENDA_TOKEN = os.environ.get("AGENDA_API_TOKEN", "la-asistenta-dev")
+# Token SOLO desde el entorno (sin literal en el código: hallazgo D7,
+# Fase 2). En la máquina lo aporta agenda/agenda.env vía arrancar.sh.
+AGENDA_TOKEN = (os.environ.get("AGENDA_API_TOKEN") or "").strip()
+if not AGENDA_TOKEN:
+    raise SystemExit(
+        "AGENDA_API_TOKEN no está definido en el entorno: la web no "
+        "arranca sin poder hablar con la agenda (en la máquina, "
+        "agenda/agenda.env vía arrancar.sh)")
 BASETEN_ENV_FILE = os.environ.get(
     "BASETEN_ENV_FILE", "/data/la-asistenta/hermes-home/.env"
 )
@@ -157,22 +164,24 @@ def rate_ok(ruta, ip):
 
 # ---------------- agenda ----------------
 
-def agenda_req(metodo, ruta, cuerpo=None, timeout=15):
+def agenda_req(metodo, ruta, cuerpo=None, timeout=15, cabeceras=None):
     datos = json.dumps(cuerpo).encode("utf-8") if cuerpo is not None else None
     req = urllib.request.Request(AGENDA_API + ruta, data=datos, method=metodo)
     req.add_header("X-API-Token", AGENDA_TOKEN)
     if datos:
         req.add_header("Content-Type", "application/json")
+    for k, v in (cabeceras or {}).items():
+        req.add_header(k, v)
     with urllib.request.urlopen(req, timeout=timeout) as r:
         return r.status, json.loads(r.read().decode("utf-8"))
 
 
-def agenda_req_estado(metodo, ruta, cuerpo=None, timeout=15):
+def agenda_req_estado(metodo, ruta, cuerpo=None, timeout=15, cabeceras=None):
     """Como agenda_req pero sin lanzar en errores HTTP: devuelve
     (status, json) también para 4xx (p. ej. el 409 de reagendar con sus
     alternativas, que la página del enlace debe mostrar tal cual)."""
     try:
-        return agenda_req(metodo, ruta, cuerpo, timeout)
+        return agenda_req(metodo, ruta, cuerpo, timeout, cabeceras)
     except urllib.error.HTTPError as e:
         try:
             return e.code, json.loads(e.read().decode("utf-8"))
@@ -900,9 +909,13 @@ class Handler(BaseHTTPRequestHandler):
             cuerpo_cita["servicios"] = nombres
         else:
             cuerpo_cita["servicio"] = servicio
-        # Crear en la agenda real…
+        # Crear en la agenda real… con clave de idempotencia propia de
+        # ESTA petición (Fase 2): si el envío se reintentara, la agenda
+        # devolvería la misma cita en vez de duplicarla.
+        clave_idem = secrets.token_hex(16)
         try:
-            _, creada = agenda_req("POST", "/citas", cuerpo_cita)
+            _, creada = agenda_req("POST", "/citas", cuerpo_cita,
+                                   cabeceras={"Idempotency-Key": clave_idem})
             cita = creada["cita"]
             # …y verificar releyendo antes de anunciarla como confirmada.
             _, datos_dia = agenda_req("GET", f"/citas?fecha={fecha}")

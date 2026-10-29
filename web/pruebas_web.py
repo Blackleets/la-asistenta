@@ -9,11 +9,33 @@ pack: disponibilidad con {servicios} (duración sumada), reserva con
 {servicios:[...]} en la web y en la API de agenda (una sola cita con el
 precio y la duración sumados, componentes en las notas), guarda con la
 duración total y rechazo de componentes fuera de la carta."""
-import base64, json, time, urllib.request, urllib.error, urllib.parse
+import base64, json, os, time, urllib.request, urllib.error, urllib.parse
 
 WEB = "http://127.0.0.1:8090"
 AGENDA = "http://127.0.0.1:8081"
-TOK = {"X-API-Token": "la-asistenta-dev"}
+
+
+def _token():
+    """Token de la agenda SOLO desde el entorno (D7/Fase 2): variable
+    AGENDA_API_TOKEN o el fichero agenda/agenda.env de la máquina."""
+    t = (os.environ.get("AGENDA_API_TOKEN") or "").strip()
+    if t:
+        return t
+    aqui = os.path.dirname(os.path.abspath(__file__))
+    for ruta in (os.environ.get("AGENDA_ENV_FILE") or "",
+                 os.path.join(aqui, "..", "agenda", "agenda.env"),
+                 os.path.join(aqui, "agenda.env")):
+        try:
+            with open(ruta, encoding="utf-8") as f:
+                for linea in f:
+                    if linea.startswith("AGENDA_API_TOKEN="):
+                        return linea.split("=", 1)[1].strip().strip('"').strip("'")
+        except OSError:
+            pass
+    raise SystemExit("Sin AGENDA_API_TOKEN: define la variable o agenda/agenda.env")
+
+
+TOK = {"X-API-Token": _token()}
 res = []
 
 def req(metodo, url, cuerpo=None, headers=None, timeout=180):

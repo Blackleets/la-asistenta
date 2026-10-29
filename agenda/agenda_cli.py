@@ -22,18 +22,22 @@ DB_PATH = os.environ.get(
     "AGENDA_DB", os.path.join(os.path.dirname(os.path.abspath(__file__)), "agenda.db")
 )
 
+# Alcance por negocio (Fase 2, D2): el visor muestra SOLO el negocio
+# indicado (por defecto, el piloto). Otro: AGENDA_NEGOCIO_ID=<id>.
+NEGOCIO = os.environ.get("AGENDA_NEGOCIO_ID", comun.NEGOCIO_DEFECTO)
+
 
 def embudo(conn, args):
     desde = args[0] if len(args) > 0 else None
     hasta = args[1] if len(args) > 1 else None
-    cond, params = [], []
+    cond, params = ["negocio_id = ?"], [NEGOCIO]
     if desde:
         cond.append("substr(ts, 1, 10) >= ?")
         params.append(desde)
     if hasta:
         cond.append("substr(ts, 1, 10) <= ?")
         params.append(hasta)
-    donde = (" WHERE " + " AND ".join(cond)) if cond else ""
+    donde = " WHERE " + " AND ".join(cond)
     por_tipo = dict(conn.execute(
         f"SELECT tipo, COUNT(*) FROM eventos{donde} GROUP BY tipo", params))
     por_origen = dict(conn.execute(
@@ -58,8 +62,9 @@ def main():
         return
     if args and args[0] == "--espera":
         rows = conn.execute(
-            """SELECT * FROM lista_espera
-               ORDER BY (estado = 'por_avisar') DESC, creado_en""").fetchall()
+            """SELECT * FROM lista_espera WHERE negocio_id = ?
+               ORDER BY (estado = 'por_avisar') DESC, creado_en""",
+            (NEGOCIO,)).fetchall()
         conn.close()
         for r in rows:
             print(json.dumps(dict(r), ensure_ascii=False))
@@ -67,7 +72,8 @@ def main():
         return
     if args and args[0] == "--bandeja":
         rows = conn.execute(
-            "SELECT * FROM bandeja_salida ORDER BY creado_en").fetchall()
+            "SELECT * FROM bandeja_salida WHERE negocio_id = ? ORDER BY creado_en",
+            (NEGOCIO,)).fetchall()
         conn.close()
         for r in rows:
             print(json.dumps(dict(r), ensure_ascii=False))
@@ -75,10 +81,13 @@ def main():
         return
     if args:
         rows = conn.execute(
-            "SELECT * FROM citas WHERE fecha = ? ORDER BY hora", (args[0],)
+            "SELECT * FROM citas WHERE fecha = ? AND negocio_id = ? ORDER BY hora",
+            (args[0], NEGOCIO)
         ).fetchall()
     else:
-        rows = conn.execute("SELECT * FROM citas ORDER BY fecha, hora").fetchall()
+        rows = conn.execute(
+            "SELECT * FROM citas WHERE negocio_id = ? ORDER BY fecha, hora",
+            (NEGOCIO,)).fetchall()
     conn.close()
     if not rows:
         print("Sin citas.")

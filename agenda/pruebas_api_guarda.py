@@ -17,7 +17,28 @@ import urllib.request
 import urllib.error
 
 API = os.environ.get("AGENDA_API_URL", "http://127.0.0.1:8081").rstrip("/")
-TOK = {"X-API-Token": os.environ.get("AGENDA_API_TOKEN", "la-asistenta-dev")}
+
+
+def _token():
+    """Token de la agenda SOLO desde el entorno (D7/Fase 2): variable
+    AGENDA_API_TOKEN o el fichero agenda.env junto a esta batería."""
+    t = (os.environ.get("AGENDA_API_TOKEN") or "").strip()
+    if t:
+        return t
+    aqui = os.path.dirname(os.path.abspath(__file__))
+    for ruta in (os.environ.get("AGENDA_ENV_FILE") or "",
+                 os.path.join(aqui, "agenda.env")):
+        try:
+            with open(ruta, encoding="utf-8") as f:
+                for linea in f:
+                    if linea.startswith("AGENDA_API_TOKEN="):
+                        return linea.split("=", 1)[1].strip().strip('"').strip("'")
+        except OSError:
+            pass
+    raise SystemExit("Sin AGENDA_API_TOKEN: define la variable o agenda/agenda.env")
+
+
+TOK = {"X-API-Token": _token()}
 res = []
 creadas = []
 

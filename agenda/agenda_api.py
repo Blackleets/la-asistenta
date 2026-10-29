@@ -9,9 +9,27 @@ Arranque:
   AGENDA_API_TOKEN=<token> python3 agenda_api.py   # token por cabecera
 
 Autenticación: cabecera  X-API-Token: <token>
-  (o Authorization: Bearer <token>). Token por defecto: «la-asistenta-dev»,
-  pensado para la demo del hackathon en red local/túnel; cambiar con la
-  variable de entorno AGENDA_API_TOKEN.
+  (o Authorization: Bearer <token>). El token se lee SOLO de la variable
+  de entorno AGENDA_API_TOKEN (Fase 2, hallazgo D7: sin literal en el
+  código; en la máquina lo aporta agenda/agenda.env, 0600 y fuera del
+  repo, vía arrancar.sh). Sin la variable, la API NO arranca.
+
+Alcance por negocio (Fase 2, hallazgo D2): toda fila lleva «negocio_id»
+  y toda consulta filtra por él. El negocio de la petición sale de la
+  cabecera X-Negocio-Id o, en su defecto, del negocio por defecto del
+  servidor. Los negocios válidos se configuran con AGENDA_NEGOCIOS
+  (lista separada por comas); hoy el único negocio real configurado es
+  el piloto «ari-vivas-beauty». Un negocio no configurado → 404.
+
+Idempotencia (Fase 2): POST /citas acepta la cabecera Idempotency-Key.
+  Un reintento con la misma clave y el mismo cuerpo devuelve la cita
+  original (200 con «idempotente»: true) sin duplicarla; la misma clave
+  con un cuerpo distinto → 422. La comprobación anti-solape y la
+  inserción van dentro de UNA transacción con bloqueo de escritura
+  (BEGIN IMMEDIATE): dos peticiones simultáneas al mismo hueco se
+  serializan y solo una crea la cita. Ojo: el «enlace» mágico solo
+  viaja en la respuesta ORIGINAL (en la BD queda su hash); una
+  respuesta idempotente devuelve la cita sin enlace.
 
 Endpoints:
   GET  /salud                      → {ok, servicio, bd}
@@ -72,6 +90,7 @@ import argparse
 import json
 import os
 import re
+import secrets
 import sqlite3
 import sys
 from datetime import datetime, timezone
@@ -83,7 +102,20 @@ import agenda_comun as comun
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.environ.get("AGENDA_DB", os.path.join(BASE_DIR, "agenda.db"))
-TOKEN = os.environ.get("AGENDA_API_TOKEN", "la-asistenta-dev")
+# Token SOLO desde el entorno (sin literal: hallazgo D7). main() se
+# niega a arrancar si falta. La ROTACIÓN del valor vigente queda como
+# acción pendiente documentada en ESTADO_PROYECTO.md (es una credencial
+# de producción: requiere autorización expresa del fundador).
+TOKEN = (os.environ.get("AGENDA_API_TOKEN") or "").strip()
+
+# Negocios configurados en ESTE servidor (Fase 2, D2). Hoy solo hay un
+# negocio real: el piloto. AGENDA_NEGOCIOS permite declarar más en un
+# despliegue concreto (p. ej. la instancia de pruebas de aislamiento).
+NEGOCIOS = {n.strip() for n in
+            os.environ.get("AGENDA_NEGOCIOS", comun.NEGOCIO_DEFECTO).split(",")
+            if n.strip()} or {comun.NEGOCIO_DEFECTO}
+NEGOCIO_POR_DEFECTO = (comun.NEGOCIO_DEFECTO if comun.NEGOCIO_DEFECTO in NEGOCIOS
+                       else sorted(NEGOCIOS)[0])
 
 # Carta REAL del salón (verificada; no inventar otros servicios ni precios).
 SERVICIOS = [
@@ -127,10 +159,14 @@ CREATE TABLE IF NOT EXISTS citas (
 
 
 def conectar():
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=30)
     conn.row_factory = sqlite3.Row
+    # Con varios hilos/procesos escribiendo, un «database is locked»
+    # transitorio debe esperar, no fallar: la guarda transaccional
+    # (BEGIN IMMEDIATE) serializa las creaciones y esto absorbe la espera.
+    conn.execute("PRAGMA busy_timeout = 30000")
     conn.execute(ESQUEMA)
-    comun.migrar(conn)  # migración aditiva: token_hash, prep, tablas nuevas
+    comun.migrar(conn)  # migración aditiva: token_hash, prep, negocio_id, índices
     return conn
 
 
@@ -143,16 +179,15 @@ def _a_hora(minutos):
     return f"{minutos // 60:02d}:{minutos % 60:02d}"
 
 
-def _confirmadas(conn, fecha):
-    """Intervalos (id, ini, fin) ocupados por las citas confirmadas del día.
-
-    Semántica del MCP (registrar_cita): solo bloquean las 'confirmada';
-    las canceladas no ocupan el hueco.
-    """
+def _confirmadas(conn, fecha, negocio_id=comun.NEGOCIO_DEFECTO):
+    """Intervalos (id, ini, fin) ocupados por las citas confirmadas del día
+    DE UN NEGOCIO. Semántica del MCP (registrar_cita): solo bloquean las
+    'confirmada'; las canceladas no ocupan el hueco."""
     filas = conn.execute(
         "SELECT id, hora, duracion_min FROM citas "
-        "WHERE fecha = ? AND estado = 'confirmada' ORDER BY hora",
-        (fecha,),
+        "WHERE fecha = ? AND estado = 'confirmada' AND negocio_id = ? "
+        "ORDER BY hora",
+        (fecha, negocio_id),
     ).fetchall()
     return [
         (f["id"], _a_minutos(f["hora"]), _a_minutos(f["hora"]) + int(f["duracion_min"]))
@@ -214,7 +249,8 @@ def cita_publica(row):
         "precio_eur", "precio_etiqueta", "duracion_min", "estado", "prep")}
 
 
-def huecos_de(conn, servicio, fecha, excluir_id=None, duracion=None):
+def huecos_de(conn, servicio, fecha, excluir_id=None, duracion=None,
+              negocio_id=comun.NEGOCIO_DEFECTO):
     """Huecos reales de inicio (rejilla de 15 min) para un servicio y día.
 
     Devuelve (lista, None) o (None, motivo). excluir_id ignora la propia
@@ -238,7 +274,7 @@ def huecos_de(conn, servicio, fecha, excluir_id=None, duracion=None):
     if ventana is None:
         return [], "domingo cerrado"
     apertura, cierre = ventana
-    ocupados = [(i, ini, fin) for (i, ini, fin) in _confirmadas(conn, fecha)
+    ocupados = [(i, ini, fin) for (i, ini, fin) in _confirmadas(conn, fecha, negocio_id)
                 if i != excluir_id]
     return _alternativas_todas(ocupados, apertura, cierre, duracion), None
 
@@ -254,24 +290,27 @@ def _alternativas_todas(ocupados, apertura, cierre, duracion):
     return libres
 
 
-def _fila_por_hash(conn, token_hash):
+def _fila_por_hash(conn, token_hash, negocio_id=comun.NEGOCIO_DEFECTO):
     return conn.execute(
-        "SELECT * FROM citas WHERE token_hash = ?", (token_hash,)
+        "SELECT * FROM citas WHERE token_hash = ? AND negocio_id = ?",
+        (token_hash, negocio_id),
     ).fetchone()
 
 
 def _cancelar_en_bd(conn, fila, origen_evento):
     """Semántica única de cancelación: marca 'cancelada' (no borra),
-    anota el evento y libera el hueco para la lista de espera."""
+    anota el evento y libera el hueco para la lista de espera DEL MISMO
+    negocio."""
+    negocio = fila["negocio_id"] or comun.NEGOCIO_DEFECTO
     conn.execute("UPDATE citas SET estado = 'cancelada' WHERE id = ?", (fila["id"],))
-    comun.registrar_evento(conn, "cancelada", fila["id"], origen_evento)
-    comun.marcar_por_avisar(conn, fila["servicio"], fila["fecha"])
+    comun.registrar_evento(conn, "cancelada", fila["id"], origen_evento, negocio)
+    comun.marcar_por_avisar(conn, fila["servicio"], fila["fecha"], negocio)
     # Pack (v4): el hueco liberado también avisa a quien espera por cada
     # componente del pack (la lista de espera es por servicio suelto).
     if " + " in (fila["servicio"] or ""):
         for parte in fila["servicio"].split(" + "):
             if parte in POR_NOMBRE:
-                comun.marcar_por_avisar(conn, parte, fila["fecha"])
+                comun.marcar_por_avisar(conn, parte, fila["fecha"], negocio)
     conn.commit()
 
 
@@ -285,7 +324,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(cuerpo)))
         self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type, X-API-Token, Authorization")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type, X-API-Token, Authorization, X-Negocio-Id, Idempotency-Key")
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
         self.end_headers()
         self.wfile.write(cuerpo)
@@ -296,7 +335,18 @@ class Handler(BaseHTTPRequestHandler):
             auth = self.headers.get("Authorization", "")
             if auth.startswith("Bearer "):
                 dado = auth[7:]
-        return dado == TOKEN
+        return bool(TOKEN) and dado is not None and secrets.compare_digest(dado, TOKEN)
+
+    def _negocio(self):
+        """Negocio de la petición (Fase 2): cabecera X-Negocio-Id o el
+        por defecto del servidor. Si el negocio pedido no está
+        configurado, responde 404 y devuelve None (no se revela qué
+        negocios existen más allá del suyo)."""
+        neg = (self.headers.get("X-Negocio-Id") or "").strip() or NEGOCIO_POR_DEFECTO
+        if neg not in NEGOCIOS:
+            self._json(404, {"error": "negocio no encontrado"})
+            return None
+        return neg
 
     def _leer_json(self):
         largo = int(self.headers.get("Content-Length") or 0)
@@ -323,6 +373,9 @@ class Handler(BaseHTTPRequestHandler):
         if ruta.path == "/servicios":
             return self._json(200, {"servicios": SERVICIOS, "horario": HORARIO})
         if ruta.path == "/citas":
+            negocio = self._negocio()
+            if negocio is None:
+                return
             qs = parse_qs(ruta.query)
             fecha = (qs.get("fecha") or [None])[0]
             conn = conectar()
@@ -331,15 +384,20 @@ class Handler(BaseHTTPRequestHandler):
                     conn.close()
                     return self._json(400, {"error": "fecha debe ser YYYY-MM-DD"})
                 filas = conn.execute(
-                    "SELECT * FROM citas WHERE fecha = ? ORDER BY hora", (fecha,)
+                    "SELECT * FROM citas WHERE fecha = ? AND negocio_id = ? "
+                    "ORDER BY hora", (fecha, negocio)
                 ).fetchall()
             else:
                 filas = conn.execute(
-                    "SELECT * FROM citas ORDER BY fecha, hora"
+                    "SELECT * FROM citas WHERE negocio_id = ? ORDER BY fecha, hora",
+                    (negocio,)
                 ).fetchall()
             conn.close()
             return self._json(200, {"citas": [fila_a_cita(f) for f in filas]})
         if ruta.path == "/embudo":
+            negocio = self._negocio()
+            if negocio is None:
+                return
             qs = parse_qs(ruta.query)
             desde = (qs.get("desde") or [None])[0]
             hasta = (qs.get("hasta") or [None])[0]
@@ -348,14 +406,14 @@ class Handler(BaseHTTPRequestHandler):
             if hasta and not FECHA_RE.match(hasta):
                 return self._json(400, {"error": "hasta debe ser YYYY-MM-DD"})
             conn = conectar()
-            cond, params = [], []
+            cond, params = ["negocio_id = ?"], [negocio]
             if desde:
                 cond.append("substr(ts, 1, 10) >= ?")
                 params.append(desde)
             if hasta:
                 cond.append("substr(ts, 1, 10) <= ?")
                 params.append(hasta)
-            donde = (" WHERE " + " AND ".join(cond)) if cond else ""
+            donde = " WHERE " + " AND ".join(cond)
             por_tipo = dict(conn.execute(
                 f"SELECT tipo, COUNT(*) FROM eventos{donde} GROUP BY tipo",
                 params).fetchall())
@@ -369,19 +427,27 @@ class Handler(BaseHTTPRequestHandler):
                 "por_tipo": por_tipo, "por_origen": por_origen,
             })
         if ruta.path == "/lista-espera":
+            negocio = self._negocio()
+            if negocio is None:
+                return
             qs = parse_qs(ruta.query)
             estado = (qs.get("estado") or [None])[0]
             conn = conectar()
             if estado:
                 filas = conn.execute(
-                    "SELECT * FROM lista_espera WHERE estado = ? ORDER BY creado_en",
-                    (estado,)).fetchall()
+                    "SELECT * FROM lista_espera WHERE estado = ? AND negocio_id = ? "
+                    "ORDER BY creado_en",
+                    (estado, negocio)).fetchall()
             else:
                 filas = conn.execute(
-                    "SELECT * FROM lista_espera ORDER BY creado_en").fetchall()
+                    "SELECT * FROM lista_espera WHERE negocio_id = ? ORDER BY creado_en",
+                    (negocio,)).fetchall()
             conn.close()
             return self._json(200, {"lista_espera": [dict(f) for f in filas]})
         if ruta.path == "/bandeja":
+            negocio = self._negocio()
+            if negocio is None:
+                return
             qs = parse_qs(ruta.query)
             estado = (qs.get("estado") or [None])[0]
             conn = conectar()
@@ -390,14 +456,15 @@ class Handler(BaseHTTPRequestHandler):
                     """SELECT b.*, c.nombre, c.servicio, c.fecha, c.hora,
                               c.telefono FROM bandeja_salida b
                        JOIN citas c ON c.id = b.cita_id
-                       WHERE b.estado = ? ORDER BY b.creado_en""",
-                    (estado,)).fetchall()
+                       WHERE b.estado = ? AND b.negocio_id = ? ORDER BY b.creado_en""",
+                    (estado, negocio)).fetchall()
             else:
                 filas = conn.execute(
                     """SELECT b.*, c.nombre, c.servicio, c.fecha, c.hora,
                               c.telefono FROM bandeja_salida b
                        JOIN citas c ON c.id = b.cita_id
-                       ORDER BY b.creado_en""").fetchall()
+                       WHERE b.negocio_id = ?
+                       ORDER BY b.creado_en""", (negocio,)).fetchall()
             conn.close()
             salida = []
             for f in filas:
@@ -413,20 +480,26 @@ class Handler(BaseHTTPRequestHandler):
             return self._json(200, {"bandeja": salida})
         m = re.match(r"^/enlace/([0-9a-f]{64})$", ruta.path)
         if m:
+            negocio = self._negocio()
+            if negocio is None:
+                return
             conn = conectar()
-            fila = _fila_por_hash(conn, m.group(1))
+            fila = _fila_por_hash(conn, m.group(1), negocio)
             conn.close()
             if not fila:
                 return self._json(404, {"error": "enlace no válido o caducado"})
             return self._json(200, {"cita": cita_publica(fila)})
         m = re.match(r"^/enlace/([0-9a-f]{64})/huecos$", ruta.path)
         if m:
+            negocio = self._negocio()
+            if negocio is None:
+                return
             qs = parse_qs(ruta.query)
             fecha = (qs.get("fecha") or [""])[0]
             if not FECHA_RE.match(fecha):
                 return self._json(400, {"error": "fecha debe ser YYYY-MM-DD"})
             conn = conectar()
-            fila = _fila_por_hash(conn, m.group(1))
+            fila = _fila_por_hash(conn, m.group(1), negocio)
             if not fila:
                 conn.close()
                 return self._json(404, {"error": "enlace no válido o caducado"})
@@ -434,7 +507,8 @@ class Handler(BaseHTTPRequestHandler):
             # la de la carta (idéntico a antes); para un pack, la total.
             libres, motivo = huecos_de(conn, fila["servicio"], fecha,
                                        excluir_id=fila["id"],
-                                       duracion=int(fila["duracion_min"]))
+                                       duracion=int(fila["duracion_min"]),
+                                       negocio_id=negocio)
             conn.close()
             if libres is None:
                 return self._json(400, {"error": motivo})
@@ -448,9 +522,14 @@ class Handler(BaseHTTPRequestHandler):
         ruta = urlparse(self.path)
         m = re.match(r"^/citas/(\d+)/cancelar$", ruta.path)
         if m:
+            negocio = self._negocio()
+            if negocio is None:
+                return
             cid = int(m.group(1))
             conn = conectar()
-            fila = conn.execute("SELECT * FROM citas WHERE id = ?", (cid,)).fetchone()
+            fila = conn.execute(
+                "SELECT * FROM citas WHERE id = ? AND negocio_id = ?",
+                (cid, negocio)).fetchone()
             if not fila:
                 conn.close()
                 return self._json(404, {"error": "cita no encontrada"})
@@ -461,8 +540,14 @@ class Handler(BaseHTTPRequestHandler):
             return self._json(200, {"cita": fila_a_cita(fila)})
         m = re.match(r"^/citas/(\d+)/estado$", ruta.path)
         if m:
-            return self._cambiar_estado(int(m.group(1)))
+            negocio = self._negocio()
+            if negocio is None:
+                return
+            return self._cambiar_estado(int(m.group(1)), negocio)
         if ruta.path == "/eventos":
+            negocio = self._negocio()
+            if negocio is None:
+                return
             datos = self._leer_json()
             if datos is None:
                 return self._json(400, {"error": "JSON no válido"})
@@ -471,24 +556,41 @@ class Handler(BaseHTTPRequestHandler):
                 return self._json(400, {"error": "tipo de evento no válido"})
             conn = conectar()
             comun.registrar_evento(conn, tipo, datos.get("cita_id"),
-                                   datos.get("origen") or "web")
+                                   datos.get("origen") or "web", negocio)
             conn.commit()
             conn.close()
             return self._json(201, {"ok": True})
         if ruta.path == "/lista-espera":
-            return self._alta_lista_espera()
+            negocio = self._negocio()
+            if negocio is None:
+                return
+            return self._alta_lista_espera(negocio)
         m = re.match(r"^/lista-espera/(\d+)/estado$", ruta.path)
         if m:
+            negocio = self._negocio()
+            if negocio is None:
+                return
             return self._estado_simple("lista_espera", int(m.group(1)),
-                                       ("esperando", "por_avisar", "atendida", "descartada"))
+                                       ("esperando", "por_avisar", "atendida", "descartada"),
+                                       negocio)
         m = re.match(r"^/bandeja/(\d+)/estado$", ruta.path)
         if m:
+            negocio = self._negocio()
+            if negocio is None:
+                return
             return self._estado_simple("bandeja_salida", int(m.group(1)),
-                                       ("pendiente", "enviada", "descartada"))
+                                       ("pendiente", "enviada", "descartada"),
+                                       negocio)
         m = re.match(r"^/enlace/([0-9a-f]{64})/(cancelar|reagendar|prep)$", ruta.path)
         if m:
-            return self._enlace_post(m.group(1), m.group(2))
+            negocio = self._negocio()
+            if negocio is None:
+                return
+            return self._enlace_post(m.group(1), m.group(2), negocio)
         if ruta.path == "/citas":
+            negocio = self._negocio()
+            if negocio is None:
+                return
             datos = self._leer_json()
             if datos is None:
                 return self._json(400, {"error": "JSON no válido"})
@@ -542,58 +644,113 @@ class Handler(BaseHTTPRequestHandler):
             apertura, cierre = ventana
             inicio = _a_minutos(hora)
             fin = inicio + duracion
-            conn = conectar()
-            ocupados = _confirmadas(conn, fecha)
-            if inicio < apertura or fin > cierre:
-                alternativas = _alternativas(ocupados, apertura, cierre, duracion)
-                conn.close()
-                return self._json(409, {
-                    "error": "esa hora queda fuera del horario del salón "
-                             "(L–V 10:00–20:00 · S 10:00–14:00)",
-                    "alternativas": alternativas,
-                })
-            # Solape: misma condición que el MCP de Hermes — el intervalo
-            # [inicio, fin) se cruza con el de una cita confirmada si
-            # inicio < su_fin y su_inicio < fin. Los bordes exactos no chocan.
-            conflictos = [o for o in ocupados if inicio < o[2] and o[1] < fin]
-            if conflictos:
-                alternativas = _alternativas(ocupados, apertura, cierre, duracion)
-                libre_desde = _a_hora(max(o[2] for o in conflictos))
-                conn.close()
-                return self._json(409, {
-                    "error": "Conflicto de agenda: ese hueco se solapa con "
-                             "otra cita confirmada; la agenda queda libre a "
-                             f"partir de las {libre_desde}",
-                    "alternativas": alternativas,
-                })
             origen = (datos.get("origen") or "app").strip()
             if origen not in ("app", "web", "whatsapp"):
                 origen = "app"
-            # Enlace mágico: se genera el token y en la BD solo queda su hash.
-            token, token_hash = comun.nuevo_token()
-            cur = conn.execute(
-                """INSERT INTO citas
-                   (creado_en, nombre, servicio, fecha, hora, precio_eur,
-                    duracion_min, estado, origen, telefono, notas, token_hash)
-                   VALUES (?, ?, ?, ?, ?, ?, ?, 'confirmada', ?, ?, ?, ?)""",
-                (
-                    datetime.now(timezone.utc).isoformat(timespec="seconds"),
-                    nombre,
-                    servicio,
-                    fecha,
-                    hora,
-                    precio_total,
-                    duracion,
-                    origen,
-                    (datos.get("telefono") or None),
-                    (datos.get("notas") or None),
-                    token_hash,
-                ),
-            )
-            cita_id = cur.lastrowid
-            comun.registrar_evento(conn, "reserva_confirmada", cita_id,
-                                   "whatsapp" if origen == "whatsapp" else "web")
-            conn.commit()
+            # Idempotencia (Fase 2): la clave viaja en cabecera; la
+            # huella cubre los campos que definen la petición.
+            clave_idem = (self.headers.get("Idempotency-Key") or "").strip()
+            if len(clave_idem) > 200:
+                return self._json(400, {
+                    "error": "la cabecera Idempotency-Key es demasiado larga"})
+            huella = None
+            if clave_idem:
+                huella = comun.huella_idempotencia({
+                    "nombre": nombre, "servicios": nombres, "fecha": fecha,
+                    "hora": hora, "telefono": datos.get("telefono") or None,
+                    "notas": datos.get("notas") or None, "origen": origen,
+                })
+            # Guarda + inserción en UNA transacción con bloqueo de
+            # escritura (BEGIN IMMEDIATE): entre «comprobar» e «insertar»
+            # no puede colarse otra creación; dos peticiones simultáneas
+            # al mismo hueco se serializan y solo una gana.
+            conn = conectar()
+            try:
+                conn.execute("BEGIN IMMEDIATE")
+                if clave_idem:
+                    previa = comun.buscar_idempotencia(conn, negocio, clave_idem)
+                    if previa is not None:
+                        if previa["huella"] != huella:
+                            conn.rollback()
+                            conn.close()
+                            return self._json(422, {
+                                "error": "esta Idempotency-Key ya se usó con "
+                                         "otros datos de reserva"})
+                        fila = conn.execute(
+                            "SELECT * FROM citas WHERE id = ?",
+                            (previa["cita_id"],)).fetchone()
+                        conn.rollback()
+                        conn.close()
+                        # La cita original, sin duplicar. El «enlace»
+                        # mágico NO se puede repetir: solo viajó en la
+                        # respuesta original (en la BD queda su hash).
+                        return self._json(200, {"cita": fila_a_cita(fila),
+                                                "idempotente": True})
+                ocupados = _confirmadas(conn, fecha, negocio)
+                if inicio < apertura or fin > cierre:
+                    alternativas = _alternativas(ocupados, apertura, cierre, duracion)
+                    conn.rollback()
+                    conn.close()
+                    return self._json(409, {
+                        "error": "esa hora queda fuera del horario del salón "
+                                 "(L–V 10:00–20:00 · S 10:00–14:00)",
+                        "alternativas": alternativas,
+                    })
+                # Solape: misma condición que el MCP de Hermes — el intervalo
+                # [inicio, fin) se cruza con el de una cita confirmada si
+                # inicio < su_fin y su_inicio < fin. Los bordes exactos no chocan.
+                conflictos = [o for o in ocupados if inicio < o[2] and o[1] < fin]
+                if conflictos:
+                    alternativas = _alternativas(ocupados, apertura, cierre, duracion)
+                    libre_desde = _a_hora(max(o[2] for o in conflictos))
+                    conn.rollback()
+                    conn.close()
+                    return self._json(409, {
+                        "error": "Conflicto de agenda: ese hueco se solapa con "
+                                 "otra cita confirmada; la agenda queda libre a "
+                                 f"partir de las {libre_desde}",
+                        "alternativas": alternativas,
+                    })
+                # Enlace mágico: se genera el token y en la BD solo queda su hash.
+                token, token_hash = comun.nuevo_token()
+                cur = conn.execute(
+                    """INSERT INTO citas
+                       (creado_en, nombre, servicio, fecha, hora, precio_eur,
+                        duracion_min, estado, origen, telefono, notas, token_hash,
+                        negocio_id)
+                       VALUES (?, ?, ?, ?, ?, ?, ?, 'confirmada', ?, ?, ?, ?, ?)""",
+                    (
+                        datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                        nombre,
+                        servicio,
+                        fecha,
+                        hora,
+                        precio_total,
+                        duracion,
+                        origen,
+                        (datos.get("telefono") or None),
+                        (datos.get("notas") or None),
+                        token_hash,
+                        negocio,
+                    ),
+                )
+                cita_id = cur.lastrowid
+                comun.registrar_evento(conn, "reserva_confirmada", cita_id,
+                                       "whatsapp" if origen == "whatsapp" else "web",
+                                       negocio)
+                if clave_idem:
+                    comun.guardar_idempotencia(conn, negocio, clave_idem,
+                                               huella, cita_id)
+                conn.commit()
+            except sqlite3.Error:
+                try:
+                    conn.rollback()
+                except sqlite3.Error:
+                    pass
+                conn.close()
+                return self._json(503, {
+                    "error": "la agenda está ocupada ahora mismo; "
+                             "inténtalo de nuevo en unos segundos"})
             fila = conn.execute("SELECT * FROM citas WHERE id = ?", (cita_id,)).fetchone()
             conn.close()
             cita = fila_a_cita(fila)
@@ -604,7 +761,7 @@ class Handler(BaseHTTPRequestHandler):
         return self._json(404, {"error": "ruta no encontrada"})
 
     # ---------- mecánicas: estados, lista de espera, bandeja, enlace ----------
-    def _cambiar_estado(self, cid):
+    def _cambiar_estado(self, cid, negocio):
         datos = self._leer_json()
         if datos is None:
             return self._json(400, {"error": "JSON no válido"})
@@ -612,7 +769,9 @@ class Handler(BaseHTTPRequestHandler):
         if nuevo not in ("cumplida", "no_show"):
             return self._json(400, {"error": "estado debe ser «cumplida» o «no_show»"})
         conn = conectar()
-        fila = conn.execute("SELECT * FROM citas WHERE id = ?", (cid,)).fetchone()
+        fila = conn.execute(
+            "SELECT * FROM citas WHERE id = ? AND negocio_id = ?",
+            (cid, negocio)).fetchone()
         if not fila:
             conn.close()
             return self._json(404, {"error": "cita no encontrada"})
@@ -625,7 +784,8 @@ class Handler(BaseHTTPRequestHandler):
                 "error": f"una cita «{fila['estado']}» no puede pasar a «{nuevo}»"})
         conn.execute("UPDATE citas SET estado = ? WHERE id = ?", (nuevo, cid))
         comun.registrar_evento(
-            conn, "cita_cumplida" if nuevo == "cumplida" else "no_show", cid, "web")
+            conn, "cita_cumplida" if nuevo == "cumplida" else "no_show", cid, "web",
+            negocio)
         if nuevo == "cumplida":
             # Post-cita: agradecimiento a la bandeja de salida (pendiente
             # de que Arianna lo envíe con un toque vía wa.me).
@@ -635,7 +795,7 @@ class Handler(BaseHTTPRequestHandler):
         conn.close()
         return self._json(200, {"cita": fila_a_cita(fila)})
 
-    def _alta_lista_espera(self):
+    def _alta_lista_espera(self, negocio):
         datos = self._leer_json()
         if datos is None:
             return self._json(400, {"error": "JSON no válido"})
@@ -660,26 +820,27 @@ class Handler(BaseHTTPRequestHandler):
         cur = conn.execute(
             """INSERT INTO lista_espera
                (creado_en, nombre, telefono, servicio, fecha_pref, hora_pref,
-                estado, notas)
-               VALUES (?, ?, ?, ?, ?, ?, 'esperando', ?)""",
+                estado, notas, negocio_id)
+               VALUES (?, ?, ?, ?, ?, ?, 'esperando', ?, ?)""",
             (
                 datetime.now(timezone.utc).isoformat(timespec="seconds"),
                 nombre,
                 (datos.get("telefono") or "").strip() or None,
                 servicio, fecha_pref, hora_pref,
                 (datos.get("notas") or "").strip() or None,
+                negocio,
             ),
         )
         entrada_id = cur.lastrowid
         comun.registrar_evento(conn, "lista_espera_alta", None,
-                               datos.get("origen") or "web")
+                               datos.get("origen") or "web", negocio)
         conn.commit()
         fila = conn.execute(
             "SELECT * FROM lista_espera WHERE id = ?", (entrada_id,)).fetchone()
         conn.close()
         return self._json(201, {"entrada": dict(fila)})
 
-    def _estado_simple(self, tabla, fila_id, validos):
+    def _estado_simple(self, tabla, fila_id, validos, negocio):
         datos = self._leer_json()
         if datos is None:
             return self._json(400, {"error": "JSON no válido"})
@@ -689,7 +850,8 @@ class Handler(BaseHTTPRequestHandler):
                 "error": "estado debe ser uno de: " + ", ".join(validos)})
         conn = conectar()
         fila = conn.execute(
-            f"SELECT * FROM {tabla} WHERE id = ?", (fila_id,)).fetchone()
+            f"SELECT * FROM {tabla} WHERE id = ? AND negocio_id = ?",
+            (fila_id, negocio)).fetchone()
         if not fila:
             conn.close()
             return self._json(404, {"error": "registro no encontrado"})
@@ -700,9 +862,9 @@ class Handler(BaseHTTPRequestHandler):
         conn.close()
         return self._json(200, {"registro": dict(fila)})
 
-    def _enlace_post(self, token_hash, accion):
+    def _enlace_post(self, token_hash, accion, negocio):
         conn = conectar()
-        fila = _fila_por_hash(conn, token_hash)
+        fila = _fila_por_hash(conn, token_hash, negocio)
         if not fila:
             conn.close()
             return self._json(404, {"error": "enlace no válido o caducado"})
@@ -769,12 +931,24 @@ class Handler(BaseHTTPRequestHandler):
                                     "alternativas": []})
         apertura, cierre = ventana
         inicio, fin = _a_minutos(hora), _a_minutos(hora) + int(fila["duracion_min"])
-        ocupados = [(i, ini, fin_) for (i, ini, fin_) in _confirmadas(conn, fecha)
+        # Comprobación + movimiento en UNA transacción con bloqueo de
+        # escritura (misma disciplina que la creación): el hueco destino
+        # no puede ocuparse entre la comprobación y el UPDATE.
+        conn.execute("BEGIN IMMEDIATE")
+        fila = conn.execute(
+            "SELECT * FROM citas WHERE id = ?", (fila["id"],)).fetchone()
+        if fila["estado"] != "confirmada":
+            conn.rollback()
+            conn.close()
+            return self._json(409, {
+                "error": "solo se puede reagendar una cita confirmada"})
+        ocupados = [(i, ini, fin_) for (i, ini, fin_) in _confirmadas(conn, fecha, negocio)
                     if i != fila["id"]]
         if inicio < apertura or fin > cierre or any(
                 inicio < o_fin and o_ini < fin for _, o_ini, o_fin in ocupados):
             alternativas = _alternativas(ocupados, apertura, cierre,
                                          int(fila["duracion_min"]))
+            conn.rollback()
             conn.close()
             return self._json(409, {
                 "error": "ese hueco no está libre; prueba con otra hora",
@@ -782,13 +956,13 @@ class Handler(BaseHTTPRequestHandler):
         vieja_fecha, viejo_servicio = fila["fecha"], fila["servicio"]
         conn.execute("UPDATE citas SET fecha = ?, hora = ? WHERE id = ?",
                      (fecha, hora, fila["id"]))
-        comun.registrar_evento(conn, "reagendada", fila["id"], "web")
+        comun.registrar_evento(conn, "reagendada", fila["id"], "web", negocio)
         # El hueco viejo queda libre: puede avisar a la lista de espera.
-        comun.marcar_por_avisar(conn, viejo_servicio, vieja_fecha)
+        comun.marcar_por_avisar(conn, viejo_servicio, vieja_fecha, negocio)
         if " + " in (viejo_servicio or ""):  # pack: también por componente
             for parte in viejo_servicio.split(" + "):
                 if parte in POR_NOMBRE:
-                    comun.marcar_por_avisar(conn, parte, vieja_fecha)
+                    comun.marcar_por_avisar(conn, parte, vieja_fecha, negocio)
         conn.commit()
         fila = conn.execute(
             "SELECT * FROM citas WHERE id = ?", (fila["id"],)).fetchone()
@@ -801,6 +975,12 @@ def main():
     ap.add_argument("--port", type=int, default=int(os.environ.get("AGENDA_API_PORT", "8081")))
     ap.add_argument("--host", default=os.environ.get("AGENDA_API_HOST", "0.0.0.0"))
     args = ap.parse_args()
+    if not TOKEN:
+        sys.stderr.write(
+            "AGENDA_API_TOKEN no está definido: la API de agenda no arranca "
+            "sin token en el entorno (en la máquina lo aporta "
+            "agenda/agenda.env vía arrancar.sh).\n")
+        sys.exit(2)
     conectar().close()  # crea la BD si no existiera
     srv = ThreadingHTTPServer((args.host, args.port), Handler)
     print(f"Agenda API en http://{args.host}:{args.port}  (BD: {DB_PATH})", flush=True)

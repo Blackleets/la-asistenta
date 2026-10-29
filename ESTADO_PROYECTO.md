@@ -1,6 +1,11 @@
 # LA ASISTENTA — Estado del proyecto (punto de recuperación vivo)
 
-> Última actualización: 28/10/2026 ~19:45 (Europe/Madrid) — ejecución autónoma
+> Última actualización: 29/10/2026 ~09:45 (Europe/Madrid) — Fase 2 de la
+> Orden Maestra COMPLETADA (ver la última sección: multinegocio con
+> aislamiento probado, doble reserva transaccional, idempotencia,
+> índices y mediciones reales). Antes, el 29/10 por la mañana: área
+> profesional de la dueña y auditoría + sync del repo (c19dd1d).
+> — 28/10/2026 ~19:45: ejecución autónoma
 > de las fases A–E COMPLETADA, canal de WhatsApp/Twilio REPARADO (ver Fase D),
 > guarda de agenda movida al endpoint de la API (ver «Mejora post-fases»),
 > la web de la clienta convertida en PWA con sensación de app (ver
@@ -1388,3 +1393,275 @@ ejercen el análisis de cejas ya existente, como siempre).
   suman `web/modulos.json`, `web/qa12/` y `probador/INTERFACES.md`,
   y se actualizan `web/index.html`, `web/sw.js` y
   `web/web_server.py` (ruta `/api/modulos`).
+
+## ÁREA PROFESIONAL — la dueña administra su negocio (29/10/2026)
+
+Fase 1/3 de la Orden Maestra (prioridad 3: experiencia del
+profesional). Arianna ya no depende del CLI ni del panel demo viejo:
+tiene su área dentro de la misma web, con la identidad de siempre
+(blanco/violeta, 412×915), construida SOLO con proxies autenticados
+a la API de agenda existente. Webhook y flujo de la clienta intactos.
+
+### Acceso y clave (seguridad)
+
+- Vista **`GET /profesional`** (`web/profesional.html`, nueva) y API
+  **`/api/profesional/*`** en `web_server.py`. Sin sesión válida,
+  TODAS devuelven **401 y no revelan ni un dato** (probado en
+  batería y en QA13 con captura del acceso denegado).
+- **Clave NUEVA del negocio, distinta del token demo de la agenda**:
+  aleatoria (32 caracteres), generada EN la máquina por
+  `web/crear_clave_profesional.py` (el valor jamás se imprimió ni
+  pasó por un argumento) y guardada solo en
+  **`/data/la-asistenta/web/profesional.env` (permisos 600)**. El
+  servidor la lee de ese fichero (o de la variable de entorno
+  `PROFESIONAL_CLAVE`). Sin clave configurada, el acceso responde
+  503: el área no se abre con ninguna contraseña «de demo».
+  **⚠️ `web/profesional.env` NO debe sincronizarse al repo público
+  jamás** (es el secreto; queda solo en la máquina).
+- **Cómo se le entrega a Lee**: la clave vive únicamente en ese
+  fichero de la máquina. Lee (o Aragan a petición suya) la lee una
+  vez con el helper de InstaBox
+  (`exec … 'cat /data/la-asistenta/web/profesional.env'`) y se la
+  pasa a Arianna en persona o por su canal privado. Rotarla =
+  regenerar el fichero con el mismo script (hay que borrar el
+  anterior a mano: el script no sobrescribe) y reiniciar solo la web.
+- Sesión simple en memoria: token aleatorio, **caducidad 8 h**,
+  guardado en `sessionStorage` del navegador (se cierra con la
+  pestaña). Rate-limit en el acceso: 8 intentos/15 min por IP.
+  Comparación de la clave con `secrets.compare_digest`.
+
+### Qué puede hacer la profesional (todo real, sobre la API existente)
+
+- **Hoy**: citas del día (hora del salón, Europe/Madrid — la máquina
+  corre en UTC) con hora, clienta, servicio, código AS-XXXX, precio
+  y estado; el **mini-formulario de preparación** (`prep`) dentro de
+  cada cita; acciones reales **Cumplida / No vino / Cancelar** (proxy
+  a `POST /citas/<id>/estado|cancelar` de la agenda, con su guarda);
+  escribir a la clienta por wa.me si hay teléfono; y la **bandeja de
+  salida** con los agradecimientos pendientes, su enlace wa.me de un
+  toque y marcar enviada/descartar.
+- **Agenda**: próximos 7 días con las citas y los **intervalos
+  libres reales** ([apertura, cierre) menos las confirmadas; no
+  dependen de un servicio y no inventan ocupación).
+- **Por avisar**: entradas `por_avisar` (y `esperando`) con botón
+  **«Avisar por WhatsApp»** = enlace wa.me con el texto listo que se
+  abre en el WhatsApp DE LA PROFESIONAL. La UI lo dice sin
+  tecnicismos: la app no envía ese aviso sola (límite del trial).
+  Acciones: atendida / descartar.
+- **Mi negocio**: **embudo** real (7 contadores de `/embudo`) y
+  **servicios y horarios en SOLO LECTURA** desde la carta servida.
+  El botón «Editar carta u horarios» NO abre ningún formulario:
+  muestra la nota honesta de que por ahora los cambios los aplica
+  La Asistenta el mismo día (editar la carta en caliente queda
+  fuera de esta fase, como se ordenó).
+- Entrada desde la app de la clienta: tarjeta «¿Eres la
+  profesional?» en Perfil → `/profesional`. SW → shell **v11**.
+
+### Archivos
+
+- Nuevos: `web/profesional.html`, `web/qa13/qa13_cdp.mjs`,
+  `web/crear_clave_profesional.py` (utilidad del servidor, sin
+  secretos), `web/limpiar_bandeja_pruebas.py` (utilidad de limpieza
+  de pruebas) y, SOLO en la máquina, `web/profesional.env` (0600).
+- Modificados: `web/web_server.py` (rutas y sesión del área),
+  `web/index.html` (enlace en Perfil), `web/sw.js` (v11),
+  `web/pruebas_web.py` (bloque 14: +13 pruebas del área).
+- Respaldos `*.bak-20261029-profesional` en local y máquina. Solo
+  se reinició la web (pid 76711 al desplegar); webhook (8080) y
+  agenda (8081) intactos. SHA-256 local = máquina en los 5 ficheros
+  desplegados.
+
+### Pruebas ejecutadas (contra la máquina real)
+
+- Baterías: web **32/32** (las 19 de siempre + 13 del área:
+  401 sin sesión, clave falsa 401, sesión creada, cita de hoy con
+  código, estado inventado 400, no_show real, limpieza cancelada,
+  espera/embudo/carta/agenda con sesión, salir → 401) · guarda
+  **8/8** · mecánicas **20/20**.
+- **QA13 (CDP, 412×915): 27/27** — acceso, denegado con clave falsa
+  (captura), acceso real, «Hoy» con la cita de prueba (id 134) y su
+  prep visibles, cumplida → bandeja → descartada, agenda de 7 días
+  con huecos, espera «por_avisar» con wa.me y atendida, embudo de 7
+  tarjetas, carta de 4 servicios y nota de edición honesta; sin
+  desborde horizontal y consola limpia (fuera del 401 deliberado
+  del intento falso). Capturas en `web/qa13/`; la de Hoy servida en
+  `/icons/vista-profesional-hoy.png`.
+- Primera pasada de QA13: 25/27 por dos fallos DE LA QA, no de la
+  app (la bandeja tenía 15 entradas pendientes de baterías
+  anteriores y el clic cayó en la más antigua; el 401 del intento
+  falso contaba como «error de consola»). Corregida la QA y
+  repetida entera: 27/27.
+- **Limpieza de la bandeja**: las 15 entradas pendientes eran TODAS
+  de baterías de prueba (nombres «PRUEBA…»); se descartaron con
+  `limpiar_bandeja_pruebas.py` (solo toca nombres con «PRUEBA») y
+  la bandeja quedó a **0 pendientes**: pizarra limpia para Arianna.
+  Ojo futuro: cada corrida de `pruebas_mecanicas.py` vuelve a crear
+  agradecimientos de prueba al marcar cumplidas.
+
+### Limitaciones y notas
+
+- «Hoy» muestra también las citas canceladas del día (con su chip):
+  es la vista completa y honesta del día; hoy 29/10 se ven restos
+  cancelados de QAs anteriores, todos marcados «Cancelada».
+- La sesión vive en memoria del proceso web: si la web se
+  reinicia, Arianna entra de nuevo con su clave (8 h o reinicio,
+  lo que llegue antes).
+- La máquina tuvo un episodio de 503 `host_unavailable` en la API
+  de InstaBox (~1 min, `retryable: true`) durante esta fase; se
+  recuperó sola sin tocar nada. La URL pública tardó algo más en
+  volver que el exec interno.
+- **Nota para la próxima sincronización del repo público**: se
+  suman `web/profesional.html`, `web/qa13/`,
+  `web/crear_clave_profesional.py`, `web/limpiar_bandeja_pruebas.py`
+  y se actualizan `web/web_server.py`, `web/index.html`,
+  `web/sw.js`, `web/pruebas_web.py`. **EXCLUIR siempre
+  `web/profesional.env`** (y su contenido no va en ningún informe).
+
+---
+
+## Auditoría Orden Maestra + sincronización del repo público (29/10/2026)
+
+Primer paso de la Orden Maestra ejecutado: auditoría completa en
+`AUDITORIA_ORDEN_MAESTRA.md` (inventario verificado, tabla de
+diferencias D1–D10, cola priorizada P1–P7 y bloqueos B1–B7).
+
+- **Evidencia del día (contra la máquina real)**: máquina encontrada
+  suspendida y despertada por API (una visita web ya NO la despierta);
+  `/salud` OK en 8080/8081/8090; baterías web **19/19** · guarda
+  **8/8** · mecánicas **20/20** · QA12 **43/43** · adaptador FASHN
+  **5/5** (sin red). Superficie pública verificada desde fuera
+  (`/api/modulos`, `/api/servicios`).
+- **Hallazgo D1 y su resolución**: en el momento de la auditoría,
+  `web_server.py` local ≠ máquina (el backend del área profesional
+  existía solo en local, sin página ni despliegue). La fase del área
+  profesional documentada en la sección anterior lo completó y
+  desplegó después (baterías 32/32, QA13 27/27): D1 queda resuelta
+  por esa vía; la divergencia de SHA de la mañana queda registrada
+  como lección («ningún cambio local sin registrar en ESTADO el
+  mismo día»).
+- **Sincronización del repo público — HECHA**: commit
+  **`c19dd1d9158239699e64d9dc6ed232175c2a4c54`** en
+  github.com/Blackleets/la-asistenta (main), snapshot de **115
+  rutas**: todo lo posterior a `c5b9dbd` (PWA, análisis asíncrono,
+  mecánicas, interfaces v3–v6, pivote Fase 1, corrección modular con
+  `web/modulos.json`, `probador/` completo, ESPEC_REFERENCIA,
+  DIAGNOSTICO_PROBADOR, MODELOS_TRYON, AUDITORIA_ORDEN_MAESTRA y los
+  scripts de QA). Registro actualizado (3ª entrada en
+  `~/workspace/la-asistenta-repo.muse-github-snapshot-sync.json`);
+  manifiesto en `~/workspace/la-asistenta-paths-v3.bin`.
+- **Auditoría de secretos de la publicación**: grep por patrones
+  sobre el conjunto completo y verificación remota — **sin secretos
+  reales**. El móvil/email personales del fundador solo existen en
+  el fichero fuente interno `RUTA_C_TWILIO.md`; la copia de
+  publicación va saneada desde H0.1-A y el historial público está
+  limpio (verificado en el historial de la copia y con búsqueda de
+  código remota: 0 resultados). No se ha reescrito historia. Queda
+  anotado D7: el token de demo de la agenda es literal en el código
+  y público desde el primer sync — rotación y paso a solo-entorno
+  en la cola P4.
+- **Alcance exacto de este commit**: incluye el `web_server.py` CON
+  el backend del área profesional, pero NO `web/profesional.html`,
+  `web/qa13/`, `web/crear_clave_profesional.py` ni
+  `web/limpiar_bandeja_pruebas.py` (no existían al preparar la
+  copia), ni las actualizaciones de `index.html`/`sw.js`/
+  `pruebas_web.py` de esa fase: quedan para la próxima
+  sincronización, como indica la nota de la sección anterior.
+  `web/profesional.env` excluido siempre (solo existe en la
+  máquina, 0600). Excluidos también, como siempre: `hermes-home/`
+  entero, `*.db`, logs, fotos y binarios; y los documentos internos
+  de evaluación (`ESTADO_PARA_CHATGPT.md`, `BENCHMARK_H1.md`,
+  `PLAN_EXPOSICION.md`).
+
+
+## FASE 2 DE LA ORDEN MAESTRA COMPLETADA (29/10/2026 mañana): multinegocio, transacciones, idempotencia, índices y mediciones
+
+Resuelve D2 (agenda mononegocio) y prepara D7 (token literal) sin
+rotarlo. Migración SOLO aditiva con respaldo previo
+(`backups/agenda.db.bak-20261029-fase2` en la máquina; línea base
+antes de tocar nada: web 32/32 · guarda 8/8 · mecánicas 20/20).
+
+1. **Alcance por negocio**: columna `negocio_id` en citas,
+   lista_espera, eventos y bandeja_salida (DEFAULT = piloto
+   `ari-vivas-beauty`; las 141 citas, 18 esperas, 448 eventos y 18
+   bandejas existentes quedaron adscritos al piloto). TODAS las
+   consultas y escrituras de `agenda_comun.py`, la API, el MCP y el
+   CLI filtran por negocio. La API acepta la cabecera `X-Negocio-Id`;
+   los negocios válidos salen de `AGENDA_NEGOCIOS` (defecto: solo el
+   piloto) y un negocio no configurado recibe 404.
+2. **Doble reserva transaccional**: la guarda anti-solape y la
+   inserción (y el reagendar) van en UNA transacción `BEGIN
+   IMMEDIATE` en la API y en el MCP; conexiones con `busy_timeout`
+   de 30 s (si la agenda está ocupada de verdad, la API responde
+   503 «agenda ocupada», nunca un 500 pelado).
+3. **Idempotencia**: `POST /citas` acepta `Idempotency-Key`; tabla
+   `claves_idempotencia` con huella SHA-256 de la petición. Misma
+   clave + mismo cuerpo → 200 con la cita ORIGINAL (sin el enlace
+   mágico: el token solo viaja en la respuesta de creación). Misma
+   clave + cuerpo distinto → **422**. La web envía una clave por
+   intento de reserva y el MCP acepta `clave_idempotencia`.
+4. **Índices** (EXPLAIN antes/después en `MEDICIONES.md`):
+   `idx_citas_negocio_fecha_estado`, `idx_citas_token_hash`,
+   `idx_eventos_negocio_tipo`, `idx_lista_espera_negocio`,
+   `idx_bandeja_negocio`. El embudo pasa de SCAN completo de eventos
+   a índice covering.
+5. **Pruebas**: batería NUEVA `agenda/pruebas_fase2.py` **22/22** —
+   levanta una instancia en el puerto 8091 con una COPIA de la base
+   de datos (la de producción no se toca): aislamiento total entre
+   el piloto y un segundo negocio de prueba (citas, espera, bandeja
+   y embudo separados; el mismo hueco en dos negocios NO es
+   conflicto; cancelar la cita ajena → 404), idempotencia (201 →
+   200 sin duplicar; cuerpo distinto → 422) y concurrencia con
+   barrera (2 y 5 POST simultáneos al mismo hueco → exactamente un
+   201 y el resto 409 con alternativas). Tras el despliegue, en la
+   máquina: **web 32/32 · guarda 8/8 · mecánicas 20/20 · fase2
+   22/22**. La bandeja de salida volvió a quedar en 0 pendientes
+   (limpieza de pruebas tras las baterías).
+6. **Mediciones** (`MEDICIONES.md`, script `agenda/mediciones.py`):
+   en localhost de la máquina (4 vCPU, 8 GiB): /salud p50 0,3 ms;
+   disponibilidad p50 2,7 ms; crear cita p50 1,3 ms; ráfaga de 20
+   lecturas: todas 200 con p95 ~1,03 s (cola de los dos servidores
+   Python de un proceso); ráfaga de 5 escrituras al mismo hueco:
+   1× 201 y 4× 409 en ~10 ms. Frase honesta del documento: esto
+   soporta un negocio con holgura y decenas de negocios pequeños;
+   para más haría falta base de datos servida, más procesos y
+   máquinas sin pausa — NO se afirman millones.
+7. **Token de la agenda (D7) — PREPARADO, NO ROTADO**: el token ya
+   NO es un literal en el código de `agenda_api.py` ni de
+   `web_server.py`: ambos lo leen SOLO de `AGENDA_API_TOKEN` en el
+   entorno (la API sale con error claro si falta; la web igual) y
+   `arrancar.sh` lo carga de `agenda/agenda.env` (0600, SOLO en la
+   máquina, exclusión permanente del repo). El VALOR en uso no ha
+   cambiado: el comportamiento es idéntico al de antes. Las baterías
+   también leen el token del entorno o de `agenda.env`, sin literal.
+   ⚠️ **El proceso MCP en marcha SÍ corre con el código nuevo**
+   tras relanzar el gateway de Hermes conservando su entorno exacto
+   (83 variables capturadas de /proc, valores nunca fuera de la
+   máquina; gateway pid 80203, MCP pid 80293, verificados con una
+   pregunta real de disponibilidad respondida por el cerebro).
+   Constancia para el futuro: el supervisor de muerte del MCP NO lo
+   rearranca solo si se mata el proceso; hay que relanzar el
+   gateway (script usado: `run-logs/relanzar_gateway.py` en la
+   máquina, captura el entorno del gateway vivo y lo relanza con
+   el mismo comando).
+8. **PENDIENTE CON AUTORIZACIÓN DE LEE — rotación del token (D7)**:
+   el valor actual es público desde el primer sync del repo (era el
+   literal del código). Rotarlo es cambiar una credencial de
+   producción: paso exacto cuando Lee lo autorice — (a) generar un
+   valor nuevo aleatorio, (b) escribirlo en
+   `/data/la-asistenta/agenda/agenda.env`, (c) reiniciar SOLO la API
+   de agenda y la web (matar sus pid de `run-logs/` y correr
+   `arrancar.sh`), (d) repetir las baterías 32/32 · 8/8 · 20/20 ·
+   22/22. El MCP no usa el token (habla directo con la base de
+   datos): la rotación NO exige tocar el gateway. Ventana: ~2
+   minutos con la agenda en pausa. La purga del valor viejo del
+   historial público de git es otra decisión aparte (reescribir
+   historia) que también requiere orden expresa.
+9. **Próxima tarea exacta** (cola de la auditoría): del lado del
+   agente no queda tarea técnica ordinaria bloqueada tras esta
+   fase; lo siguiente es el **ensayo general del 02/11** (despertar
+   la máquina por API, re-join al sandbox de Twilio y correr el
+   guion de demo) y, cuando Lee desbloquee B1 (clave Meta), ejecutar
+   el benchmark H1 de modelos (≈0,86 $). Siguen pendientes de Lee:
+   B3 (un «Hola» real al +49 15888 620339), B4 (URL de reseñas),
+   la rotación del token del punto 8 y la lectura de la clave del
+   área profesional.

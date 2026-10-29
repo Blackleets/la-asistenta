@@ -34,6 +34,13 @@ import os
 import secrets
 from datetime import datetime, timezone
 
+# Negocio piloto y ÚNICO negocio real configurado hoy (Fase 2 de la
+# Orden Maestra, hallazgo D2 de la auditoría): toda fila de la agenda
+# lleva su «negocio_id» y toda consulta filtra por él. El valor por
+# defecto de la migración aditiva es este negocio, así que los datos
+# existentes quedan adscritos a él sin tocarlos.
+NEGOCIO_DEFECTO = "ari-vivas-beauty"
+
 # URL pública de la web de la clienta (puerto 8090 en la máquina). Es una
 # URL pública, no un secreto; se puede sobrescribir por entorno.
 WEB_BASE_URL = os.environ.get(
@@ -68,14 +75,16 @@ CREATE TABLE IF NOT EXISTS lista_espera (
     fecha_pref  TEXT,
     hora_pref   TEXT,
     estado      TEXT NOT NULL DEFAULT 'esperando',
-    notas       TEXT
+    notas       TEXT,
+    negocio_id  TEXT NOT NULL DEFAULT 'ari-vivas-beauty'
 );
 CREATE TABLE IF NOT EXISTS eventos (
     id       INTEGER PRIMARY KEY AUTOINCREMENT,
     ts       TEXT NOT NULL,
     tipo     TEXT NOT NULL,
     cita_id  INTEGER,
-    origen   TEXT NOT NULL DEFAULT 'web'
+    origen   TEXT NOT NULL DEFAULT 'web',
+    negocio_id TEXT NOT NULL DEFAULT 'ari-vivas-beauty'
 );
 CREATE TABLE IF NOT EXISTS bandeja_salida (
     id         INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -83,7 +92,16 @@ CREATE TABLE IF NOT EXISTS bandeja_salida (
     cita_id    INTEGER NOT NULL,
     tipo       TEXT NOT NULL DEFAULT 'gracias',
     texto      TEXT NOT NULL,
-    estado     TEXT NOT NULL DEFAULT 'pendiente'
+    estado     TEXT NOT NULL DEFAULT 'pendiente',
+    negocio_id TEXT NOT NULL DEFAULT 'ari-vivas-beauty'
+);
+CREATE TABLE IF NOT EXISTS claves_idempotencia (
+    negocio_id TEXT NOT NULL,
+    clave      TEXT NOT NULL,
+    huella     TEXT NOT NULL,
+    cita_id    INTEGER NOT NULL,
+    creado_en  TEXT NOT NULL,
+    PRIMARY KEY (negocio_id, clave)
 );
 """
 
@@ -94,7 +112,31 @@ COLUMNAS_CITAS = {
     "token_hash": "TEXT",
     # Respuestas del mini-formulario de preparación (JSON) ligadas a la cita.
     "prep": "TEXT",
+    # Negocio dueño de la cita (Fase 2, D2). El DEFAULT constante rellena
+    # las filas existentes con el negocio piloto al añadir la columna.
+    "negocio_id": "TEXT NOT NULL DEFAULT 'ari-vivas-beauty'",
 }
+
+# «negocio_id» también en las tablas hermanas: en BDs nuevas lo trae el
+# CREATE de arriba; en las existentes se añade con la misma guarda.
+COLUMNAS_NEGOCIO = ("lista_espera", "eventos", "bandeja_salida")
+
+# Índices de las consultas calientes reales (medidos con EXPLAIN QUERY
+# PLAN en MEDICIONES.md): confirmadas del día por negocio, embudo por
+# negocio, búsqueda de cita por el hash del enlace mágico y colas de la
+# profesional (espera y bandeja por negocio y estado).
+INDICES = """
+CREATE INDEX IF NOT EXISTS idx_citas_negocio_fecha_estado
+    ON citas(negocio_id, fecha, estado);
+CREATE INDEX IF NOT EXISTS idx_citas_token_hash
+    ON citas(token_hash);
+CREATE INDEX IF NOT EXISTS idx_eventos_negocio_tipo
+    ON eventos(negocio_id, tipo, ts);
+CREATE INDEX IF NOT EXISTS idx_lista_espera_negocio
+    ON lista_espera(negocio_id, estado, servicio);
+CREATE INDEX IF NOT EXISTS idx_bandeja_negocio
+    ON bandeja_salida(negocio_id, estado);
+"""
 
 
 def migrar(conn):
@@ -104,6 +146,13 @@ def migrar(conn):
         if nombre not in columnas:
             conn.execute(f"ALTER TABLE citas ADD COLUMN {nombre} {tipo}")
     conn.executescript(TABLAS_NUEVAS)
+    for tabla in COLUMNAS_NEGOCIO:
+        cols = {fila[1] for fila in conn.execute(f"PRAGMA table_info({tabla})")}
+        if "negocio_id" not in cols:
+            conn.execute(
+                f"ALTER TABLE {tabla} ADD COLUMN negocio_id "
+                "TEXT NOT NULL DEFAULT 'ari-vivas-beauty'")
+    conn.executescript(INDICES)
     conn.commit()
 
 
@@ -172,13 +221,51 @@ TIPOS_EVENTO = (
 )
 
 
-def registrar_evento(conn, tipo, cita_id=None, origen="web"):
+def registrar_evento(conn, tipo, cita_id=None, origen="web",
+                     negocio_id=NEGOCIO_DEFECTO):
     """Anota un evento del embudo. origen: 'whatsapp' | 'web'."""
     if tipo not in TIPOS_EVENTO:
         raise ValueError(f"tipo de evento desconocido: {tipo}")
     conn.execute(
-        "INSERT INTO eventos (ts, tipo, cita_id, origen) VALUES (?, ?, ?, ?)",
-        (_ahora(), tipo, cita_id, "whatsapp" if origen == "whatsapp" else "web"),
+        "INSERT INTO eventos (ts, tipo, cita_id, origen, negocio_id) "
+        "VALUES (?, ?, ?, ?, ?)",
+        (_ahora(), tipo, cita_id,
+         "whatsapp" if origen == "whatsapp" else "web", negocio_id),
+    )
+
+
+# ------------------------------------------------------------------
+# Idempotencia de la creación de citas (Fase 2)
+# ------------------------------------------------------------------
+
+def huella_idempotencia(campos):
+    """Huella estable (SHA-256 hex) de los campos que definen una
+    petición de creación: dos peticiones con la misma clave de
+    idempotencia solo son «la misma» si su huella coincide."""
+    canonico = json.dumps(campos, ensure_ascii=False, sort_keys=True,
+                          separators=(",", ":"))
+    return hashlib.sha256(canonico.encode("utf-8")).hexdigest()
+
+
+def buscar_idempotencia(conn, negocio_id, clave):
+    """Dict {huella, cita_id} de claves_idempotencia o None. Se devuelve
+    un dict SIEMPRE (la API usa Row y el MCP tuplas: así vale para los
+    dos sin depender del row_factory de cada conexión)."""
+    fila = conn.execute(
+        "SELECT huella, cita_id FROM claves_idempotencia "
+        "WHERE negocio_id = ? AND clave = ?",
+        (negocio_id, clave),
+    ).fetchone()
+    if fila is None:
+        return None
+    return {"huella": fila[0], "cita_id": fila[1]}
+
+
+def guardar_idempotencia(conn, negocio_id, clave, huella, cita_id):
+    conn.execute(
+        "INSERT INTO claves_idempotencia (negocio_id, clave, huella, cita_id, creado_en) "
+        "VALUES (?, ?, ?, ?, ?)",
+        (negocio_id, clave, huella, cita_id, _ahora()),
     )
 
 
@@ -186,27 +273,28 @@ def registrar_evento(conn, tipo, cita_id=None, origen="web"):
 # Lista de espera activa
 # ------------------------------------------------------------------
 
-def marcar_por_avisar(conn, servicio, fecha):
+def marcar_por_avisar(conn, servicio, fecha, negocio_id=NEGOCIO_DEFECTO):
     """Marca «por_avisar» las entradas en espera compatibles con un hueco
     que se acaba de liberar (cancelación o reagendación).
 
-    Compatible = mismo servicio y (sin fecha preferida o la fecha del
-    hueco liberado). Devuelve cuántas entradas se marcaron. NO envía
-    ningún mensaje: el aviso saliente no es posible con Twilio trial
-    (error 21654); queda en cola visible para Arianna.
+    Compatible = mismo negocio, mismo servicio y (sin fecha preferida o
+    la fecha del hueco liberado). Devuelve cuántas entradas se marcaron.
+    NO envía ningún mensaje: el aviso saliente no es posible con Twilio
+    trial (error 21654); queda en cola visible para Arianna.
     """
     cur = conn.execute(
         """UPDATE lista_espera SET estado = 'por_avisar'
-           WHERE estado = 'esperando' AND servicio = ?
+           WHERE estado = 'esperando' AND servicio = ? AND negocio_id = ?
              AND (fecha_pref IS NULL OR fecha_pref = '')""",
-        (servicio,),
+        (servicio, negocio_id),
     )
     total = cur.rowcount
     if fecha:
         cur = conn.execute(
             """UPDATE lista_espera SET estado = 'por_avisar'
-               WHERE estado = 'esperando' AND servicio = ? AND fecha_pref = ?""",
-            (servicio, fecha),
+               WHERE estado = 'esperando' AND servicio = ? AND fecha_pref = ?
+                 AND negocio_id = ?""",
+            (servicio, fecha, negocio_id),
         )
         total += cur.rowcount
     return total
@@ -233,13 +321,14 @@ def texto_gracias(cita, resena_url=None):
     return "\n".join(lineas)
 
 
-def crear_gracias(conn, cita):
+def crear_gracias(conn, cita, negocio_id=None):
     """Crea el mensaje de agradecimiento en la bandeja de salida
     (estado 'pendiente': Arianna lo envía con un toque vía wa.me)."""
+    negocio = negocio_id or cita.get("negocio_id") or NEGOCIO_DEFECTO
     cur = conn.execute(
-        """INSERT INTO bandeja_salida (creado_en, cita_id, tipo, texto, estado)
-           VALUES (?, ?, 'gracias', ?, 'pendiente')""",
-        (_ahora(), cita["id"], texto_gracias(cita)),
+        """INSERT INTO bandeja_salida (creado_en, cita_id, tipo, texto, estado, negocio_id)
+           VALUES (?, ?, 'gracias', ?, 'pendiente', ?)""",
+        (_ahora(), cita["id"], texto_gracias(cita), negocio),
     )
     return cur.lastrowid
 

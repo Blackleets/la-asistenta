@@ -11,12 +11,34 @@ salida, que queda identificada como PRUEBA en el nombre.
 """
 import hashlib
 import json
+import os
 import urllib.request
 import urllib.error
 
 API = "http://127.0.0.1:8081"
 WEB = "http://127.0.0.1:8090"
-TOK = {"X-API-Token": "la-asistenta-dev"}
+
+
+def _token():
+    """Token de la agenda SOLO desde el entorno (D7/Fase 2): variable
+    AGENDA_API_TOKEN o el fichero agenda.env junto a esta batería."""
+    t = (os.environ.get("AGENDA_API_TOKEN") or "").strip()
+    if t:
+        return t
+    aqui = os.path.dirname(os.path.abspath(__file__))
+    for ruta in (os.environ.get("AGENDA_ENV_FILE") or "",
+                 os.path.join(aqui, "agenda.env")):
+        try:
+            with open(ruta, encoding="utf-8") as f:
+                for linea in f:
+                    if linea.startswith("AGENDA_API_TOKEN="):
+                        return linea.split("=", 1)[1].strip().strip('"').strip("'")
+        except OSError:
+            pass
+    raise SystemExit("Sin AGENDA_API_TOKEN: define la variable o agenda/agenda.env")
+
+
+TOK = {"X-API-Token": _token()}
 FECHA = "2026-11-12"  # jueves, sin citas previas
 res = []
 creadas = []
