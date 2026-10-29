@@ -9,7 +9,7 @@
  */
 'use strict';
 
-const CACHE = 'la-asistenta-shell-v11';
+const CACHE = 'la-asistenta-shell-v16';
 const NUCLEO = [
   '/',
   '/manifest.webmanifest',

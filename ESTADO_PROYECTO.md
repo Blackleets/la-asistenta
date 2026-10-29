@@ -1665,3 +1665,580 @@ antes de tocar nada: web 32/32 · guarda 8/8 · mecánicas 20/20).
    B3 (un «Hola» real al +49 15888 620339), B4 (URL de reseñas),
    la rotación del token del punto 8 y la lectura de la clave del
    área profesional.
+
+10. **Repo público sincronizado con esta fase** (29/10/2026):
+    commit **`3cec687c569cd50951b5d39eb2822c988c0b88b6`**, 122 rutas
+    (las 115 de `c19dd1d` + MEDICIONES.md, agenda/mediciones.py,
+    agenda/pruebas_fase2.py, web/profesional.html, web/qa13/,
+    web/crear_clave_profesional.py y web/limpiar_bandeja_pruebas.py,
+    con el código actualizado de agenda y web). Manifiesto en
+    `~/workspace/la-asistenta-paths-v4.bin`; registro actualizado
+    (4ª entrada). Auditoría de secretos sobre el conjunto: sin
+    .env reales, sin .db, sin datos personales del fundador, sin
+    claves; `web/profesional.env` y `agenda/agenda.env` excluidos
+    (solo existen en la máquina). El literal del token viejo solo
+    sobrevive en artefactos históricos ya publicados y auditados
+    (app Android v2, scripts QA4–QA7 y la auditoría de publicación
+    S5); el código de servidor ya no lo contiene — la validez del
+    valor cesa con la rotación del punto 8. (Esta nota se publica
+    en la próxima sincronización, como la anterior.)
+
+## RUNBOOK de ensayo y demo (29/10/2026): próxima tarea fechada = ensayo general 02/11
+
+- Escrito `ENSAYO_Y_DEMO.md` (documento operativo; preparación
+  documental, sin tocar la máquina ni gastar mensajes): cronograma
+  del **02/11** paso a paso (despertar por API — la visita web ya NO
+  despierta la máquina, D8 de la auditoría —, `/salud` ×3, re-join al
+  sandbox de Twilio, calentamiento de Hermes con autoprueba de
+  consumo 0, recorrido E2E completo con **presupuesto de mensajes
+  contado: 13 de 100**), grabación del vídeo plano a plano desde
+  `GUION_DEMO.md` actualizada al estado real (área profesional como
+  pantalla de agenda; el plano del análisis se graba en vivo o
+  pregrabado-etiquetado según la latencia medida en el ensayo; plan
+  B de racha lenta de Baseten sin simular jamás), checklist de
+  materiales y de lo que NO debe verse (secretos, datos de clientas,
+  clave profesional), jornada de entrega del **04/11** (límite 21:00
+  ET = 05/11 03:00 Madrid; objetivo interno: todo enviado a las
+  23:00 Madrid) y árbol de fallos con recuperación en ≤3 pasos
+  (máquina pausada · Spark lento · Twilio silencioso en modo TwiML ·
+  gateway de Hermes caído → `run-logs/relanzar_gateway.py`, el
+  supervisor NO rearranca el MCP solo).
+- **Próxima tarea exacta: ejecutar el runbook el 02/11** (ensayo) y
+  grabar según su §2; el 04/11, su §3. Siguen pendientes de Lee los
+  desbloqueos ya conocidos (B1 clave de Meta, B3 «Hola» real al
+  sandbox, B4 URL de reseñas, rotación del token de agenda D7 y
+  lectura de la clave del área profesional).
+
+## RE FINO de la home — descubrimiento (29/10/2026, mañana)
+
+Veredicto del principal tras ver la captura real de Lee en su móvil:
+la estantería de módulos era honesta, pero la home hablaba de
+NUESTRA arquitectura en vez de vender descubrimiento, y Fresha
+nunca hace eso. Corrección solo de presentación y textos en `web/`
+(`index.html`, `modulos.json`, `sw.js`); el registro sigue mandando
+(nada recodificado a mano); webhook, agenda y `cita.html` intactos.
+
+### Textos que salieron de la cara de la clienta
+
+- Kicker del hero «PLATAFORMA MODULAR · BELLEZA ACTIVA» y su párrafo
+  («Hoy funciona Ari Vivas Beauty… Los próximos módulos llegarán
+  cuando estén probados, no antes.»).
+- Titular «Módulos de La Asistenta» y el párrafo «La plataforma
+  crece por módulos. Solo está activo lo que funciona de verdad; el
+  resto se anuncia como lo que es: próximo.».
+- La nota interna bajo la estantería («Un módulo se activa desde el
+  registro central de la plataforma cuando sus dependencias están
+  cumplidas y verificadas. Sin catálogos ni funciones de mentira.»).
+- «Disponible ahora · Belleza» con «El módulo activo de la
+  plataforma: el salón real…» y la nota «Es el catálogo real del
+  módulo de Belleza: la carta del salón, servida desde su agenda.».
+- Barrido en el resto de superficies de clienta: próxima apertura
+  («el módulo se activará» → «se abrirá cuando esté verificado»),
+  estado vacío de Explorar («Este módulo está activo» → «Esto ya
+  está activo»), hub del Probador («del módulo de Belleza» y «Será
+  un módulo nuevo de la plataforma» → lenguaje de usuaria) y los
+  `proxima.preparando` del registro (moda, gafas y calzado) sin
+  «módulo» ni «plataforma». **Ningún hecho cambió**: lo
+  «próximamente» sigue diciéndose, claro y visible, en los chips de
+  estado y en las pantallas de próxima apertura, cuyo contenido
+  factual es el mismo. (`preparacion.porcentaje` y las notas del
+  registro son documentación interna y nunca se pintaron en cara de
+  clienta: verificado en el barrido.)
+
+### Orden nuevo de la home (descubrimiento)
+
+1. **Fila ligera del salón** (pin violeta + «Ari Vivas Beauty» +
+   chevron → abre el salón) y **buscador píldora real**: al enviar,
+   la búsqueda queda puesta en Explorar y filtra la carta de verdad
+   con la lógica existente (sin duplicar buscador).
+2. **Hero ligero**: una línea de valor de clienta («Analiza tus
+   cejas con IA y reserva en minutos») + las dos acciones reales
+   (Ver servicios y reservar / Analizar mis cejas con IA). Nada de
+   explicar la arquitectura.
+3. **La tarjeta grande fotográfica del salón como pieza
+   principal**, a todo ancho: `cargarCarta` la pinta en
+   `#tarjeta-salon-home` (clase `principal`); el carrusel queda solo
+   con los servicios.
+4. **«Servicios»**: acceso rápido a los servicios reales
+   (carrusel de tarjetas que llevan a la reserva).
+5. La tarjeta de análisis de cejas de siempre (con su botón de
+   instalar la app).
+6. **«Más en camino»**: estantería solo de futuro en formato
+   ligero (sin sombra, tarjetas compactas). `pintarEstanteria`
+   filtra desde el registro los de estado «proximamente»; si un día
+   no hubiera ninguno, la sección entera se oculta. Cada tarjeta
+   conserva su chip «Próximamente» y abre la próxima apertura
+   existente.
+
+### Verificación
+
+- Baterías contra la máquina real: **web 32/32 · guarda 8/8 ·
+  mecánicas 20/20**. La de fase2 (22/22) no se ha re-ejecutado
+  porque no se ha tocado la agenda.
+- **QA14** (`web/qa14/qa14_cdp.mjs`, Chromium por CDP en la
+  máquina, 412×915): **31/31**. Orden de descubrimiento verificado
+  por DOM (buscador → hero → salón → servicios → futuro); auditoría
+  literal de textos prohibidos sobre la home renderizada (sin
+  «módulo», «plataforma» ni «registro central»); la fila y la
+  tarjeta del salón abren el salón; buscar «henna» en la home →
+  Explorar con 1 resultado real (Ombré Brows Henna); **reserva REAL
+  desde una tarjeta de servicio confirmada (AS-AAF8, Diseño de
+  cejas, hoy 10:00) y cancelada en la limpieza**; las 3 tarjetas
+  futuras con su chip intacto abren su próxima apertura con el
+  contenido del registro; consola sin errores y sin desborde
+  horizontal. (Primera pasada: 17/18 por un fallo del propio script
+  de QA — celdas del calendario sin `data-fecha` —; corregido el
+  script y repetida entera: 31/31.)
+- Capturas revisadas una a una en `web/qa14/`
+  (01 descubrimiento · 03 futuro · 04 próxima moda · 05 confirmada)
+  y copias servidas en `web/icons/vista-home-descubrimiento.png` y
+  `web/icons/vista-home-futuro.png`.
+- SW → shell **v12**. Respaldos `*.bak-20261029-homefino` en local
+  y en la máquina. Solo se reinició la web (pid 81915); webhook
+  (48241) y agenda (79625) intactos. SHA-256 local = máquina en
+  `index.html`, `sw.js` y `modulos.json`.
+- **Nota para la próxima sincronización del repo público**: se
+  actualizan `web/index.html`, `web/sw.js` y `web/modulos.json`, y
+  se suma `web/qa14/`.
+
+## PASE DE ELEVACIÓN VISUAL (29/10/2026): adiós a la «tienda barata»
+
+Veredicto de Lee sobre la home del RE FINO (10:40): «Aun. No me
+convence, parece una app de tienda barata». Diagnóstico aceptado:
+el primer pantallazo lo ocupaba un panel de gradiente lavanda con
+titular Montserrat extrabold gritado, guión violeta y DOS botones
+rellenos compitiendo (negro + violeta sólido) — lenguaje de
+plantilla SaaS —; la foto real del salón, el mejor activo, quedaba
+empujada bajo el pliegue; y los datos (horario, servicios,
+duraciones) iban como pegatinas de tinte violeta por todas partes.
+
+### Dirección aplicada (premium = contención)
+
+- **Foto primero**: la tarjeta del salón abre la home tras el
+  buscador, con su foto a 332 px de alto; el panel `.hero` ha
+  desaparecido del DOM (con su gradiente, su estrella decorativa,
+  su regla y cualquier eyebrow/chip flotante) y debajo de la foto
+  va la línea de valor en bloque editorial sobre blanco.
+- **Tipografía editorial**: Fraunces para el titular de portada
+  (30 px, peso 600, interlineado generoso — la MISMA frase de
+  siempre, sin eslogan nuevo), el nombre del salón, los títulos de
+  sección, las tarjetas, la recomendación, la confirmación y las
+  reseñas (como cita impresa, en itálica). Montserrat queda para
+  UI y cuerpo.
+- **UNA acción principal**: botón negro píldora «Reservar» (mismo
+  id y mismo destino que antes: Explorar). La secundaria, «Analizar
+  mis cejas con IA», es un enlace de texto sobrio subrayado. La
+  clase `.btn-lavanda` deja de ser violeta sólido en TODA la app:
+  pasa a botón blanco con borde hairline; el violeta queda solo
+  como acento de estado (selección, pestaña activa, enlaces,
+  chips de estado).
+- **Datos como texto**: `.chip-dato` y `.sc-dur` pierden el fondo
+  de tinte; horario y servicios se leen como UNA línea gris
+  tranquila («L–V 10–20 · S 10–14 · 4 servicios»). Los chips del
+  resultado pasan a contorno hairline sobre blanco.
+- **Sistema contenido en todas las pantallas de clienta**: sombra
+  global reducida a un susurro (`--sombra`), tarjetas sin sombra
+  con borde hairline y radio 20–24, fuera los gradientes de la
+  tarjeta del probador y de las fichas sin foto, «Tu cita» como
+  carta impresa (total con regla negra), transiciones a .18s ease
+  respetando `prefers-reduced-motion`. La tarjeta de cejas de la
+  home usa ahora la foto de henna (la del salón ya protagoniza la
+  portada: nada de repetir imagen en la misma pantalla).
+- **Solo presentación**: cero cambios de lógica, ids, textos
+  factuales ni registro de módulos. `cita.html` ya hablaba en
+  Fraunces: intacta. SW → shell **v13**. Respaldos
+  `*.bak-20261029-elevacion` en local y en la máquina. Solo se
+  reinició la web (pid 83446); webhook y agenda intactos.
+
+### Verificación
+
+- Baterías contra la máquina real: **web 32/32 · guarda 8/8 ·
+  mecánicas 20/20** (fase2 no re-ejecutada: no se tocó la agenda).
+- **QA15** (`web/qa15/qa15_cdp.mjs`, Chromium por CDP en la
+  máquina, 412×915): **38/38**. Medido, no opinado: ausencia de
+  `.hero`/eyebrow/chips en el DOM; bloque de valor sin gradiente
+  (`background-image: none`) con titular en Fraunces a 30 px; foto
+  protagonista a 332 px; botón principal computado
+  `rgb(13,13,13)` con etiqueta «Reservar» y secundaria con fondo
+  transparente; ningún botón de la home relleno de violeta;
+  chip-dato con fondo transparente y los hechos intactos como
+  texto; tarjetas con `box-shadow: none`. Y el recorrido funcional
+  completo sigue vivo: fila → salón, buscar «henna» → Explorar con
+  1 resultado, **reserva REAL confirmada (AS-AAGH) y cancelada en
+  la limpieza**, la secundaria abre el consentimiento del análisis,
+  las 3 próximas aperturas del registro, consola limpia y sin
+  desborde horizontal.
+- **Comparativa lado a lado** en `web/qa15/comparativa.png`
+  (izquierda: la home rechazada, guardada antes del pase en
+  `qa15/00-home-actual.png`; derecha: la nueva), revisada captura
+  a captura. Veredicto propio, con 3 motivos concretos: **(1)** la
+  foto real manda el primer pantallazo y el panel lavanda
+  desaparece — antes la foto salía cortada bajo el pliegue;
+  **(2)** una sola voz de acción: negro para reservar y texto para
+  analizar, frente a dos botones rellenos compitiendo; **(3)**
+  contraste editorial Fraunces/Montserrat y datos sin pegatinas:
+  la app se lee como una carta impresa, no como un bazar.
+  Matiz declarado: como la foto manda, el botón «Reservar» asoma
+  en el pliegue como invitación a deslizar y se ve entero al
+  primer toque de scroll; se descartó encoger la foto para
+  forzarlo dentro.
+- Capturas en `web/qa15/` y copias servidas en
+  `web/icons/vista-elevacion-inicio.png` y
+  `web/icons/vista-elevacion-salon.png`.
+- **Nota para la próxima sincronización del repo público**: se
+  actualizan `web/index.html` y `web/sw.js`, y se suma `web/qa15/`.
+
+## HOME SEGÚN LA ESPEC, CON TEMÁTICA PROPIA (29/10/2026, mediodía)
+
+- **Orden de Lee (12:26)**: «organiza mejor esto, eso no se parece
+  a Fresha ¿le hiciste ingeniería inversa? La idea es dejar todo
+  pero cambiar la temática: Fresha es buscadores, nosotros somos
+  lo que somos. Las fotos no encajan, no se ve bien». Traducción
+  ejecutada: la ORGANIZACIÓN de la portada vuelve a ser la de la
+  ingeniería inversa (ESPEC_REFERENCIA §P1 y `referencia/01-home.png`
+  como ley de layout) y el CONTENIDO es el de una asistenta de UN
+  salón real: nada de categorías de marketplace ni de buscador de
+  salones.
+- **La home, en orden**: ① fila pin violeta + «Ari Vivas Beauty»
+  en peso normal + chevron (abre el salón) como PRIMERA fila —
+  la cabecera global ✦ ASISTENTA se oculta SOLO en Inicio
+  (`body.en-inicio`, clase que pone `ir()`); sigue viva en el
+  resto de pantallas y el Perfil se alcanza por la nav inferior ·
+  ② buscador píldora (radio 999) que filtra la carta real como ya
+  hacía · ③ rejilla 4×2 de pastillas #f5f5f5 radio 16 con NUESTRAS
+  ocho entradas, todas funcionales: Reservar (reserva en el paso
+  1) · Análisis IA (su flujo, o el resultado si ya hay análisis) ·
+  Diseño de cejas / Ombré Henna / Brow Lamination / Depilación
+  (siembran la reserva con ese servicio y saltan al paso 2, como
+  las tarjetas) · El salón (su ficha) · WhatsApp (el wa.me público
+  real) · ④ «Recomendado» en Montserrat 800 (sin serif) con
+  carrusel al ~80 % y asomo: la tarjeta del salón ABRE el carrusel
+  y detrás van los servicios con foto (Depilación sin foto, como
+  siempre) · ⑤ la tarjeta sobria del «Probador de cejas» y «Más
+  en camino» del registro, recolocados tras el Recomendado y sin
+  tocar en espíritu.
+- **La foto como tarjeta**: aspecto 4:3, `object-fit: cover` y
+  encuadre elegido foto a foto con `object-position` propio —
+  salón `center 30%` · Diseño `center 28%` · Ombré Henna
+  `center 45%` · Laminación `center 40%` — verificado
+  visualmente captura a captura: en las cuatro, el trabajo (las
+  cejas / la escena) queda dentro, sin deformar y sin cortes
+  raros. Nombre + línea tranquila DEBAJO de la foto, fuera de la
+  imagen, como en la referencia; la pastilla de cristal con el
+  hecho (duración / «Reservas abiertas») va sobre la foto.
+- **Retirado de la portada**: el hero editorial `.portada-valor`
+  con su titular en Fraunces; la tarjeta del salón a todo ancho
+  (332 px) fuera del carrusel; la foto de henna duplicada dentro
+  de la tarjeta de análisis; la barra de marca sobre la fila del
+  salón. Fraunces sale de la portada (queda en la página de la
+  cita y en la ficha del salón). Las pastillas pasan de radio 24
+  a 16 y las tarjetas de 24 a 16 (medidas de la espec).
+- **Ajuste medido contra la espec**: el botón del buscador era
+  una pastilla de texto «Buscar» de 95 px y el conjunto medía
+  74 px de alto; la referencia manda círculo negro de 56 con
+  lupa y 58 de alto. Botón circular negro de 56 con lupa Lucide
+  (en Inicio y en Explorar, es el mismo componente) y padding
+  del buscador 8→1 px: el conjunto mide ahora 60 px.
+- **QA16 — 40/40 a 412×915 contra la máquina real**
+  (`web/qa16/qa16_cdp.mjs`): tabla elemento→medido (fila 17 px
+  peso 400 y pin #6950f3 · buscador radio 999, alto 60, botón
+  56 negro · pastillas radio 16, #f5f5f5, etiquetas 13 px peso
+  400 · «Recomendado» Montserrat 800 · carrusel 79 % con asomo ·
+  fotos 1,33 de aspecto, cover, con encuadre propio · sin
+  Fraunces en la portada · sin desborde), CADA pastilla probada
+  con clic, buscador filtrando de verdad, reserva REAL confirmada
+  desde «Recomendado» (AS-AAGU) y cancelada en la limpieza,
+  consola limpia. Baterías tras el pase: **web 32/32 · agenda
+  (guarda) 8/8 · mecánicas 20/20**. Capturas en `web/qa16/` y
+  copias servidas en `web/icons/vista-espec-inicio.png` y
+  `web/icons/vista-espec-recomendado.png`.
+- **Incidencia de verificación (no del producto)**: la capa de
+  lectura de imágenes devolvió cuerpos ajenos para tres copias
+  de `web/icons/` (una barbería y un vestido que NO existen en
+  el proyecto, y una captura de la home antigua). Verificación
+  cruzada: los SHA-256 de las imágenes SERVIDAS coinciden con
+  los ficheros reales del proyecto; el DOM vivo reporta
+  `currentSrc` y tamaños naturales correctos en las 4 tarjetas;
+  y las capturas validadas por sus bytes exactos (base64 vía
+  exec) muestran la home nueva con las fotos reales bien
+  encuadradas. Ningún fichero de imagen cambió en este pase.
+- SW del cascarón a **v14**; web reiniciada (pid 87208) con el
+  resto de servicios intactos. Respaldos
+  `index.html.bak-20261029-espec` y `sw.js.bak-20261029-espec`
+  en local y en la máquina.
+- **Nota para la próxima sincronización del repo público**: se
+  actualizan `web/index.html`, `web/sw.js` y `web/modulos.json`
+  (pendiente de pases anteriores), y se suman `web/qa14/`,
+  `web/qa15/` y `web/qa16/`.
+
+## ARREGLO DE ORIENTACIÓN DE IMÁGENES (29/10/2026, mediodía) — QA17
+
+Queja de Lee con captura de su móvil (12:51): en Explorar, la foto
+de «Ombré Brows Henna» se veía DEL REVÉS (labios arriba, frente
+abajo). Diagnóstico foto a foto leyendo los píxeles reales y el
+EXIF de cada imagen servida (las cinco de `web/img/` llegaron SIN
+EXIF al recomprimirse en su día: si los píxeles nacieron girados,
+ninguna etiqueta los salvaba):
+
+| Foto | Tamaño | Orientación encontrada | Corrección aplicada |
+|---|---|---|---|
+| salon.jpg | 1023×1537 | Recta (Arianna trabajando) | Ninguna (bytes intactos) |
+| diseno.jpg | 720×1280 | **Girada 90°**: la cara de lado, eje ojos-boca casi horizontal | Rotación 90° CCW horneada en los píxeles → 1280×720; la versión CW se probó y dejaba la cara invertida (descartada) |
+| henna.jpg | 720×1280 | **Invertida 180°**: barbilla/labios arriba, frente abajo — la queja de Lee | Rotación 180° horneada en los píxeles; queda 720×1280 |
+| laminacion.jpg | 1200×960 | Recta (primer plano de cejas laminadas) | Ninguna (bytes intactos) |
+| lounge.jpg | 1100×1100 | Recta («the LOUNGE» legible) | Ninguna (bytes intactos) |
+| ejemplo.jpg (stock del análisis) | 1200×1800 | Recta, con EXIF de orientación = 1 (normal) | Ninguna |
+
+- Las dos corregidas se guardaron SIN etiqueta de orientación,
+  calidad 88, ≤ 250 KB (henna 235 KB · diseno 181 KB). La fuente
+  sigue siendo la foto real del salón: solo se giraron los
+  píxeles, nada sustituido. Originales respaldados en
+  `backups/2026-10-29_pre-orientacion/` (local y máquina) y
+  `index.html`/`sw.js` como `*.bak-20261029-orientacion`.
+- **Encuadres tras el arreglo**: el mapa `FOTOS` manda ahora
+  diseno `center` (al ser horizontal, el centro conserva la cara
+  en el 4:3 y en Explorar), henna `center 25%` (antes 45%, elegido
+  para la foto invertida) y laminacion `center 40%` (sin cambio).
+  Explorar (`tarjetaProducto`) usa por fin el MISMO `pos` por foto
+  que el carrusel (antes todas compartían el `center 30%` del CSS).
+  La tarjeta de análisis (`.tc-foto`, diseno) y la cabecera del
+  salón (salon, 22%) quedan como estaban: con las fotos rectas
+  encuadran bien, verificado en QA17.
+- **SW a v15**: las fotos viejas vivían en la caché EXTRAS del
+  cascarón; sin subir la versión, los móviles seguirían viendo la
+  henna del revés aunque el servidor ya sirviera la recta.
+- **QA17 — 12/12 capturas a 412×915 revisadas una a una desde
+  sus bytes** (`web/qa17/qa17_cdp.mjs`; tamaños de descarga =
+  tamaños en la máquina, sin cuerpos ajenos esta vez): Inicio,
+  Recomendado tarjeta a tarjeta (salón/diseño/henna/laminación),
+  Explorar completa (diseño, henna — la de la queja, ya recta —,
+  laminación y depilación SIN foto con su icono honesto), salón
+  (cabecera y Lounge) y tarjeta del Probador. Veredicto por foto:
+  **recta SÍ y encuadre digno SÍ en las 5 fotos y en todas sus
+  superficies**. Medidas DOM: naturales servidos 1280×720
+  (diseno) y 720×1280 (henna) con los object-position nuevos
+  computados en vivo. Baterías tras el arreglo: **web 32/32 ·
+  agenda (guarda) 8/8 · mecánicas 20/20**. Web reiniciada (pid
+  89137); webhook y agenda intactos. SHA local = máquina en
+  `web/img/henna.jpg`, `web/img/diseno.jpg`, `web/index.html` y
+  `web/sw.js`. Capturas también servidas en `web/icons/qa17-*.png`
+  (la de enseñar a Lee: `qa17-07-explorar-henna.png`).
+- **Nota para la próxima sincronización del repo público**: se
+  suman `web/img/diseno.jpg`, `web/img/henna.jpg` (corregidas) y
+  `web/qa17/` a lo ya anotado en el pase anterior.
+
+## 44. QA18 — BARRIDO COMPLETO + MATRIZ FUNCIONAL (29/10/2026, orden de Lee «la app debe funcionar totalmente»)
+
+Recorrido entero a 412×915 con clics (CDP, capturas revisadas
+desde los bytes), como clienta y como profesional, en 3 fases:
+A (visual: A1/A2/A3), B (matriz funcional ejecutada) y C
+(verificación de los arreglos). Baterías antes y después:
+**web 32/32 · guarda 8/8 · mecánicas 20/20 · fase2 22/22**.
+Trabajo en `web/qa18/` (scripts `qa18_a*.mjs`, `qa18_b.mjs`,
+`qa18_c.mjs`, logs y `DEFECTOS_QA18.md`). Respaldos previos en
+`backups/2026-10-29_pre-qa18/`. **SW v15 → v16.**
+
+### Defectos corregidos en la pasada (verificados en la fase C)
+
+- **D-04 (ALTA)** Barra «Reservar ahora» del salón fuera de la
+  pantalla (left 206/right 558 en viewport 412; p-salon era la
+  única pantalla con desborde, scrollW 558). Causa: la animación
+  «sube» terminaba en `transform:none` con fill `both` y anulaba
+  el centrado `translateX(-50%)`; además la barra vivía dentro de
+  la pantalla (bloque contenedor del fixed). Arreglo: barra a
+  nivel global + keyframes propios `subeBarra`. Tras el arreglo:
+  barra y botón enteros dentro del viewport, scrollW 412
+  (`web/icons/vista-barrido-salon-barra.png`).
+- **D-01 (MEDIA)** Pie global con el lema del módulo de moda
+  dormido («Descubre cómo te quedaría antes de comprarlo») →
+  lema de marca «Tu belleza, mejor entendida».
+- **D-02 (MEDIA)** `cita.html` decía siempre «CONFIRMADA» y
+  ofrecía preparar/reagendar/cancelar sobre citas ya cumplidas.
+  Ahora pinta el estado real, ofrece acciones solo con la cita
+  viva y muestra el aviso «Esta cita ya se realizó…»
+  (`web/icons/vista-barrido-cita-cumplida.png`).
+- **D-03 (BAJA)** «← Volver» de la próxima apertura siempre iba a
+  Inicio → ahora vuelve a la pantalla de origen (verificado
+  desde Explorar, Probador e Inicio).
+- **D-06 (BAJA)** Pastilla «Próximamente» en posición variable
+  entre tarjetas hermanas → siempre en su línea bajo el nombre.
+- **D-09 (MICRO)** Mensaje de enlace no válido con mayúscula.
+
+### Abiertos (con motivo)
+
+- **D-02b (MEDIA-ALTA, agenda)** Se puede CANCELAR una cita ya
+  cumplida desde su enlace (reagendar sí está protegido).
+  Reproducción exacta en `web/qa18/DEFECTOS_QA18.md` (evidencia:
+  cita AS-AAHW). Recomendación: guarda simétrica en el cancelar
+  de la agenda + prueba en la batería de mecánicas. No se
+  parcheó la agenda en una pasada de organización; la mitad
+  visible ya está cerrada por D-02.
+- **D-05 (MEDIA, operativo)** La agenda del piloto arrastra
+  restos de las QA anteriores (25 citas de prueba en «Hoy» el
+  29/10 y mensajes de prueba en la bandeja). Recomendación:
+  limpieza antes del ensayo del 02/11; la decisión es del
+  principal (son datos del negocio).
+
+### Matriz funcional ejecutada (evidencia: logs de las fases A/B/C)
+
+| Función | Veredicto | Evidencia |
+|---|---|---|
+| Reserva E2E con pack (Diseño+Henna, 48 €, 90 min) | FUNCIONA | Código AS-AAHS; en agenda: confirmada, 90 min, 03/11 10:00 |
+| .ics de la cita | FUNCIONA | DTSTART/DTEND correctos (10:00–11:30), código y enlace en la descripción |
+| Enlace mágico: ver cita | FUNCIONA | Datos, código y estado correctos |
+| Preparación de la cita (prep) | FUNCIONA | Guardada en la interfaz y verificada en la agenda |
+| Reagendar desde el enlace | FUNCIONA | 03/11 → 04/11 verificado en agenda, mismo código |
+| Cancelar desde el enlace | FUNCIONA | La cita queda `cancelada`, no borrada |
+| Lista de espera: alta → hueco libre → por avisar → panel | FUNCIONA | Re-ejecutada íntegra en la fase C (entrada id 28; chip «¡Hueco liberado!»; descarte OK). Anomalía única no reproducible en la fase A3, registrada en DEFECTOS_QA18.md |
+| Análisis de cejas E2E (foto de ejemplo autorizada) | FUNCIONA | Resultado real de Muse Spark; latencia medida en la interfaz: 12,2 s (11,6 s en el log del servidor) |
+| Guardar look en Perfil y borrarlo | FUNCIONA | Aparece en «Mis looks» y el borrado deja el estado vacío |
+| Profesional: acceso sin clave / clave mala | FUNCIONA | 401 sin datos; mensaje de clave no válida sin abrir el panel |
+| Profesional: Cumplida / No vino / Cancelar | FUNCIONA | Las 4 acciones ejecutadas sobre citas de prueba y verificadas en la agenda |
+| Profesional: bandeja con wa.me | FUNCIONA | Enlace correcto con teléfono; «Sin teléfono guardado» sin él |
+| Profesional: Hoy / Agenda 7 días / Mi negocio | FUNCIONA | Cargan con datos reales (embudo, carta, horario) |
+| Error: domingo cerrado | FUNCIONA | 0 huecos + motivo por API; día deshabilitado en el calendario |
+| Error: hueco ocupado al confirmar (409) | FUNCIONA | Mensaje legible con huecos libres; la cita en conflicto no se crea |
+| Error: buscador sin resultados | FUNCIONA | Mensaje claro, 0 tarjetas |
+| Error: análisis sin foto / foto inválida | FUNCIONA | Botón deshabilitado sin foto; 400 legibles por API (sin imagen, base64 basura, no-data-URI); el 4.º caso quedó tras el rate-limit, que también responde con mensaje legible |
+| Error: /cita/<token inventado> | FUNCIONA | Error digno visible, sin spinner colgado |
+| PWA: actualización v15 → v16 | FUNCIONA | Tras navegar, la única caché es `la-asistenta-shell-v16` y manda el cascarón nuevo (pie nuevo servido); la actualización es inmediata al navegar (skipWaiting + limpieza en activate) |
+| Disponibilidad tras pausa (arranque documentado) | FUNCIONA | `arrancar.sh` idempotente; /salud en verde de web (8090) y agenda (8081); el webhook (8080) responde (404 en la raíz = su comportamiento, solo acepta POST de Twilio) |
+| WhatsApp real (sandbox de Twilio) | NO PROBABLE SIN LEE | Exige su gesto físico (mensaje real al sandbox); el canal está cableado y probado por TwiML |
+
+Transversal: **cero errores JS de consola** en todo el recorrido,
+cero textos cortados, cero botones sin función; modo sin conexión
+muestra la portada guardada con su aviso. Las citas de la QA18
+llevan nombre «QA18 …», quedaron en estados finales correctos y
+los bloqueos de prueba, cancelados.
+
+### Nota de sync para el repo público
+
+Se suman a lo pendiente: `web/index.html`, `web/cita.html` y
+`web/web_server.py` (arreglos QA18), `web/sw.js` (v16),
+`web/modulos.json` (de QA17), `web/qa18/` (scripts, logs y
+DEFECTOS) y las capturas `web/icons/vista-barrido-*.png`. Fuera
+del repo, como siempre: logs con rutas internas se revisan antes
+de subir y ningún fichero con claves o tokens.
+
+## 45. CIERRE DE LOS ABIERTOS DE QA18 — D-02b y D-05 (29/10/2026, orden de Lee «la app debe funcionar totalmente»)
+
+Baterías finales, todas contra la máquina real con el código ya
+corregido: **web 32/32 · guarda 8/8 · mecánicas 23/23 (total
+nuevo: +3 de D-02b) · fase2 22/22**. Respaldos previos:
+`agenda/*.bak-20261029-d02b` (código) y
+`backups/agenda.db.bak-20261029-d05` (BD, copia en línea con las
+263 citas del momento).
+
+### D-02b (MEDIA-ALTA) — CERRADO: guarda simétrica al cancelar
+
+- **Reproducción antes del arreglo**: las 3 pruebas nuevas de la
+  batería de mecánicas fallaron exactamente como el defecto
+  (20/23): cancelar una cita cumplida por id y por su enlace
+  mágico devolvía 200 y la cita quedaba «cancelada».
+- **La guarda** vive en la agenda, que es donde viven todas las
+  demás: `_bloqueo_cancelacion(estado)` en
+  `agenda/agenda_api.py`, aplicada a `POST /citas/<id>/cancelar`
+  y a `POST /enlace/<hash>/cancelar`. Una cita «cumplida»
+  responde **409 «Esta cita ya se realizó»** y una «no_show»,
+  409 «Esta cita ya pasó y quedó marcada como no realizada»; en
+  ambos casos el estado queda intacto. Una «confirmada» cancela
+  como siempre y una ya «cancelada» sigue respondiendo 200 sin
+  cambios (idempotente, como esperan las baterías).
+- **MCP (WhatsApp/Hermes)**: `cancelar_cita` en
+  `agenda/mcp_agenda.py` aplica la misma guarda con ValueError
+  legible. Verificado contra una COPIA de la BD
+  (`AGENDA_DB=/tmp/mcp_test.db`, la real no se tocó): cumplida
+  rechazada («Esta cita ya se realizó…», estado intacto),
+  no_show rechazada, confirmada cancela, ya-cancelada
+  idempotente.
+- **Web**: sin cambios de código — los proxies de
+  `web_server.py` propagan el 409 con su mensaje (enlace mágico
+  y área profesional), y `cita.html` ya no ofrecía la acción
+  desde D-02. La batería web lo cubre end-to-end: su paso de
+  limpieza del área profesional quedó ACTUALIZADO al nuevo
+  contrato («profesional: limpieza D-02b, la «no_show» no se
+  cancela (409) y queda cerrada») — el paso antiguo forzaba
+  cancelar tras marcar no_show, un resto de cuando cancelar no
+  tenía guarda; con la guarda, ese paso dio el único fallo de la
+  primera pasada post-arreglo (31/32) y ahora verifica la guarda
+  en vez de contradecirla.
+- **Pruebas nuevas en `agenda/pruebas_mecanicas.py`** (sección
+  10b): cancelar una cumplida por id → 409 con el mensaje;
+  cancelarla por su enlace → 409; la cita sigue «cumplida» tras
+  ambos intentos. Total de la batería: 20 → **23/23**.
+
+### D-05 (MEDIA) — CERRADO: limpieza de los restos de prueba
+
+Script `agenda/limpiar_d05.py` (queda en el proyecto; primero se
+ejecutó con `--solo-informe`). Informe completo en
+`web/qa18/LIMPIEZA_D05.md`.
+
+- **Regla de identificación (conservadora)**: es «de prueba»
+  solo lo que lleva la marca de las baterías/QA en el nombre —
+  empieza por «PRUEBA» (cualquier capitalización) o por «QA» +
+  dígito. Los teléfonos de batería (600111222, 611222333,
+  600123456, 600000000, +34600123456, +34600999888) corroboran
+  en el informe pero nunca bastan solos. Todo lo demás NO se
+  toca y se lista.
+- **Ejecución** (vía API, con sus eventos): ANTES citas
+  {cancelada 248 · confirmada 6 · cumplida 27 · no_show 3},
+  bandeja pendiente 6 → **1 cita cancelada** (id 282 «PRUEBA
+  PROFESIONAL», residuo confirmada de una pasada de la batería
+  web abortada por el rate-limit; ocupaba hoy 19:30) y **6
+  mensajes de la bandeja descartados** (ids 23, 24, 25, 28, 30,
+  31, todos «PRUEBA MECANICAS 2») → DESPUÉS citas {cancelada
+  249 · confirmada 5 · cumplida 27 · no_show 3}, **bandeja
+  pendiente 0**. Como siempre: nada se ha borrado; las citas de
+  prueba en estados terminales son historial y quedan.
+- **NO tocadas, para decisión del principal** (sin marca de
+  prueba inequívoca): citas **3 «Lucía», 4 «Marta» y 5 «Elena»**
+  (whatsapp, sin teléfono, 02/11 10:00/10:00/11:30 — creadas el
+  27/10 en una ráfaga de 33 min junto a la ya cancelada 2
+  «Carmen», patrón de las primeras pruebas del receptor, pero
+  sin marcador: se dejan) y **73/74 «Arianna»** (tel. omitido en la copia pública,
+  web, hoy 11:00 Henna y mañana 19:45 — creadas el 28/10 a dos
+  minutos una de otra; parecen la propia Arianna probando su
+  web: se dejan).
+- **Verificación de cierre** (tras la última batería web):
+  citas {cancelada 253 · confirmada 5 · cumplida 27 · no_show
+  5} — los +2 no_show y +4 cancelada son las propias pasadas de
+  verificación, que se auto-cierran en estados terminales;
+  **confirmadas vivas de prueba: 0** (las 5 vivas son las
+  ambiguas listadas); **«Hoy» sin ninguna cita viva de prueba**;
+  **bandeja pendiente total: 0**. La lista de espera no se ha
+  tocado en esta limpieza: la anomalía única de QA18 queda como
+  estaba registrada, sin reabrir.
+- **Transparencia operativa**: las repeticiones de la batería
+  web agotaron los rate-limits en memoria del servidor web
+  (acceso profesional 8/15 min; reservar 30/h, desde localhost).
+  Dos pasadas intermedias fallaron SOLO por eso (429 en cascada)
+  y una tercera por el hueco 19:30 que ocupaba el residuo 282 —
+  liberado por la propia limpieza. La pasada final (32/32) se
+  hizo tras rearrancar la web (pid 96201), que reinicia los
+  contadores; los límites quedan activos y sin tocar.
+- **Cierre final de las 5 ambiguas (29/10/2026)**: Lee autorizó
+  expresamente su cancelación (29/10 13:57: «Cancela las 5, son
+  de nuestras pruebas»). Ejecutado el mismo día con
+  `agenda/cancelar_5_autorizadas.py`, siempre vía API
+  (`POST /citas/<id>/cancelar`, 200 en las cinco; nada borrado):
+  **3 «Lucía»** (02/11 10:00), **4 «Marta»** (02/11 10:00),
+  **5 «Elena»** (02/11 11:30), **73 «Arianna»** (29/10 11:00) y
+  **74 «Arianna»** (30/10 19:45) constan ahora «cancelada».
+  Verificación posterior: **confirmadas vivas en la agenda: 0**
+  (de prueba o de cualquier tipo), **«Hoy» del área profesional
+  limpio**, conteos {cancelada 258 · cumplida 27 · no_show 5}
+  antes de las baterías de control, que cerraron en verde:
+  **guarda 8/8 · mecánicas 23/23** (sus propias citas de prueba
+  se auto-cierran en estados terminales, como siempre). Con
+  esto la agenda del piloto queda sin ninguna cita viva de
+  prueba de cara al ensayo del 02/11.
+
+### Nota de sync para el repo público
+
+Se suman a lo pendiente: `agenda/agenda_api.py`,
+`agenda/mcp_agenda.py`, `agenda/pruebas_mecanicas.py`,
+`agenda/limpiar_d05.py`, `agenda/cancelar_5_autorizadas.py`,
+`web/pruebas_web.py` (paso D-02b),
+`web/qa18/DEFECTOS_QA18.md` (cierre de abiertos) y
+`web/qa18/LIMPIEZA_D05.md`. Los respaldos `*.bak-20261029-d02b`
+y la copia de BD de `backups/` quedan fuera del repo.

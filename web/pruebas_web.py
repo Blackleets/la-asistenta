@@ -269,9 +269,12 @@ else:
            f"st={st}")
     st, d = req("POST", WEB + f"/api/profesional/citas/{cita_pro.get('id')}/cancelar",
                 {}, PRO)
-    prueba("profesional: limpieza, la cita de prueba queda cancelada",
-           st == 200 and (d.get("cita") or {}).get("estado") == "cancelada",
-           f"st={st}")
+    st2, d2 = req("GET", WEB + "/api/profesional/hoy", None, PRO)
+    fila_fin = next((c for c in d2.get("citas", [])
+                     if c.get("id") == cita_pro.get("id")), {})
+    prueba("profesional: limpieza D-02b, la «no_show» no se cancela (409) y queda cerrada",
+           st == 409 and fila_fin.get("estado") == "no_show",
+           f"cancelar={st} estado={fila_fin.get('estado')}")
     st, d = req("GET", WEB + "/api/profesional/espera", None, PRO)
     prueba("profesional: lista de espera accesible con sesión",
            st == 200 and "lista_espera" in d, f"st={st}")

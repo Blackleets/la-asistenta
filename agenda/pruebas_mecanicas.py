@@ -176,6 +176,26 @@ prueba("cumplida no puede pasar a no_show -> 409", st == 409)
 st, d = api("POST", f"/citas/{cita['id']}/estado", {"estado": "cumplida"})
 prueba("cancelada no puede pasar a cumplida -> 409", st == 409)
 
+# 10b · D-02b: una cita CUMPLIDA no puede cancelarse por ninguna vía
+# (guarda simétrica a la de reagendar; QA18 lo reprodujo con AS-AAHW).
+enlace2 = cita2.get("enlace") or ""
+token2 = enlace2.rsplit("/", 1)[-1] if enlace2 else ""
+thash2 = hashlib.sha256(token2.encode()).hexdigest() if token2 else ""
+st, d = api("POST", f"/citas/{cita2['id']}/cancelar", {})
+prueba("D-02b: cancelar una cumplida por id -> 409 «ya se realizó»",
+       st == 409 and "ya se realizó" in (d.get("error") or ""),
+       f"st={st} error={d.get('error')}")
+st, d = api("POST", f"/enlace/{thash2}/cancelar", {})
+prueba("D-02b: cancelar una cumplida por su enlace -> 409",
+       st == 409 and "ya se realizó" in (d.get("error") or ""),
+       f"st={st} error={d.get('error')}")
+st, d = api("GET", f"/citas?fecha={FECHA}")
+sigue = next((c for c in d.get("citas", [])
+              if c.get("id") == cita2.get("id")), {})
+prueba("D-02b: la cita sigue «cumplida» tras ambos intentos",
+       sigue.get("estado") == "cumplida",
+       f"estado={sigue.get('estado')}")
+
 # 11 · web pública: la página del enlace se sirve y la API de la cita responde
 st_txt = None
 try:

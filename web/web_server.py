@@ -753,7 +753,7 @@ class Handler(BaseHTTPRequestHandler):
         except Exception:
             return self._json(502, {"error": "la agenda no responde ahora mismo"})
         if st == 404:
-            return self._json(404, {"error": "este enlace no corresponde a ninguna cita; "
+            return self._json(404, {"error": "Este enlace no corresponde a ninguna cita; "
                                             "pide al salón que te lo reenvíe"})
         return self._json(st, datos)
 
@@ -955,7 +955,7 @@ class Handler(BaseHTTPRequestHandler):
         except Exception:
             return self._json(502, {"error": "la agenda no responde ahora mismo"})
         if st == 404:
-            return self._json(404, {"error": "este enlace no corresponde a ninguna cita; "
+            return self._json(404, {"error": "Este enlace no corresponde a ninguna cita; "
                                             "pide al salón que te lo reenvíe"})
         if st == 200:
             log("cita_" + accion, cita_id=(resp.get("cita") or {}).get("id"))

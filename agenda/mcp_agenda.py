@@ -463,6 +463,19 @@ def cancelar_cita(args):
                 "indica el id o la hora exacta de la cita a cancelar"
             )
         r = candidatas[0]
+        # D-02b (QA18): guarda simétrica a la de la API — una cita ya
+        # realizada (o cerrada como no realizada) no puede cancelarse;
+        # hacerlo reescribiría el historial del negocio.
+        if r[5] == "cumplida":
+            raise ValueError(
+                "Esta cita ya se realizó: no se puede cancelar una cita "
+                "ya atendida (queda registrada como «cumplida»)."
+            )
+        if r[5] == "no_show":
+            raise ValueError(
+                "Esta cita ya pasó y quedó marcada como no realizada: "
+                "no se puede cancelar."
+            )
         conn.execute("UPDATE citas SET estado = 'cancelada' WHERE id = ?", (r[0],))
         comun.registrar_evento(conn, "cancelada", r[0], "whatsapp", NEGOCIO)
         # El hueco queda libre: la lista de espera compatible pasa a

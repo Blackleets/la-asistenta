@@ -34,7 +34,9 @@
   --violeta-tinte:#F0EDFE; --violeta-claro:#BCB0F9; --blanco:#ffffff;
   --positivo:#1f8900; --tinta:#0d0d0d; --gris:#747a8d;
   --borde:#dee3e7; --superficie:#f5f5f5; --error:#bb1232; --radio:20px;
-  --sombra:0 10px 30px rgba(13,13,13,.08);
+  /* ELEVACIÓN (29/10): la sombra global es un susurro. Premium =
+     contención: mandan el borde hairline y la foto, no la sombra. */
+  --sombra:0 1px 3px rgba(13,13,13,.05);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-text-size-adjust:100%}
@@ -46,8 +48,8 @@ body{font-family:'Montserrat',system-ui,sans-serif;background:#fff;color:var(--t
    fila ligera del salón y buscador PÍLDORA (radio 999) con el
    placeholder en DOS líneas: un <input> no envuelve su placeholder
    y el texto quedaba cortado bajo el botón; un <textarea> sí. --- */
-.buscador{display:flex;align-items:center;gap:8px;background:#fff;border:1.5px solid var(--borde);
-  border-radius:999px;padding:8px 8px 8px 18px;box-shadow:var(--sombra);margin-bottom:18px}
+.buscador{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--borde);
+  border-radius:999px;padding:1px 6px 1px 18px;margin-bottom:18px}
 .buscador svg{width:21px;height:21px;stroke:var(--gris);fill:none;stroke-width:2;
   stroke-linecap:round;flex:none}
 .buscador textarea{flex:1;border:none;background:transparent;font:inherit;font-size:16px;
@@ -55,13 +57,19 @@ body{font-family:'Montserrat',system-ui,sans-serif;background:#fff;color:var(--t
   overflow:hidden;-webkit-appearance:none;appearance:none}
 .buscador textarea:focus{outline:none}
 .buscador textarea::placeholder{color:#a4adba}
-.buscador-btn{flex:none;border:none;background:var(--negro);color:var(--blanco);font:inherit;
-  font-weight:700;font-size:14px;border-radius:999px;padding:14px 22px;cursor:pointer;min-height:56px}
+/* ESPEC §P1: el botón del buscador es el círculo negro de 56 con
+   la lupa blanca, como en la referencia (antes era una pastilla
+   con el texto «Buscar»: más ancha y fuera de la medida). */
+.buscador-btn{flex:none;width:56px;height:56px;border-radius:50%;border:none;
+  background:var(--negro);color:var(--blanco);display:flex;align-items:center;
+  justify-content:center;cursor:pointer;padding:0}
+.buscador-btn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;
+  stroke-linecap:round;stroke-linejoin:round}
 .buscador-btn:active{transform:scale(.97)}
 .pastillas{display:grid;grid-template-columns:repeat(4,1fr);gap:14px 8px;margin-bottom:8px}
 .pastilla{display:flex;flex-direction:column;align-items:center;gap:7px;background:none;border:none;
   font:inherit;cursor:pointer;color:var(--tinta);padding:0;min-height:44px}
-.pastilla .p-ico{width:100%;max-width:88px;aspect-ratio:1/1;border-radius:24px;background:#f5f5f5;border:none;
+.pastilla .p-ico{width:100%;max-width:88px;aspect-ratio:1/1;border-radius:16px;background:#f5f5f5;border:none;
   box-shadow:none;display:flex;align-items:center;justify-content:center;
   transition:transform .12s ease}
 .pastilla svg{width:28px;height:28px;stroke:var(--negro);fill:none;stroke-width:1.7;
@@ -79,12 +87,14 @@ body{font-family:'Montserrat',system-ui,sans-serif;background:#fff;color:var(--t
 .fila-salon .fs-nombre{font-size:17px;font-weight:400;letter-spacing:0}
 .fila-salon .fs-chev{width:19px;height:19px;stroke:var(--negro);fill:none;stroke-width:2;
   stroke-linecap:round;stroke-linejoin:round;flex:none}
-.salon-card{background:#fff;border:1px solid var(--borde);border-radius:24px;overflow:hidden;
-  box-shadow:var(--sombra);margin-bottom:16px;cursor:pointer;transition:transform .12s ease}
+.salon-card{background:#fff;border:1px solid var(--borde);border-radius:16px;overflow:hidden;
+  margin-bottom:16px;cursor:pointer;transition:transform .18s ease}
 .salon-card:active{transform:scale(.99)}
-.salon-card .foto-wrap img{width:100%;height:212px;object-fit:cover;object-position:center 22%;display:block;background:var(--violeta-tinte)}
-.chip-dato{display:inline-flex;align-items:center;background:var(--violeta-tinte);border-radius:999px;
-  padding:6px 12px;font-size:12px;font-weight:700;color:#403591;white-space:nowrap}
+.salon-card .foto-wrap,.reco-card .foto-wrap{aspect-ratio:4/3}
+.salon-card .foto-wrap img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 30%;display:block;background:var(--violeta-tinte)}
+/* ELEVACIÓN: los datos ya no son pegatinas de color; son texto. */
+.chip-dato{display:inline;background:none;padding:0;font-size:13px;font-weight:500;
+  color:var(--gris);white-space:nowrap}
 /* v6: cabecera del salón A SANGRE COMPLETA, como la referencia: la
    foto escapa del margen de .wrap (arriba y a los lados) y los
    botones flotantes quedan sobre ella, bajo la zona segura. */
@@ -99,12 +109,12 @@ body{font-family:'Montserrat',system-ui,sans-serif;background:#fff;color:var(--t
 .hero-flot.izq{left:12px}
 .hero-flot.der{right:12px}
 .hero-flot:active{transform:scale(.94)}
-.salon-titulo{font-family:'Fraunces',serif;font-size:28px;font-weight:600;line-height:1.12;color:var(--negro)}
+.salon-titulo{font-family:'Fraunces',serif;font-size:31px;font-weight:600;line-height:1.12;color:var(--negro)}
 .salon-sub{font-size:13.5px;color:var(--gris);margin-top:5px;line-height:1.5}
 .salon-sub em{font-family:'Fraunces',serif;color:var(--negro)}
 .salon-txt{font-size:14px;line-height:1.6;color:var(--tinta);margin-top:12px}
 .fila-servicio{display:flex;align-items:center;gap:12px;width:100%;background:#fff;
-  border:1.5px solid var(--borde);border-radius:18px;padding:14px 16px;margin-bottom:10px;
+  border:1px solid var(--borde);border-radius:18px;padding:14px 16px;margin-bottom:10px;
   font:inherit;color:var(--tinta);text-align:left;cursor:pointer;transition:transform .12s ease}
 .fila-servicio:active{transform:scale(.99)}
 .fila-servicio .fs-main{flex:1;min-width:0}
@@ -124,8 +134,13 @@ body{font-family:'Montserrat',system-ui,sans-serif;background:#fff;color:var(--t
   bottom:calc(86px + env(safe-area-inset-bottom));width:calc(100% - 24px);max-width:456px;
   z-index:45;background:#fff;color:var(--tinta);border:1px solid var(--borde);
   border-radius:16px;padding:12px 14px;display:none;align-items:center;gap:12px;
-  box-shadow:0 14px 34px rgba(13,13,13,.14)}
-.salon-barra.visible{display:flex;animation:sube .25s ease both}
+  box-shadow:0 8px 24px rgba(13,13,13,.12)}
+.salon-barra.visible{display:flex;animation:subeBarra .25s ease both}
+/* QA18 (D-04): la barra se centra con translateX(-50%); la animación
+   genérica «sube» terminaba en transform:none y, con fill both, dejaba
+   la barra sin centrar y fuera del viewport. Keyframes propios que
+   conservan el centrado de principio a fin. */
+@keyframes subeBarra{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%)}}
 .salon-barra .sb-txt{flex:1;font-size:12.5px;line-height:1.4;color:var(--gris)}
 .salon-barra .sb-txt b{display:block;font-size:15px;color:var(--negro)}
 .salon-barra .sb-btn{flex:none;border:none;background:var(--negro);color:var(--blanco);font:inherit;
@@ -143,23 +158,23 @@ body{font-family:'Montserrat',system-ui,sans-serif;background:#fff;color:var(--t
   -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-radius:999px;
   padding:7px 13px;font-size:12.5px;font-weight:700;color:var(--negro);
   box-shadow:0 4px 14px rgba(13,13,13,.14)}
-.reco-card{background:#fff;border:1px solid var(--borde);border-radius:24px;overflow:hidden;
-  box-shadow:var(--sombra);margin-bottom:16px;cursor:pointer;transition:transform .12s ease}
+.reco-card{background:#fff;border:1px solid var(--borde);border-radius:16px;overflow:hidden;
+  margin-bottom:16px;cursor:pointer;transition:transform .18s ease}
 /* Carrusel «Recomendado» (espec §5 P1): tarjetas al ~80 % con asomo de
    la siguiente; el carril sale del margen para que el asomo se vea. */
 .carrusel{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;
   margin:0 -18px;padding:2px 18px 12px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .carrusel::-webkit-scrollbar{display:none}
-.carrusel>*{flex:0 0 88%;scroll-snap-align:start;margin-bottom:0}
-.carrusel .esqueleto{flex:0 0 82%}
+.carrusel>*{flex:0 0 80%;scroll-snap-align:start;margin-bottom:0}
+.carrusel .esqueleto{flex:0 0 80%}
 .reco-card:active{transform:scale(.99)}
-.reco-card .foto-wrap img{width:100%;height:190px;object-fit:cover;object-position:center 30%;display:block;background:var(--violeta-tinte)}
-.salon-card .rc-body,.reco-card .rc-body{padding:15px 17px 17px}
-.salon-card h3,.reco-card h3{font-size:19px;font-weight:800;line-height:1.2}
+.reco-card .foto-wrap img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 30%;display:block;background:var(--violeta-tinte)}
+.salon-card .rc-body,.reco-card .rc-body{padding:16px 18px 18px}
+.salon-card h3,.reco-card h3{font-family:'Montserrat',sans-serif;font-size:17px;font-weight:700;line-height:1.2}
 .salon-card .rc-cta-txt,.reco-card .rc-cta-txt{margin-left:auto;font-size:13.5px;font-weight:800;color:var(--negro);white-space:nowrap}
 .salon-card .rc-desc,.reco-card .rc-desc{font-size:13px;color:var(--gris);margin-top:3px;line-height:1.45}
 .salon-card .rc-meta,.reco-card .rc-meta{display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap}
-.tarjeta-analisis{border:2px solid var(--violeta);background:linear-gradient(180deg,#fff 0%,#F9F8FE 100%)}
+.tarjeta-analisis{border:1px solid var(--borde);background:#fff}
 .tarjeta-analisis .ta-ico{width:44px;height:44px;border-radius:14px;background:var(--violeta-tinte);
   display:flex;align-items:center;justify-content:center;margin-bottom:12px}
 .tarjeta-analisis .ta-ico svg{width:24px;height:24px;stroke:var(--negro);fill:none;stroke-width:2;
@@ -168,21 +183,24 @@ body{font-family:'Montserrat',system-ui,sans-serif;background:#fff;color:var(--t
 .pantalla.activa{display:block}
 @keyframes sube{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 .tarjeta{background:#fff;border:1px solid var(--borde);border-radius:var(--radio);
-  padding:20px;box-shadow:var(--sombra);margin-bottom:16px}
-.tarjeta h2{font-size:21px;font-weight:800;margin-bottom:8px;letter-spacing:-.01em}
+  padding:22px;margin-bottom:16px}
+.tarjeta h2{font-family:'Fraunces',serif;font-size:23px;font-weight:600;margin-bottom:8px;line-height:1.15}
 .tarjeta p{font-size:14px;line-height:1.55;color:var(--tinta)}
 .tarjeta p+p{margin-top:8px}
 .mini{font-size:12.5px;color:var(--gris);line-height:1.5}
 .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
   border:none;border-radius:999px;padding:16px 18px;font-family:inherit;font-size:15.5px;
-  font-weight:700;cursor:pointer;transition:transform .12s ease,opacity .2s;text-align:center}
+  font-weight:700;cursor:pointer;transition:transform .18s ease,background-color .18s ease,opacity .2s ease;text-align:center}
 .btn svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:2;
   stroke-linecap:round;stroke-linejoin:round;flex:none}
 .btn:active{transform:scale(.985)}
 .btn-primario{background:var(--negro);color:var(--blanco)}
 .btn-primario:hover{background:#262626}
 .btn-verde{background:var(--positivo);color:#fff}
-.btn-lavanda{background:var(--violeta);color:#fff}
+/* ELEVACIÓN: ningún botón va relleno de violeta. El violeta queda
+   como acento de estado (selección, pestaña activa, enlaces); el
+   botón secundario es blanco con borde hairline y texto negro. */
+.btn-lavanda{background:#fff;color:var(--negro);border:1px solid var(--borde)}
 .btn-fantasma{background:transparent;color:var(--negro);border:1.5px solid var(--negro)}
 .btn[disabled]{opacity:.38;pointer-events:none}
 .btn-peq{padding:11px 14px;font-size:13.5px;border-radius:12px;width:auto}
@@ -191,11 +209,11 @@ body{font-family:'Montserrat',system-ui,sans-serif;background:#fff;color:var(--t
 .enlace{background:none;border:none;color:var(--violeta);font:inherit;font-size:13.5px;
   font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:6px 0;
   min-height:44px;display:inline-flex;align-items:center}
-.seccion-titulo{font-size:22px;font-weight:800;margin:22px 0 4px;letter-spacing:-.01em}
+.seccion-titulo{font-family:'Fraunces',serif;font-size:25px;font-weight:600;margin:26px 0 4px;line-height:1.15}
 .seccion-sub{font-size:13px;color:var(--gris);margin-bottom:12px;line-height:1.5}
 /* --- tarjetas de servicio (inicio y paso 1) --- */
-.servicio-card{display:block;width:100%;text-align:left;background:#fff;border:1.5px solid var(--borde);
-  border-radius:18px;padding:15px 16px;box-shadow:0 4px 16px rgba(13,13,13,.05);margin-bottom:10px;
+.servicio-card{display:block;width:100%;text-align:left;background:#fff;border:1px solid var(--borde);
+  border-radius:18px;padding:15px 16px;margin-bottom:10px;
   font:inherit;color:var(--tinta);cursor:pointer;transition:border-color .15s ease,transform .12s ease}
 .servicio-card:active{transform:scale(.99)}
 .servicio-card .sc-top{display:flex;align-items:flex-start;gap:10px}
@@ -203,8 +221,8 @@ body{font-family:'Montserrat',system-ui,sans-serif;background:#fff;color:var(--t
 .servicio-card .sc-precio{font-weight:800;font-size:16.5px;color:var(--negro);white-space:nowrap}
 .servicio-card .sc-desc{font-size:13px;color:var(--gris);margin-top:3px;line-height:1.45}
 .servicio-card .sc-meta{display:flex;align-items:center;gap:8px;margin-top:11px}
-.servicio-card .sc-dur,.reco-card .sc-dur{background:var(--violeta-tinte);border-radius:999px;padding:5px 11px;
-  font-size:12px;font-weight:700;color:#403591}
+.servicio-card .sc-dur,.reco-card .sc-dur{background:none;padding:0;
+  font-size:12.5px;font-weight:500;color:var(--gris)}
 .servicio-card .sc-cta{margin-left:auto;font-size:13.5px;font-weight:800;color:var(--negro)}
 .servicio-card.sel{border-color:var(--violeta);border-width:2px;background:#F9F8FE}
 .servicio-card .sc-check{display:none;width:24px;height:24px;border-radius:50%;background:var(--violeta);
@@ -228,11 +246,11 @@ body{font-family:'Montserrat',system-ui,sans-serif;background:#fff;color:var(--t
   border-radius:999px;padding:9px 12px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
 .seg.sel{background:var(--violeta);color:#fff;border-color:var(--violeta)}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
-.chip{background:var(--violeta-tinte);border-radius:999px;padding:7px 12px;font-size:12.5px;font-weight:600}
+.chip{background:#fff;border:1px solid var(--borde);border-radius:999px;padding:7px 12px;font-size:12.5px;font-weight:500}
 .chip b{color:var(--negro)}
-.reco{border:2px solid var(--positivo);background:#EDF6EB}
+.reco{border:1px solid var(--borde);background:#fff}
 .reco .etiqueta{font-size:11px;letter-spacing:.2em;font-weight:800;color:var(--positivo)}
-.reco h3{font-size:23px;font-weight:800;margin:6px 0 4px}
+.reco h3{font-family:'Fraunces',serif;font-size:25px;font-weight:600;margin:6px 0 4px;line-height:1.15}
 .reco .datos{font-weight:700;color:var(--positivo);font-size:14px}
 .aviso{background:#FAF3EE;border:1px solid #E9CDB6;border-radius:14px;padding:13px 14px;
   font-size:13px;line-height:1.55;margin-bottom:16px}
@@ -286,7 +304,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--violeta);border-
   background:var(--positivo);display:flex;align-items:center;justify-content:center}
 .confirmada .tick svg{width:38px;height:38px;stroke:#fff;fill:none;stroke-width:2.5;
   stroke-linecap:round;stroke-linejoin:round}
-.confirmada h2{font-size:25px;font-weight:800;margin-bottom:8px}
+.confirmada h2{font-family:'Fraunces',serif;font-size:27px;font-weight:600;margin-bottom:8px}
 .codigo-grande{display:inline-block;background:var(--negro);color:var(--blanco);border-radius:14px;
   padding:11px 20px;font-size:24px;font-weight:800;letter-spacing:.14em}
 .cargando{display:none;text-align:center;padding:34px 16px}
@@ -319,8 +337,8 @@ footer{margin-top:auto;padding:18px;text-align:center;font-size:11.5px;color:var
 .resumen-mini .rm-txt{flex:1}
 .resumen-mini .rm-precio{font-weight:800;font-size:16px;white-space:nowrap}
 
-.tu-cita{background:#fff;border:2px solid var(--violeta);border-radius:var(--radio);
-  padding:16px 18px;box-shadow:var(--sombra);margin-top:16px}
+.tu-cita{background:#fff;border:1px solid var(--borde);border-radius:var(--radio);
+  padding:18px;margin-top:16px}
 .tu-cita .tc-etq{font-size:11px;letter-spacing:.2em;font-weight:800;color:var(--gris)}
 .tu-cita .tc-fila{display:flex;justify-content:space-between;gap:10px;font-size:13.5px;
   padding:7px 0;border-bottom:1px dashed var(--borde)}
@@ -331,7 +349,7 @@ footer{margin-top:auto;padding:18px;text-align:center;font-size:11.5px;color:var
 .tu-cita .tc-linea b{color:var(--negro);white-space:nowrap}
 .tu-cita .tc-total{display:flex;justify-content:space-between;gap:10px;font-size:15.5px;
   font-weight:800;color:var(--negro);padding:9px 0 3px;margin-top:5px;
-  border-top:1.5px solid var(--violeta)}
+  border-top:1.5px solid var(--negro)}
 /* --- sensación app: navegación inferior, aviso offline, esqueleto --- */
 .barra-nav{position:fixed;left:0;right:0;bottom:0;z-index:50;
   background:rgba(255,255,255,.94);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
@@ -361,7 +379,7 @@ footer{margin-top:auto;padding:18px;text-align:center;font-size:11.5px;color:var
 .videos-fila::-webkit-scrollbar{display:none}
 .video-card{flex:none;width:132px;border:none;padding:0;border-radius:18px;overflow:hidden;
   position:relative;cursor:pointer;background:var(--violeta-tinte);font:inherit;
-  box-shadow:0 6px 18px rgba(13,13,13,.10);transition:transform .12s ease;text-align:left}
+  transition:transform .18s ease;text-align:left}
 .video-card:active{transform:scale(.97)}
 .video-card img{width:100%;height:176px;object-fit:cover;object-position:center 28%;display:block}
 .video-card .vc-play{position:absolute;top:50%;left:50%;transform:translate(-50%,-62%);
@@ -386,18 +404,18 @@ footer{margin-top:auto;padding:18px;text-align:center;font-size:11.5px;color:var
 .modal-tt-marco iframe{width:100%;height:min(60dvh,540px);border:0;border-radius:14px;
   background:#0d0d0d;display:block}
 .modal-tt-tit{font-weight:700;font-size:14.5px;margin:12px 0 4px;line-height:1.4}
-.resena{background:#fff;border:1px solid var(--borde);border-radius:18px;padding:16px 17px;
-  box-shadow:0 4px 16px rgba(13,13,13,.05);margin-bottom:10px}
+.resena{background:#fff;border:1px solid var(--borde);border-radius:18px;padding:18px;
+  margin-bottom:10px}
 .resena svg{width:22px;height:22px;stroke:var(--violeta);fill:var(--violeta-tinte);stroke-width:2;
   stroke-linecap:round;stroke-linejoin:round;display:block;margin-bottom:8px}
-.resena p{font-size:14px;line-height:1.6;color:var(--tinta)}
+.resena p{font-family:'Fraunces',serif;font-style:italic;font-size:15.5px;line-height:1.55;color:var(--tinta)}
 .resena .r-nombre{margin-top:9px;font-size:13px;font-weight:800;color:var(--negro)}
 .lounge-card{background:#fff;border:1px solid var(--borde);border-radius:24px;overflow:hidden;
-  box-shadow:var(--sombra);margin-bottom:16px}
+  margin-bottom:16px}
 .lounge-card img{width:100%;height:196px;object-fit:cover;object-position:center 55%;display:block;
   background:var(--violeta-tinte)}
 .lounge-card .lc-body{padding:15px 17px 17px}
-.lounge-card h3{font-size:19px;font-weight:800}
+.lounge-card h3{font-family:'Fraunces',serif;font-size:20px;font-weight:600}
 .lounge-card p{font-size:13.5px;color:var(--gris);margin-top:4px;line-height:1.5}
 .btn-videos{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;
   background:#fff;border:1.5px solid var(--negro);color:var(--negro);border-radius:16px;
@@ -430,23 +448,11 @@ footer{margin-top:auto;padding:18px;text-align:center;font-size:11.5px;color:var
 .cabecera .btn-perfil-ico svg{width:21px;height:21px;stroke:var(--negro);fill:none;
   stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .cabecera .btn-perfil-ico:active{transform:scale(.94)}
-.hero{position:relative;background:linear-gradient(150deg,#F4F1FE 0%,#ECE7FD 55%,#E3DBFB 100%);
-  border-radius:28px;padding:30px 24px 78px;overflow:hidden;margin-bottom:26px}
-.hero .hero-estrella{position:absolute;right:-26px;top:-26px;width:150px;height:150px;
-  opacity:.16;transform:rotate(12deg)}
-.hero .hero-kicker{font-size:11px;font-weight:800;letter-spacing:.22em;
-  color:var(--violeta-oscuro);margin-bottom:12px}
-.hero h1{font-size:37px;line-height:1.08;font-weight:800;letter-spacing:-.02em;
-  color:var(--negro);max-width:300px}
-.hero .hero-sub{font-size:16.5px;color:#3c4152;margin-top:12px;line-height:1.45}
-.hero .hero-regla{width:44px;height:4px;border-radius:99px;background:var(--violeta);
-  margin:18px 0}
-.hero .btn{max-width:250px}
-.hero .hero-chips{position:absolute;right:16px;bottom:16px;display:flex;gap:8px}
-.hero .hero-chips span{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.9);
-  box-shadow:0 4px 12px rgba(13,13,13,.10);display:flex;align-items:center;justify-content:center}
-.hero .hero-chips svg{width:20px;height:20px;stroke:var(--negro);fill:none;stroke-width:1.8;
-  stroke-linecap:round;stroke-linejoin:round}
+.btn-texto{display:flex;align-items:center;justify-content:center;width:100%;
+  background:none;border:none;font:inherit;font-size:15px;font-weight:600;
+  color:var(--negro);padding:13px 10px;min-height:48px;cursor:pointer;
+  text-decoration:underline;text-underline-offset:4px;text-decoration-color:#c9cdd6}
+.btn-texto:active{opacity:.55}
 .encabezado-seccion{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
 .encabezado-seccion .ver-todo{background:none;border:none;color:var(--violeta);
   font:inherit;font-size:13.5px;font-weight:700;cursor:pointer;padding:8px 0;min-height:44px;
@@ -463,8 +469,7 @@ footer{margin-top:auto;padding:18px;text-align:center;font-size:11.5px;color:var
   stroke-linecap:round;stroke-linejoin:round}
 .cat-card .c-txt{font-size:13px;font-weight:400;line-height:1.25;text-align:center}
 .cat-card:active .c-ico{transform:scale(.94)}
-.tarjeta-probador{background:linear-gradient(160deg,#FBFAFF 0%,var(--violeta-tinte) 130%);
-  border:1.5px solid #E4DEF9}
+.tarjeta-probador{background:#fff;border:1px solid var(--borde)}
 .checks{list-style:none;margin:14px 0 4px;display:flex;flex-direction:column;gap:10px}
 .checks li{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600}
 .checks .ck{flex:none;width:23px;height:23px;border-radius:50%;background:var(--violeta);
@@ -482,8 +487,6 @@ footer{margin-top:auto;padding:18px;text-align:center;font-size:11.5px;color:var
    próxima apertura se pintan desde el registro: activar un módulo es
    cambiar su estado en el JSON, sin tocar código. */
 .chip-estado.prox{background:var(--violeta-tinte);color:var(--violeta-oscuro)}
-.hero{padding-bottom:30px}
-.hero-botones{display:flex;flex-direction:column;gap:10px}
 .mod-grid{display:flex;flex-direction:column;gap:12px}
 .mod-card{display:flex;gap:14px;align-items:center;width:100%;text-align:left;
   background:#fff;border:1px solid var(--borde);border-radius:20px;padding:16px;
@@ -494,12 +497,37 @@ footer{margin-top:auto;padding:18px;text-align:center;font-size:11.5px;color:var
 .mod-card .m-ico svg{width:25px;height:25px;stroke:var(--negro);fill:none;
   stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .mod-card .m-main{flex:1;min-width:0}
-.mod-card .m-nombre{font-size:16.5px;font-weight:800;display:flex;align-items:center;
-  gap:8px;flex-wrap:wrap}
+.mod-card .m-nombre{font-size:16.5px;font-weight:800;display:flex;align-items:flex-start;
+  flex-direction:column;gap:5px}
+/* QA18 (D-06): la pastilla de estado va siempre en su propia línea
+   bajo el nombre; con flex-wrap quedaba al lado o debajo según la
+   longitud del título y las tarjetas hermanas se veían distintas. */
 .mod-card .m-desc{font-size:13px;color:var(--gris);line-height:1.45;margin-top:3px}
 .mod-card .m-chev{flex:none;color:var(--gris);display:flex}
 .mod-card .m-chev svg{width:19px;height:19px;stroke:currentColor;fill:none;
   stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+/* --- Fila ligera del salón: pin violeta relleno + nombre en peso
+   normal + chevron, directa sobre blanco (espec §P1, bloque 1). --- */
+.fila-salon-home{display:flex;align-items:center;gap:9px;width:100%;
+  background:none;border:none;font:inherit;font-size:17px;font-weight:400;
+  color:var(--tinta);padding:4px 2px 14px;cursor:pointer;text-align:left}
+.fila-salon-home .fh-pin{width:21px;height:21px;flex:none}
+.fila-salon-home .fh-chev{width:16px;height:16px;flex:none;stroke:#9aa1af;
+  fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.fila-salon-home:active{opacity:.65}
+/* ESPEC (29/10): en la portada manda la anatomía de la referencia
+   (ESPEC_REFERENCIA §P1) con temática propia: sin barra de marca
+   pesada sobre la fila del salón, sin Fraunces y sin hero editorial.
+   La cabecera global se oculta SOLO en Inicio (ir() pone la clase). */
+body.en-inicio .cabecera{display:none}
+#p-inicio .seccion-titulo{font-family:'Montserrat',sans-serif;font-size:22px;font-weight:800;letter-spacing:-.01em}
+#p-inicio .tarjeta h2{font-family:'Montserrat',sans-serif;font-size:19px;font-weight:700}
+.mod-grid.ligero{gap:10px}
+.mod-grid.ligero .mod-card{padding:12px 14px;border-radius:18px;box-shadow:none}
+.mod-grid.ligero .m-ico{width:42px;height:42px;border-radius:13px}
+.mod-grid.ligero .m-ico svg{width:22px;height:22px}
+.mod-grid.ligero .m-nombre{font-size:15.5px}
+.mod-grid.ligero .m-desc{font-size:12.5px}
 /* --- Explorar: chips de categoría y productos reales --- */
 .chips-cat{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 16px}
 .chip-cat{border:1.5px solid var(--borde);background:#fff;color:var(--tinta);
@@ -507,16 +535,15 @@ footer{margin-top:auto;padding:18px;text-align:center;font-size:11.5px;color:var
   cursor:pointer;min-height:44px}
 .chip-cat.on{background:var(--negro);color:#fff;border-color:var(--negro)}
 .prod-grid{display:flex;flex-direction:column;gap:12px}
-.prod-card{background:#fff;border:1px solid var(--borde);border-radius:22px;overflow:hidden;
-  box-shadow:0 4px 16px rgba(13,13,13,.05)}
+.prod-card{background:#fff;border:1px solid var(--borde);border-radius:22px;overflow:hidden}
 .prod-card .pc-foto{width:100%;height:170px;object-fit:cover;object-position:center 30%;
   display:block;background:var(--violeta-tinte)}
-.prod-card .pc-sinfoto{height:110px;background:linear-gradient(140deg,#F4F1FE,#E7E1FB);
+.prod-card .pc-sinfoto{height:110px;background:var(--superficie);
   display:flex;align-items:center;justify-content:center}
 .prod-card .pc-sinfoto svg{width:40px;height:40px;stroke:var(--violeta);fill:none;
   stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 .prod-card .pc-body{padding:15px 17px 17px}
-.prod-card h3{font-size:17.5px;font-weight:800;line-height:1.2}
+.prod-card h3{font-family:'Fraunces',serif;font-size:19px;font-weight:600;line-height:1.15}
 .prod-card .pc-desc{font-size:13px;color:var(--gris);margin-top:3px;line-height:1.45}
 .prod-card .pc-meta{display:flex;align-items:center;gap:8px;margin-top:11px}
 .prod-card .pc-precio{font-weight:800;font-size:16px;color:var(--negro)}
@@ -559,33 +586,83 @@ El análisis y las reservas necesitan internet y volverán en cuanto vuelva la s
   </div>
   <div class="progreso" id="progreso" style="display:none"><i></i><i></i><i></i><i></i></div>
 
-  <!-- 1 · INICIO (MODULAR): la plataforma se presenta ampliable y
-       Belleza — el único módulo activo — manda en la primera
-       pantalla. La estantería de módulos se pinta desde el registro
-       (/api/modulos), no a mano. -->
+  <!-- 1 · INICIO: anatomía de la referencia (ESPEC_REFERENCIA
+       §P1) con temática propia de UN salón real: fila del salón,
+       buscador píldora, rejilla 4×2 de accesos reales, «Recomendado»
+       en carrusel con la foto como tarjeta, la tarjeta sobria del
+       análisis y, al final y en ligero, lo que está en camino
+       (desde el registro /api/modulos, nunca a mano). -->
   <section class="pantalla activa" id="p-inicio">
-    <div class="hero">
-      <svg class="hero-estrella" viewBox="0 0 24 24" aria-hidden="true"><path fill="#6950f3" d="M12 1c.7 6.3 4.6 10.2 11 11-6.4.8-10.3 4.7-11 11-.7-6.3-4.6-10.2-11-11C7.4 11.2 11.3 7.3 12 1z"/></svg>
-      <div class="hero-kicker">PLATAFORMA MODULAR · BELLEZA ACTIVA</div>
-      <h1>Tu asistenta de belleza, con IA de verdad</h1>
-      <p class="hero-sub">Hoy funciona <b>Ari Vivas Beauty</b>: análisis de
-      cejas con IA y reservas reales en su agenda. Los próximos módulos
-      llegarán cuando estén probados, no antes.</p>
-      <div class="hero-regla"></div>
-      <div class="hero-botones">
-        <button class="btn btn-primario" id="btn-hero-reservar">Ver servicios y reservar</button>
-        <button class="btn btn-lavanda" id="btn-hero-analizar">
-          <svg viewBox="0 0 24 24"><path d="M12 3c.4 3.9 1.9 5.4 5.8 5.8-3.9.4-5.4 1.9-5.8 5.8-.4-3.9-1.9-5.4-5.8-5.8C10.1 8.4 11.6 6.9 12 3z"/><path d="M19 15c.2 2 .9 2.7 2.9 2.9-2 .2-2.7.9-2.9 2.9-.2-2-.9-2.7-2.9-2.9 2-.2 2.7-.9 2.9-2.9z"/></svg>
-          Analizar mis cejas con IA
-        </button>
-      </div>
+    <button class="fila-salon-home" id="btn-home-salon">
+      <svg class="fh-pin" viewBox="0 0 24 24" aria-hidden="true"><path fill="#6950f3" d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7z"/><circle cx="12" cy="9" r="2.6" fill="#fff"/></svg>
+      <span>Ari Vivas Beauty</span>
+      <svg class="fh-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+    </button>
+    <form class="buscador" id="form-buscar-home" role="search">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" />
+  <path d="m21 21-4.3-4.3" /></svg>
+      <textarea id="inp-buscar-home" rows="2" placeholder="Buscar todos los servicios"
+             aria-label="Buscar todos los servicios" autocomplete="off"></textarea>
+      <button type="submit" class="buscador-btn" aria-label="Buscar"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg></button>
+    </form>
+    <!-- ESPEC §P1: rejilla 4×2 con NUESTRAS ocho entradas reales.
+         Cada pastilla hace algo: reservar, analizar, sembrar la
+         reserva con un servicio, abrir el salón o el WhatsApp
+         público. Ninguna es decorativa. -->
+    <div class="pastillas" id="pastillas">
+      <button class="pastilla" id="pastilla-reservar">
+        <span class="p-ico"><svg viewBox="0 0 24 24"><path d="M8 2v4" />
+  <path d="M16 2v4" />
+  <rect width="18" height="18" x="3" y="4" rx="2" />
+  <path d="M3 10h18" />
+  <path d="m9 16 2 2 4-4" /></svg></span>
+        <span class="p-txt">Reservar</span>
+      </button>
+      <button class="pastilla" id="pastilla-analisis">
+        <span class="p-ico"><svg viewBox="0 0 24 24"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z" />
+  <path d="M20 3v4" />
+  <path d="M22 5h-4" />
+  <path d="M4 17v2" />
+  <path d="M5 18H3" /></svg></span>
+        <span class="p-txt">Análisis IA</span>
+      </button>
+      <button class="pastilla" data-servicio="Diseño de cejas">
+        <span class="p-ico"><svg viewBox="0 0 24 24"><path d="M13 7 8.7 2.7a2.41 2.41 0 0 0-3.4 0L2.7 5.3a2.41 2.41 0 0 0 0 3.4L7 13" />
+  <path d="m8 6 2-2" />
+  <path d="m18 16 2-2" />
+  <path d="m17 11 4.3 4.3c.94.94.94 2.46 0 3.4l-2.6 2.6c-.94.94-2.46.94-3.4 0L11 17" />
+  <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
+  <path d="m15 5 4 4" /></svg></span>
+        <span class="p-txt">Diseño de cejas</span>
+      </button>
+      <button class="pastilla" data-servicio="Ombré Brows Henna">
+        <span class="p-ico"><svg viewBox="0 0 24 24"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z" /></svg></span>
+        <span class="p-txt">Ombré Henna</span>
+      </button>
+      <button class="pastilla" data-servicio="Brow Lamination">
+        <span class="p-ico"><svg viewBox="0 0 24 24"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z" />
+  <path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12" />
+  <path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17" /></svg></span>
+        <span class="p-txt">Brow Lamination</span>
+      </button>
+      <button class="pastilla" data-servicio="Depilación rápida">
+        <span class="p-ico"><svg viewBox="0 0 24 24"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z" /></svg></span>
+        <span class="p-txt">Depilación</span>
+      </button>
+      <button class="pastilla" id="pastilla-salon">
+        <span class="p-ico"><svg viewBox="0 0 24 24"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" /><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /></svg></span>
+        <span class="p-txt">El salón</span>
+      </button>
+      <button class="pastilla" id="pastilla-whatsapp">
+        <span class="p-ico"><svg viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg></span>
+        <span class="p-txt">WhatsApp</span>
+      </button>
     </div>
 
-    <h2 class="seccion-titulo" style="margin-top:0">Disponible ahora · Belleza</h2>
-    <p class="seccion-sub">El módulo activo de la plataforma: el salón
-    real, con su carta, sus huecos y su análisis con IA.</p>
+    <h2 class="seccion-titulo">Recomendado</h2>
+    <div class="carrusel" id="carrusel-reco"><div class="esqueleto" aria-hidden="true"><i></i><i></i></div></div>
+
     <div class="tarjeta tarjeta-cejas">
-      <img class="tc-foto" src="/img/salon.jpg" alt="Arianna, de Ari Vivas Beauty, diseñando las cejas de una clienta en su estudio">
       <span class="chip-estado ok">Disponible ahora</span>
       <h2 style="margin-top:10px">Probador de cejas</h2>
       <p>Análisis con IA y reserva real en <b>Ari Vivas Beauty</b>: sube una foto,
@@ -600,37 +677,28 @@ El análisis y las reservas necesitan internet y volverán en cuanto vuelva la s
       <button class="btn btn-lavanda" id="btn-instalar">Instalar la app en tu móvil</button>
     </div>
 
-    <h2 class="seccion-titulo">Ya puedes probarlo: cejas</h2>
-    <p class="seccion-sub">El salón y sus servicios reales, con precio y duración.
-    Toca una tarjeta para reservar con huecos reales.</p>
-    <div class="carrusel" id="carrusel-reco"><div class="esqueleto" aria-hidden="true"><i></i><i></i></div></div>
-    <p class="mini">Es el catálogo real del módulo de Belleza: la carta
-    del salón, servida desde su agenda.</p>
-
-    <h2 class="seccion-titulo">Módulos de La Asistenta</h2>
-    <p class="seccion-sub">La plataforma crece por módulos. Solo está
-    activo lo que funciona de verdad; el resto se anuncia como lo que
-    es: próximo.</p>
-    <div class="mod-grid" id="estanteria-modulos"><div class="esqueleto" aria-hidden="true"><i></i><i></i></div></div>
-    <p class="mini" style="margin-top:12px">Un módulo se activa desde el
-    registro central de la plataforma cuando sus dependencias están
-    cumplidas y verificadas. Sin catálogos ni funciones de mentira.</p>
+    <div id="seccion-futuro">
+      <h2 class="seccion-titulo">Más en camino</h2>
+      <p class="seccion-sub">Estamos preparando nuevas categorías.
+      Cuando estén listas, aparecerán aquí.</p>
+      <div class="mod-grid ligero" id="estanteria-modulos"><div class="esqueleto" aria-hidden="true"><i></i><i></i></div></div>
+    </div>
   </section>
 
   <!-- 1b · PRÓXIMA APERTURA: pantalla común de los módulos no
        activos. Se rellena desde el registro (/api/modulos): ningún
        texto de módulo vive codificado aquí. -->
   <section class="pantalla" id="p-proxima">
-    <button class="enlace" id="btn-proxima-volver">← Volver al inicio</button>
+    <button class="enlace" id="btn-proxima-volver">← Volver</button>
     <div class="tarjeta" style="text-align:center;padding:34px 22px">
       <div id="proxima-ico" style="width:52px;height:52px;border-radius:16px;background:var(--violeta-tinte);display:flex;align-items:center;justify-content:center;margin:0 auto 14px"></div>
       <span class="chip-estado prox">Próximamente</span>
-      <h2 id="proxima-titulo" style="margin-top:10px">Módulo</h2>
+      <h2 id="proxima-titulo" style="margin-top:10px">Próximamente</h2>
       <p id="proxima-que"></p>
       <p class="mini" id="proxima-preparando" style="margin-top:10px"></p>
-      <p class="mini" style="margin-top:10px">Sin fechas inventadas: el
-      módulo se activará cuando esté verificado de verdad, y aparecerá
-      aquí sin que tengas que hacer nada.</p>
+      <p class="mini" style="margin-top:10px">Sin fechas inventadas: se
+      abrirá cuando esté verificado de verdad, y aparecerá aquí sin
+      que tengas que hacer nada.</p>
       <div style="height:16px"></div>
       <button class="btn btn-primario" id="btn-proxima-belleza">Ver lo que ya funciona: belleza</button>
     </div>
@@ -644,13 +712,13 @@ El análisis y las reservas necesitan internet y volverán en cuanto vuelva la s
   <path d="m21 21-4.3-4.3" /></svg>
       <textarea id="inp-buscar-exp" rows="2" placeholder="Buscar en el catálogo"
              aria-label="Buscar en el catálogo" autocomplete="off"></textarea>
-      <button type="submit" class="buscador-btn">Buscar</button>
+      <button type="submit" class="buscador-btn" aria-label="Buscar"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg></button>
     </form>
     <div class="chips-cat" id="chips-cat"></div>
     <div class="prod-grid" id="explorar-grid"><div class="esqueleto" aria-hidden="true"><i></i><i></i><i></i></div></div>
     <div class="estado-honesto" id="explorar-vacio" style="display:none">
       <h3 id="vacio-titulo">Sin productos verificados todavía</h3>
-      <p>Este módulo está activo, pero todavía no tiene productos
+      <p>Esto ya está activo, pero todavía no tiene productos
       verificados cargados. Cuando los haya, aparecerán aquí: sin
       productos inventados.</p>
     </div>
@@ -665,9 +733,8 @@ El análisis y las reservas necesitan internet y volverán en cuanto vuelva la s
   <!-- 1d · PROBADOR: hub de verticales -->
   <section class="pantalla" id="p-probador">
     <h2 class="seccion-titulo" style="margin-top:2px">Tu probador</h2>
-    <p class="seccion-sub">El probador que funciona hoy es el de cejas,
-    del módulo de Belleza. Los probadores de los próximos módulos se
-    anunciarán aquí cuando estén activos.</p>
+    <p class="seccion-sub">El probador que funciona hoy es el de cejas.
+    Los demás se anunciarán aquí cuando estén activos.</p>
 
     <div class="tarjeta tarjeta-cejas">
       <img class="tc-foto" src="/img/diseno.jpg" alt="Resultado de un diseño de cejas de Ari Vivas Beauty">
@@ -683,9 +750,9 @@ El análisis y las reservas necesitan internet y volverán en cuanto vuelva la s
     <div class="tarjeta">
       <span class="chip-estado prox">Próximamente</span>
       <h2 style="margin-top:10px">Probador de moda</h2>
-      <p>Será un módulo nuevo de la plataforma, con su propio motor y su
-      catálogo real verificado. Hoy no está activo y no prepara fotos:
-      cuando lo esté, se anunciará aquí.</p>
+      <p>Llegará con su propio motor y un catálogo real verificado.
+      Hoy no está activo y no prepara fotos: cuando lo esté, se
+      anunciará aquí.</p>
       <div style="height:12px"></div>
       <button class="btn btn-fantasma" id="btn-prob-moda">Ver qué traerá</button>
     </div>
@@ -991,10 +1058,6 @@ El análisis y las reservas necesitan internet y volverán en cuanto vuelva la s
     <p class="seccion-sub">Toca el círculo para añadir o quitar servicios de tu cita:
     puedes combinar varios y verás el total antes de reservar.</p>
     <div id="salon-servicios"><div class="esqueleto" aria-hidden="true"><i></i><i></i><i></i></div></div>
-    <div class="salon-barra" id="salon-barra">
-      <div class="sb-txt"><b id="sb-n">1 servicio</b><span id="sb-detalle"></span></div>
-      <button class="sb-btn" id="btn-salon-reservar">Reservar ahora</button>
-    </div>
 
     <h3 class="seccion-titulo" id="salon-videos">Vídeos</h3>
     <p class="seccion-sub">Trabajos reales de cejas en su TikTok oficial,
@@ -1176,10 +1239,18 @@ El análisis y las reservas necesitan internet y volverán en cuanto vuelva la s
 </div>
 
 <footer>
-  LA ASISTENTA · «Descubre cómo te quedaría antes de comprarlo»<br>
+  LA ASISTENTA · «Tu belleza, mejor entendida»<br>
   Experiencia de demostración del Meta AI Developer Hackathon 2026.<br>
   Probador de cejas con Muse Spark · Reservas reales en Ari Vivas Beauty.
 </footer>
+
+<!-- QA18 (D-04): la barra de reserva del salón vive a nivel global,
+     como la barra de navegación: dentro de la pantalla quedaba
+     anclada al final del documento y fuera del viewport. -->
+<div class="salon-barra" id="salon-barra">
+  <div class="sb-txt"><b id="sb-n">1 servicio</b><span id="sb-detalle"></span></div>
+  <button class="sb-btn" id="btn-salon-reservar">Reservar ahora</button>
+</div>
 
 <div class="modal-tt" id="modal-tt" role="dialog" aria-modal="true" aria-label="Vídeo de TikTok">
   <div class="modal-tt-caja">
@@ -1258,15 +1329,26 @@ const CLAVE_CITA = 'la-asistenta-cita-v1';
 const CLAVE_PERFIL = 'la-asistenta-perfil-v1';
 /* Fotos REALES del salón, de su propia web (arivivasbeauty.com),
    autoalojadas en /img/. Fuentes exactas en ESTADO_PROYECTO.md. */
+/* `pos` = encuadre elegido foto a foto para el recorte 4:3 de la
+   tarjeta (object-position): el sujeto (las cejas / el trabajo) debe
+   quedar dentro sin deformar. Verificado visualmente en QA16.
+   QA17 (29/10): henna.jpg venía INVERTIDA 180° en los píxeles (sin
+   EXIF) y diseno.jpg girada 90°; ambas se hornearon rectas en origen
+   (diseno es ahora 1280×720) y los `pos` se re-eligen para las fotos
+   ya rectas. Explorar usa el mismo `pos` por foto (tarjetaProducto). */
 const FOTOS = {
-  'Diseño de cejas':   {src: '/img/diseno.jpg',     alt: 'Resultado de un diseño de cejas de Ari Vivas Beauty'},
-  'Ombré Brows Henna': {src: '/img/henna.jpg',      alt: 'Cejas con tinte de Ari Vivas Beauty, con efecto maquillaje'},
-  'Brow Lamination':   {src: '/img/laminacion.jpg', alt: 'Primer plano de unas cejas laminadas de Ari Vivas Beauty'},
+  'Diseño de cejas':   {src: '/img/diseno.jpg',     alt: 'Resultado de un diseño de cejas de Ari Vivas Beauty', pos: 'center'},
+  'Ombré Brows Henna': {src: '/img/henna.jpg',      alt: 'Cejas con tinte de Ari Vivas Beauty, con efecto maquillaje', pos: 'center 25%'},
+  'Brow Lamination':   {src: '/img/laminacion.jpg', alt: 'Primer plano de unas cejas laminadas de Ari Vivas Beauty', pos: 'center 40%'},
 };
 const normalizar = t => (t || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 const MOVIMIENTO_SUAVE = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 function ir(id){
   $$('.pantalla').forEach(p => p.classList.toggle('activa', p.id === id));
+  /* ESPEC §P1: en Inicio no hay barra de marca pesada; la primera
+     fila es la del salón (pin + nombre + chevron), como en la
+     referencia. La cabecera global sigue en el resto de pantallas. */
+  document.body.classList.toggle('en-inicio', id === 'p-inicio');
   const paso = PASOS[id] ?? 0;
   /* La barra de progreso es SOLO del recorrido de análisis: en Inicio,
      Reserva y Confirmación no significa nada y no se muestra. */
@@ -1325,7 +1407,7 @@ function tarjetaRecomendada(s){
      línea gris inferior. Toda la tarjeta lleva a reservar ese
      servicio, como en la referencia. */
   art.innerHTML =
-    `<div class="foto-wrap"><img src="${f.src}" alt="${f.alt}" loading="lazy">` +
+    `<div class="foto-wrap"><img src="${f.src}" alt="${f.alt}" loading="lazy" style="object-position:${f.pos || 'center 30%'}">` +
     `<span class="foto-pill">${s.duracion_min} min</span></div>` +
     `<div class="rc-body"><h3>${s.nombre}</h3>` +
     `<p class="rc-desc">${s.precio_etiqueta} · ${s.duracion_min} min${desc ? ' · ' + desc : ''}</p></div>`;
@@ -1342,7 +1424,7 @@ function tarjetaSalon(){
      («Reservas abiertas»), nunca una valoración simulada. Bajo la
      foto: nombre, línea gris y chips de hechos (horario, servicios). */
   art.innerHTML =
-    `<div class="foto-wrap"><img src="/img/salon.jpg" alt="Arianna, de Ari Vivas Beauty, diseñando las cejas de una clienta en su estudio">` +
+    `<div class="foto-wrap"><img src="/img/salon.jpg" alt="Arianna, de Ari Vivas Beauty, diseñando las cejas de una clienta en su estudio" style="object-position:center 30%">` +
     `<span class="foto-pill">Reservas abiertas</span></div>` +
     `<div class="rc-body"><h3>Ari Vivas Beauty</h3>` +
     `<p class="rc-desc">Salón de cejas · análisis con IA</p>` +
@@ -1398,6 +1480,9 @@ async function cargarCarta(){
   const salonCard = tarjetaSalon();
   salonCard.querySelector('[data-chip="horario"]').textContent = estado.chipHorario;
   salonCard.querySelector('[data-chip="servicios"]').textContent = estado.chipServicios;
+  /* ESPEC §P1 (29/10): la tarjeta del salón ABRE el carrusel
+     «Recomendado», como en la referencia; detrás van las tarjetas
+     de servicio con foto. */
   $('#carrusel-reco').appendChild(salonCard);
   for(const s of estado.carta){
     if(FOTOS[s.nombre]) $('#carrusel-reco').appendChild(tarjetaRecomendada(s));
@@ -1497,7 +1582,11 @@ function elegirServicioReserva(nombre){
 /* PIVOTE Fase 1: el buscador y las categorías viven ahora en
    Explorar (bloque nuevo al final del script). Las tarjetas de
    categoría de la home llevan allí con el filtro puesto. */
-$('#btn-proxima-volver').onclick = () => ir('p-inicio');
+/* QA18 (D-03): «Volver» regresa a la pantalla de ORIGEN (Explorar,
+   Probador o Inicio), no siempre a Inicio. abrirProxima anota la
+   pantalla activa antes de abrir la próxima apertura. */
+let origenProxima = 'p-inicio';
+$('#btn-proxima-volver').onclick = () => ir(origenProxima);
 $('#btn-proxima-belleza').onclick = () => { catExplorar = 'belleza'; pintarExplorar(); ir('p-explorar'); };
 $('#btn-salon-volver').onclick = () => ir('p-inicio');
 $('#btn-salon-atras').onclick = () => ir('p-inicio');
@@ -2233,7 +2322,7 @@ function tarjetaProducto(s){
   const guardado = estaGuardado(s.nombre);
   art.innerHTML =
     (f
-      ? `<img class="pc-foto" src="${f.src}" alt="${f.alt}" loading="lazy">`
+      ? `<img class="pc-foto" src="${f.src}" alt="${f.alt}" loading="lazy" style="object-position:${f.pos || 'center 30%'}">`
       : `<div class="pc-sinfoto">${SVG_OJO}</div>`) +
     `<div class="pc-body"><h3>${s.nombre}</h3>` +
     (desc ? `<p class="pc-desc">${desc}</p>` : '') +
@@ -2292,7 +2381,16 @@ function pintarEstanteria(){
   const caja = $('#estanteria-modulos');
   if(!caja) return;
   caja.innerHTML = '';
-  for(const m of MODULOS.filter(x => (x.navegacion || {}).enEstanteria)){
+  /* RE FINO (29/10): la estantería de la home es la de futuro —
+     solo lo que está «en camino». Lo activo ya es el contenido
+     principal de la home y de Explorar, no una tarjeta más de la
+     estantería. Si un día no hubiera nada en camino, la sección
+     entera se oculta. Todo sigue saliendo del registro. */
+  const futuros = MODULOS.filter(x =>
+    (x.navegacion || {}).enEstanteria && x.estado === 'proximamente');
+  const seccion = $('#seccion-futuro');
+  if(seccion) seccion.style.display = futuros.length ? '' : 'none';
+  for(const m of futuros){
     const b = document.createElement('button');
     b.className = 'mod-card';
     b.dataset.modulo = m.id;
@@ -2312,6 +2410,7 @@ function abrirModulo(id){
   else abrirProxima(m);
 }
 function abrirProxima(m){
+  origenProxima = (document.querySelector('.pantalla.activa') || {}).id || 'p-inicio';
   $('#proxima-ico').innerHTML = svgModulo(m,
     'width:26px;height:26px;stroke:var(--negro);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round');
   $('#proxima-titulo').textContent = m.nombre;
@@ -2384,13 +2483,40 @@ $('#form-buscar-exp').addEventListener('submit', e => {
 });
 $('#btn-exp-salon').onclick = () => ir('p-salon');
 
-/* ---------- Inicio modular: accesos ---------- */
-$('#btn-hero-reservar').onclick = () => { catExplorar = 'belleza'; pintarExplorar(); ir('p-explorar'); };
-$('#btn-hero-analizar').onclick = () => {
+/* ---------- Inicio: accesos de la rejilla 4×2 (espec §P1) ------
+   Cada pastilla hace algo real: Reservar abre el flujo en el paso 1;
+   Análisis IA entra en su flujo (o vuelve al resultado si ya hay
+   análisis); cada servicio siembra la reserva con ese servicio y
+   salta al paso de hora, como las tarjetas de «Recomendado»; El
+   salón abre la ficha; WhatsApp abre el wa.me público del salón. */
+$('#btn-home-cejas').onclick = () => { catExplorar = 'belleza'; pintarExplorar(); ir('p-explorar'); };
+$('#pastilla-reservar').onclick = () => { prepararReserva(null); ir('p-reserva'); mostrarPaso(1); };
+$('#pastilla-analisis').onclick = () => {
   if(estado.analisis) return ir('p-resultado');
   ir($('#check-consentimiento').checked ? 'p-foto' : 'p-consentimiento');
 };
-$('#btn-home-cejas').onclick = () => { catExplorar = 'belleza'; pintarExplorar(); ir('p-explorar'); };
+$$('#pastillas [data-servicio]').forEach(b => b.onclick = () => {
+  prepararReserva(b.dataset.servicio); ir('p-reserva'); mostrarPaso(2); cargarHuecos();
+});
+$('#pastilla-salon').onclick = () => ir('p-salon');
+$('#pastilla-whatsapp').onclick = () =>
+  window.open('https://wa.me/584249134367', '_blank', 'noopener');
+
+/* ---------- Inicio: fila del salón y buscador de la home ----------
+   La fila abre el salón. El buscador es el real del catálogo: al
+   enviar, la búsqueda queda puesta en Explorar y filtra allí los
+   servicios de verdad (misma lógica, ninguna copia). */
+$('#btn-home-salon').onclick = () => ir('p-salon');
+$('#inp-buscar-home').addEventListener('keydown', e => {
+  if(e.key === 'Enter'){ e.preventDefault(); $('#form-buscar-home').requestSubmit(); }
+});
+$('#form-buscar-home').addEventListener('submit', e => {
+  e.preventDefault();
+  $('#inp-buscar-exp').value = $('#inp-buscar-home').value;
+  catExplorar = 'belleza';
+  pintarExplorar();
+  ir('p-explorar');
+});
 
 /* ---------- Probador: hub ---------- */
 $('#btn-prob-cejas').onclick = () => {

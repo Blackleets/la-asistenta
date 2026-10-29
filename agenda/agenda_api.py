@@ -58,7 +58,11 @@ Endpoints:
   POST /citas/<id>/cancelar        → estado = «cancelada» (+ evento del
                                        embudo y lista de espera: las
                                        entradas compatibles pasan a
-                                       «por_avisar»)
+                                       «por_avisar»). Guarda D-02b: una
+                                       cita «cumplida» o «no_show» NO
+                                       puede cancelarse (409); una ya
+                                       «cancelada» responde 200 sin
+                                       cambios (idempotente).
   POST /citas/<id>/estado          → {estado: «cumplida»|«no_show»} desde
                                        «confirmada». Al cumplirse se crea
                                        el agradecimiento en la bandeja de
@@ -297,6 +301,19 @@ def _fila_por_hash(conn, token_hash, negocio_id=comun.NEGOCIO_DEFECTO):
     ).fetchone()
 
 
+def _bloqueo_cancelacion(estado):
+    """D-02b (QA18): solo una cita viva puede cancelarse. Una cumplida
+    ya se realizó y una no_show ya se cerró: cancelarlas reescribiría
+    el historial del negocio. Devuelve (código_http, mensaje) si la
+    cancelación está bloqueada, o None si puede seguir (una confirmada
+    cancela; una ya cancelada es idempotente)."""
+    if estado == "cumplida":
+        return 409, "Esta cita ya se realizó"
+    if estado == "no_show":
+        return 409, "Esta cita ya pasó y quedó marcada como no realizada"
+    return None
+
+
 def _cancelar_en_bd(conn, fila, origen_evento):
     """Semántica única de cancelación: marca 'cancelada' (no borra),
     anota el evento y libera el hueco para la lista de espera DEL MISMO
@@ -533,6 +550,10 @@ class Handler(BaseHTTPRequestHandler):
             if not fila:
                 conn.close()
                 return self._json(404, {"error": "cita no encontrada"})
+            bloqueo = _bloqueo_cancelacion(fila["estado"])
+            if bloqueo:
+                conn.close()
+                return self._json(bloqueo[0], {"error": bloqueo[1]})
             if fila["estado"] != "cancelada":
                 _cancelar_en_bd(conn, fila, "web")
             fila = conn.execute("SELECT * FROM citas WHERE id = ?", (cid,)).fetchone()
@@ -869,6 +890,10 @@ class Handler(BaseHTTPRequestHandler):
             conn.close()
             return self._json(404, {"error": "enlace no válido o caducado"})
         if accion == "cancelar":
+            bloqueo = _bloqueo_cancelacion(fila["estado"])
+            if bloqueo:
+                conn.close()
+                return self._json(bloqueo[0], {"error": bloqueo[1]})
             if fila["estado"] != "cancelada":
                 _cancelar_en_bd(conn, fila, "web")
             fila = conn.execute(
