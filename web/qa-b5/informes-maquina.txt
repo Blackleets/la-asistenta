@@ -1,0 +1,21 @@
+{
+  "modo": "antes",
+  "erroresConsola": [],
+  "latencia": 12.1,
+  "resultadoListo": true,
+  "recoNombre": "Diseño de cejas",
+  "confirmada": true,
+  "codigo": "AS-AARH",
+  "hrefCita": "https://8090-agqyfjnmnvcrrnfraerzrpu5ye.instabox.tech/cita/<token>",
+  "citaPruebaCancelada": true
+}{
+  "modo": "despues",
+  "erroresConsola": [],
+  "latencia": 12.1,
+  "resultadoListo": true,
+  "recoNombre": "Diseño de cejas",
+  "confirmada": true,
+  "codigo": "AS-AARJ",
+  "hrefCita": "https://8090-agqyfjnmnvcrrnfraerzrpu5ye.instabox.tech/cita/<token>",
+  "citaPruebaCancelada": true
+}

@@ -92,6 +92,17 @@ def registrar_cita(args):
     datetime.strptime(args["hora"], "%H:%M")
     fecha = args["fecha"]
     hora = args["hora"]
+    # Guarda «ya pasó» (la misma de la API, en agenda_comun): ningún
+    # inicio en el pasado se registra, tampoco por WhatsApp.
+    if comun.inicio_en_pasado(fecha, hora):
+        raise ValueError(
+            f"Esa hora ya pasó: NO se registró la cita. El {fecha} a las "
+            f"{hora} ya no es reservable (hora del salón). Consulta la "
+            "disponibilidad real con consultar_disponibilidad — que ya "
+            "no ofrece las horas pasadas de hoy — y propón a la clienta "
+            "el próximo hueco libre; no registres nada hasta que elija "
+            "la nueva hora y la confirme con el flujo habitual "
+            "(resumen → su sí → registro).")
     duracion = int(args["duracion_min"])
     inicio = _a_minutos(hora)
     fin = inicio + duracion
@@ -293,6 +304,11 @@ def consultar_disponibilidad(args):
             if all(t + duracion <= o_ini or t >= o_fin for o_ini, o_fin in ocupados):
                 libres.append(_a_hora(t))
             t += PASO_MIN
+        # Día en curso: las horas cuya hora de inicio ya pasó no se
+        # ofrecen (misma regla que la API; pieza común corte_hoy).
+        corte = comun.corte_hoy(fecha)
+        if corte is not None:
+            libres = [h for h in libres if _a_minutos(h) > corte]
         comun.registrar_evento(conn, "hueco_propuesto", None, "whatsapp",
                                NEGOCIO)
         conn.commit()

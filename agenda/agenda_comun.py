@@ -33,6 +33,7 @@ import json
 import os
 import secrets
 from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 
 # Negocio piloto y ÚNICO negocio real configurado hoy (Fase 2 de la
 # Orden Maestra, hallazgo D2 de la auditoría): toda fila de la agenda
@@ -59,6 +60,49 @@ _ALFABETO_CODIGO = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"  # 31 símbolos
 
 def _ahora():
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
+
+
+# ------------------------------------------------------------------
+# Hora del salón y guarda «ya pasó» (hallazgo QA19, §46 de ESTADO)
+# ------------------------------------------------------------------
+# La agenda vive en hora del salón (Europe/Madrid), no en la del
+# servidor (UTC en la máquina). Ninguna superficie puede ofrecer ni
+# crear una cita cuyo inicio ya pasó: la disponibilidad filtra los
+# inicios pasados del día en curso y la creación los rechaza en TODAS
+# las vías (API y MCP comparten estas dos piezas).
+
+ZONA_SALON = ZoneInfo("Europe/Madrid")
+
+
+def ahora_salon():
+    """Ahora mismo en la zona horaria del salón (Europe/Madrid)."""
+    return datetime.now(ZONA_SALON)
+
+
+def inicio_en_pasado(fecha, hora):
+    """True si el inicio (fecha «YYYY-MM-DD» + hora «HH:MM», en hora
+    del salón) ya pasó. Un formato no válido devuelve False: el formato
+    lo valida quien llama, con su propio error."""
+    try:
+        ini = datetime.strptime(f"{fecha} {hora}", "%Y-%m-%d %H:%M")
+    except (ValueError, TypeError):
+        return False
+    return ini.replace(tzinfo=ZONA_SALON) <= ahora_salon()
+
+
+def corte_hoy(fecha):
+    """Si «fecha» (str «YYYY-MM-DD» o date) es HOY en hora del salón,
+    devuelve el minuto actual del día: un inicio es pasado si su
+    minuto es <= corte. Para cualquier otro día devuelve None."""
+    ahora = ahora_salon()
+    if isinstance(fecha, str):
+        try:
+            fecha = datetime.strptime(fecha, "%Y-%m-%d").date()
+        except (ValueError, TypeError):
+            return None
+    if fecha != ahora.date():
+        return None
+    return ahora.hour * 60 + ahora.minute
 
 
 # ------------------------------------------------------------------

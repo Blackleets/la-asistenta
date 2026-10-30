@@ -1,0 +1,64 @@
+{
+ "pasos": [
+  {
+   "nombre": "A-nombre-largo",
+   "seleccionados": 1,
+   "fecha": "2026-10-30",
+   "confirmada": true,
+   "paso3": {
+    "scrollW": 412,
+    "mal": []
+   },
+   "confirmacion": {
+    "scrollW": 412,
+    "mal": []
+   },
+   "codigo": "AS-AANX"
+  },
+  {
+   "nombre": "A-cancelacion",
+   "cancelada": true
+  },
+  {
+   "nombre": "B-pack-4",
+   "serviciosPulsados": 4,
+   "mini": {
+    "izq": 18,
+    "dcha": 394,
+    "alto": 175
+   },
+   "txtAncho": 118,
+   "txtCliente": 118,
+   "precioVisible": true,
+   "desbordes": {
+    "scrollW": 412,
+    "mal": []
+   }
+  },
+  {
+   "nombre": "C-sin-huecos",
+   "texto": "Ese día no quedan huecos para la duración total de tu selección. Prueba otro día o quita algún servicio.",
+   "desbordes": {
+    "scrollW": 412,
+    "mal": []
+   }
+  },
+  {
+   "nombre": "D-pulsados",
+   "transformBuscador": "matrix(0.94, 0, 0, 0.94, 0, 0)",
+   "transformPastilla": "none",
+   "transformNav": "matrix(0.96, 0, 0, 0.96, 0, 0)",
+   "forzadoPastilla": "matrix(0.94, 0, 0, 0.94, 0, 0)",
+   "forzadoSeg": "matrix(0.96, 0, 0, 0.96, 0, 0)",
+   "diagD": {
+    "fecha": "2026-10-30",
+    "filas": 39,
+    "huecosTxt": "10:0018 €10:1518 €10:3018 €10:4518 €11:0018 €11:1518 €11:3018 €11:4518 €12:0018 €12:1518 €12:3018 €12:4518 €13",
+    "pasoActivo": "paso-2"
+   },
+   "radioAntes": "matrix(0, 0, 0, 0, 0, 0)",
+   "radioDespues": "matrix(1, 0, 0, 1, 0, 0)"
+  }
+ ],
+ "consola": []
+}

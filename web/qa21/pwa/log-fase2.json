@@ -1,0 +1,34 @@
+{
+ "fase": "QA21-pwa-fase2",
+ "consola": [],
+ "resultado": {
+  "antes": {
+   "hayReg": true,
+   "activoEstado": "activated",
+   "esperando": false,
+   "instalando": false,
+   "controlador": true,
+   "caches": [
+    "la-asistenta-shell-v29"
+   ]
+  },
+  "servido": "la-asistenta-shell-v30",
+  "cacheMigradaLimpia": true,
+  "despues": {
+   "hayReg": true,
+   "activoEstado": "activated",
+   "esperando": false,
+   "instalando": false,
+   "controlador": true,
+   "caches": [
+    "la-asistenta-shell-v30"
+   ]
+  },
+  "raizEnCacheV30": true,
+  "app": {
+   "reco": true,
+   "pastillas": 8
+  }
+ },
+ "erroresConsola": 0
+}

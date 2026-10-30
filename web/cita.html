@@ -9,21 +9,32 @@
 <link rel="icon" href="/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 <style>
-@font-face{font-family:'Fraunces';src:url('/fonts/fraunces-normal.woff2') format('woff2');font-weight:400 700;font-style:normal;font-display:swap}
-@font-face{font-family:'Fraunces';src:url('/fonts/fraunces-italic.woff2') format('woff2');font-weight:400 700;font-style:italic;font-display:swap}
 @font-face{font-family:'Montserrat';src:url('/fonts/montserrat.woff2') format('woff2');font-weight:400 800;font-display:swap}
 :root{
   /* Paleta de la referencia (ESPEC_REFERENCIA §1.1: tokens MEDIDOS
      del CSS de fresha.com), adoptada íntegra por orden de Lee (v5).
      Tintes derivados, documentados: --violeta-tinte = #6950f3 al
      10 % sobre blanco · --violeta-claro = #6950f3 aclarado al 55 %
-     (solo texto/acento sobre negro) · fondos y bordes de aviso,
+     (solo texto/acento sobre negro) · #F9F8FE = #6950f3 al 4 %
+     (fondo de fila elegida) · fondos y bordes de aviso,
      error y OK = tintes de #b7570b, #bb1232 y #1f8900. */
   --negro:#0d0d0d; --violeta:#6950f3; --violeta-oscuro:#403591;
   --violeta-tinte:#F0EDFE; --violeta-claro:#BCB0F9; --blanco:#ffffff;
-  --positivo:#1f8900; --tinta:#0d0d0d; --gris:#747a8d;
+  --positivo:#1d7e00; --tinta:#0d0d0d; --gris:#626878;
   --borde:#dee3e7; --superficie:#f5f5f5; --error:#bb1232; --radio:20px;
-  --sombra:0 10px 30px rgba(13,13,13,.08);
+  /* ELEVACIÓN (29/10): la sombra global es un susurro. Premium =
+     contención: mandan el borde hairline y la foto, no la sombra. */
+  --sombra:0 1px 3px rgba(13,13,13,.05);
+  /* QA20 · curvas de movimiento (Emil Kowalski): las del navegador
+     son demasiado flojas; UI entra/sale con ease-out FUERTE y lo que
+     se mueve en pantalla, con ease-in-out fuerte. Nunca ease-in. */
+  --ease-out:cubic-bezier(0.23,1,0.32,1);
+  --ease-in-out:cubic-bezier(0.77,0,0.175,1);
+  /* Escala tipográfica cerrada (MUSA B4, 29/10): 11 micro · 12,5 apoyo ·
+     13,5 cuerpo · 15 acción · 19 destacado · 23 titular · 28 hero.
+     Excepción funcional: inputs y textarea a 16 (iOS hace zoom al
+     enfocar por debajo de 16). Peso 800: solo titulares y números
+     display; precios, estados y llamadas a la acción van a 700. */
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-text-size-adjust:100%}
@@ -35,24 +46,25 @@ header{width:100%;background:var(--negro);color:var(--blanco);border-radius:0 0 
 header::after{content:'';position:absolute;right:-50px;top:-50px;width:170px;height:170px;
   border-radius:50%;background:radial-gradient(circle,var(--violeta) 0%,transparent 70%);opacity:.45}
 .marca{font-size:11px;letter-spacing:.34em;font-weight:700;color:var(--violeta-claro)}
-header h1{font-family:'Fraunces',serif;font-weight:600;font-size:29px;line-height:1.12;margin-top:8px}
-header h1 em{color:var(--violeta-claro)}
+header h1{font-family:'Montserrat',sans-serif;font-weight:800;font-size:28px;line-height:1.15;margin-top:8px;letter-spacing:-.01em}
+header h1 em{color:var(--violeta-claro);font-style:normal}
 header p{margin-top:8px;font-size:13.5px;color:#a4adba;line-height:1.45;max-width:34ch}
 .tarjeta{background:#fff;border:1px solid var(--borde);border-radius:var(--radio);
   padding:20px;box-shadow:var(--sombra);margin-bottom:16px}
-.tarjeta h2{font-family:'Fraunces',serif;font-size:22px;font-weight:600;margin-bottom:8px}
-.tarjeta p{font-size:14px;line-height:1.55;color:var(--tinta)}
+.tarjeta h2{font-family:'Montserrat',sans-serif;font-size:23px;font-weight:700;margin-bottom:8px}
+.tarjeta p{font-size:13.5px;line-height:1.55;color:var(--tinta)}
 .tarjeta p+p{margin-top:8px}
 .mini{font-size:12.5px;color:var(--gris);line-height:1.5}
 .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
-  border:none;border-radius:16px;padding:16px 18px;font-family:inherit;font-size:15.5px;
+  border:none;border-radius:16px;padding:16px 18px;font-family:inherit;font-size:15px;
   font-weight:700;cursor:pointer;transition:transform .12s ease,opacity .2s;text-align:center;min-height:52px}
 .btn:active{transform:scale(.985)}
 .btn svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:2;
   stroke-linecap:round;stroke-linejoin:round;flex:none}
 .btn-primario{background:var(--negro);color:var(--blanco)}
-.btn-verde{background:var(--positivo);color:#fff}
-.btn-lavanda{background:var(--violeta);color:#fff}
+
+.btn-violeta{background:var(--violeta);color:#fff}
+.btn-whatsapp{background:var(--positivo);color:#fff}
 .btn-fantasma{background:transparent;color:var(--negro);border:1.5px solid var(--negro)}
 .btn-peligro{background:transparent;color:var(--error);border:1.5px solid var(--error)}
 .btn[disabled]{opacity:.38;pointer-events:none}
@@ -61,21 +73,21 @@ header p{margin-top:8px;font-size:13.5px;color:#a4adba;line-height:1.45;max-widt
   font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:6px 0;
   min-height:44px;display:inline-flex;align-items:center}
 .codigo{display:inline-block;background:var(--negro);color:var(--blanco);border-radius:12px;
-  padding:9px 16px;font-family:'Fraunces',serif;font-size:21px;font-weight:700;letter-spacing:.12em}
+  padding:9px 16px;font-family:'Montserrat',sans-serif;font-size:23px;font-weight:800;letter-spacing:.12em}
 .datos-cita{font-size:15px;line-height:1.65;margin-top:14px}
 .datos-cita b{color:var(--negro)}
-.pastilla{display:inline-block;border-radius:999px;padding:5px 12px;font-size:12px;font-weight:800;letter-spacing:.05em}
+.pastilla{display:inline-block;border-radius:999px;padding:5px 12px;font-size:12.5px;font-weight:700;letter-spacing:.05em}
 .pastilla.ok{background:#EDF6EB;color:var(--positivo)}
 .pastilla.off{background:#FBF1F3;color:var(--error)}
 .aviso{background:#FAF3EE;border:1px solid #E9CDB6;border-radius:14px;padding:13px 14px;
-  font-size:13px;line-height:1.55;margin-bottom:16px}
+  font-size:13.5px;line-height:1.55;margin-bottom:16px}
 .error-caja{background:#FBF1F3;border:1px solid #EEC4CC;color:var(--error);border-radius:14px;
   padding:13px 14px;font-size:13.5px;line-height:1.5;margin-bottom:14px;display:none}
 .error-caja.visible{display:block}
 .ok-caja{background:#EDF6EB;border:1px solid #BCDCB3;color:var(--positivo);border-radius:14px;
   padding:13px 14px;font-size:13.5px;line-height:1.5;margin-bottom:14px;display:none}
 .ok-caja.visible{display:block}
-label.campo{display:block;font-size:12px;letter-spacing:.12em;text-transform:uppercase;
+label.campo{display:block;font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;
   color:var(--gris);font-weight:700;margin:16px 0 7px}
 input[type=text],input[type=tel],input[type=date],select,textarea{
   width:100%;border:1.5px solid var(--borde);border-radius:13px;padding:13px 14px;
@@ -84,19 +96,23 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--violeta);border-
 .segmentos{display:flex;gap:8px;flex-wrap:wrap}
 .seg{flex:1;min-width:fit-content;min-height:44px;display:flex;align-items:center;justify-content:center;
   border:1.5px solid var(--borde);background:#fff;color:var(--tinta);
-  border-radius:999px;padding:9px 12px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+  border-radius:999px;padding:9px 12px;font:inherit;font-size:13.5px;font-weight:600;cursor:pointer}
 .seg.sel{background:var(--violeta);color:#fff;border-color:var(--violeta)}
 .huecos{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:6px}
+/* B8: los mensajes de la rejilla (cargando, sin huecos, domingo,
+   error) ocupan todo el ancho: como hijos de la rejilla quedaban
+   apretados en una sola columna de ~85 px. */
+.huecos>p{grid-column:1/-1}
 .hueco{border:1.5px solid var(--borde);background:#fff;border-radius:12px;padding:10px 2px;
-  min-height:44px;font:inherit;font-size:14px;font-weight:700;cursor:pointer}
+  min-height:44px;font:inherit;font-size:15px;font-weight:700;cursor:pointer}
 .hueco.sel{background:var(--violeta);border-color:var(--violeta);color:#fff}
-.resumen{background:#f5f5f5;border-radius:14px;padding:14px;font-size:14px;line-height:1.6}
+.resumen{background:#f5f5f5;border-radius:14px;padding:14px;font-size:13.5px;line-height:1.6}
 .cargando{text-align:center;padding:34px 16px}
 .rueda{width:44px;height:44px;margin:0 auto 16px;border-radius:50%;
   border:4px solid var(--borde);border-top-color:var(--violeta);
   animation:gira 0.9s linear infinite}
 @keyframes gira{to{transform:rotate(360deg)}}
-footer{margin-top:auto;padding:18px;text-align:center;font-size:11.5px;color:var(--gris);line-height:1.6;max-width:480px}
+footer{margin-top:auto;padding:18px;text-align:center;font-size:11px;color:var(--gris);line-height:1.6;max-width:480px}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.001s!important;animation-iteration-count:1!important;
     transition-duration:.001s!important}
@@ -119,6 +135,14 @@ footer{margin-top:auto;padding:18px;text-align:center;font-size:11.5px;color:var
   </div>
 
   <div class="error-caja" id="error-general"></div>
+
+  <!-- B8 (MUSA · D5): si el enlace no corresponde a ninguna cita, la
+       página ya no es un callejón: dos salidas reales, la app y el
+       WhatsApp público del salón (el mismo que usa la portada). -->
+  <div id="error-acciones" style="display:none">
+    <a class="btn btn-primario" href="/" style="text-decoration:none">Ir a La Asistenta</a>
+    <a class="btn btn-whatsapp" href="https://wa.me/584249134367" target="_blank" rel="noopener" style="text-decoration:none;margin-top:10px">Escribir al salón por WhatsApp</a>
+  </div>
 
   <div id="contenido" style="display:none">
     <!-- LA CITA -->
@@ -161,7 +185,7 @@ footer{margin-top:auto;padding:18px;text-align:center;font-size:11.5px;color:var
       <div style="height:14px"></div>
       <div class="ok-caja" id="prep-ok"></div>
       <div class="error-caja" id="prep-error"></div>
-      <button class="btn btn-lavanda" id="btn-prep">Guardar mis respuestas</button>
+      <button class="btn btn-violeta" id="btn-prep">Guardar mis respuestas</button>
       <p class="mini" style="margin-top:10px">¿Quieres que miremos tu foto antes
       de la cita? <a href="/" style="color:var(--positivo);font-weight:700">Haz el
       análisis de cejas de La Asistenta →</a></p>
@@ -182,7 +206,7 @@ footer{margin-top:auto;padding:18px;text-align:center;font-size:11.5px;color:var
       <div style="height:14px"></div>
       <div class="error-caja" id="reagendar-error"></div>
       <div class="ok-caja" id="reagendar-ok"></div>
-      <button class="btn btn-verde" id="btn-reagendar" disabled>Mover mi cita</button>
+      <button class="btn btn-primario" id="btn-reagendar" disabled>Mover mi cita</button>
     </div>
 
     <!-- CANCELAR -->
@@ -440,7 +464,12 @@ async function cargarHuecos(){
       $('#btn-reagendar').disabled = false;
     });
   }catch(e){
-    cajaHuecos.innerHTML = '<p class="mini">La agenda no respondió. Vuelve a elegir el día para reintentar.</p>';
+    /* B8: el reintento deja de ser una insinuación («vuelve a elegir
+       el día») y es un botón que vuelve a pedir los huecos. Cambiar
+       el día sigue funcionando igual (onchange). */
+    cajaHuecos.innerHTML = '<div style="grid-column:1/-1"><p class="mini">La agenda no respondió.</p>' +
+      '<button class="enlace" id="btn-reintentar-huecos">Reintentar</button></div>';
+    $('#btn-reintentar-huecos').onclick = cargarHuecos;
   }
 }
 $('#inp-fecha').onchange = cargarHuecos;
@@ -513,6 +542,10 @@ $('#btn-cancelar-si').onclick = async () => {
   }catch(e){
     $('#cargando').style.display = 'none';
     caja('#error-general', e.message || 'No pudimos cargar tu cita.');
+    /* B8: con el error llegan sus salidas («Ir a La Asistenta» y el
+       WhatsApp del salón); sin cita cargada no hay otra cosa útil
+       que enseñar en esta página. */
+    $('#error-acciones').style.display = 'block';
   }
 })();
 </script>

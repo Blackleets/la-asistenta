@@ -1,0 +1,164 @@
+{
+ "fase": "QA21-preensayo",
+ "pasos": [
+  {
+   "n": 1,
+   "nombre": "abrir-la-app",
+   "ok": true,
+   "datos": {
+    "cargaMs": 31,
+    "activa": "p-inicio",
+    "pastillas": [
+     "Reservar",
+     "Análisis IA",
+     "Diseño de cejas",
+     "Ombré Henna",
+     "Brow Lamination",
+     "Depilación",
+     "El salón",
+     "WhatsApp"
+    ],
+    "buscador": true,
+    "swControlando": true
+   },
+   "segundos": 1.2,
+   "scrollW": 412,
+   "captura": "p01-inicio.png"
+  },
+  {
+   "n": 2,
+   "nombre": "buscar-un-servicio",
+   "ok": true,
+   "datos": {
+    "activa": "p-explorar",
+    "visibles": [
+     "Ombré Brows Henna"
+    ]
+   },
+   "segundos": 1.5,
+   "scrollW": 412,
+   "captura": "p02-buscar-henna.png"
+  },
+  {
+   "n": 3,
+   "nombre": "ver-el-recomendado",
+   "ok": true,
+   "datos": {
+    "nTarjetas": 4,
+    "tarjetas": [
+     "Reservas abiertasAri Vivas BeautySalón de cejas · análisis con IAL–V 10–20 · S 10–144 serv",
+     "25 minDiseño de cejas18 € · 25 min · Natural y definido, a tu medida",
+     "65 minOmbré Brows Henna30 € · 65 min · Color y definición con henna",
+     "65 minBrow Lamination45 € · 65 min · Efecto peinado y fijado"
+    ],
+    "scrollLeftTrasDeslizar": 333
+   },
+   "segundos": 2.7,
+   "scrollW": 412,
+   "captura": "p03-recomendado.png"
+  },
+  {
+   "n": 4,
+   "nombre": "analisis-de-cejas",
+   "ok": true,
+   "datos": {
+    "gate": {
+     "activa": "p-consentimiento",
+     "btnDisabledSinAceptar": true
+    },
+    "previaOk": true,
+    "latenciaS": 12.1,
+    "resultado": {
+     "activa": "p-resultado",
+     "resumen": "Tus cejas se ven preciosas, muy pobladas y con una forma natural muy favorecedora, esta es solo una primera orientación desde la foto. Una buena opción para ti sería pulir la definición manteniendo esa naturalidad, y Ari",
+     "etiquetasResultado": [
+      "ORIENTACIÓN",
+      "PROPUESTA VISUAL · ORIENTATIVA"
+     ],
+     "lineaOrientacion": "Tus cejas se ven preciosas, muy pobladas y con una forma natural muy favorecedora, esta es solo una primera orientación desde la foto. Una buena opción para ti sería pulir la definición manteniendo es",
+     "recomendado": "Diseño de cejas",
+     "recoDatos": "18 € · 25 min",
+     "precioColor": "rgb(13, 13, 13)",
+     "alternativo": "Brow Lamination",
+     "aviso": "Esto es una orientación a partir de tu foto, no un diagnóstico: Arianna confirma el diseño contigo en el salón antes de trabajar. Análisis real con Muse Spark. La propuesta visual generada (ver tus ce",
+     "errorFoto": ""
+    }
+   },
+   "segundos": 17,
+   "scrollW": 412,
+   "captura": "p04-resultado-analisis.png"
+  },
+  {
+   "n": 5,
+   "nombre": "reservar-el-recomendado",
+   "ok": true,
+   "datos": {
+    "resumenAlEntrar": "Diseño de cejasviernes, 30 de octubre",
+    "intentos": [
+     {
+      "fecha": "2026-10-30",
+      "huecosVisibles": 8
+     }
+    ],
+    "fechaElegida": "2026-10-30",
+    "horaElegida": "10:00",
+    "codigo": "AS-AATV",
+    "detalle": "Diseño de cejas · 18 €viernes, 30 de octubre a las 10:00 (25 min)Para QA21 Demo",
+    "hayToken": true
+   },
+   "segundos": 4,
+   "scrollW": 412,
+   "captura": "p05-confirmacion.png"
+  },
+  {
+   "n": 6,
+   "nombre": "enlace-magico",
+   "ok": true,
+   "datos": {
+    "visible": true,
+    "coincide": true,
+    "texto": "CONFIRMADA AS-AATV Diseño de cejas · 18 € · 25 min viernes, 30 de octubre a las 10:00 Para QA21 Demo Guarda este enlace: es personal y solo sirve para esta cita. Con tu código AS-AATV también pueden localizarla en el salón. Añadir al calendario Antes de venir: 2 preguntas Nos ayudan a cuidar tu piel y a que el resultado sea el mejor. Tardan menos de un minuto. ¿LLEVAS ALGÚN TRATAMIENTO RECIENTE EN"
+   },
+   "segundos": 3.1,
+   "scrollW": 412,
+   "captura": "p06-cita-enlace.png"
+  },
+  {
+   "n": 7,
+   "nombre": "panel-profesional",
+   "ok": true,
+   "datos": {
+    "vista": "hoy",
+    "encontrada": true,
+    "detalle": "1por atender8cumplidas hoy14mensajes por enviarTambién hoy: 90 canceladas · 19 no vinieron.",
+    "hoyEnElPanel": "2026-10-30",
+    "fechaCita": "2026-10-30"
+   },
+   "segundos": 4.9,
+   "scrollW": 412,
+   "captura": "p07-profesional.png"
+  },
+  {
+   "n": 8,
+   "nombre": "cancelar-la-cita",
+   "ok": true,
+   "datos": {
+    "cancelada": true,
+    "sigueCanceladaTrasRecarga": true,
+    "codigo": "AS-AATV"
+   },
+   "segundos": 6.2,
+   "scrollW": 412,
+   "captura": "p08-cancelada.png"
+  }
+ ],
+ "consola": [],
+ "resumen": {
+  "latenciaAnalisisS": 12.1,
+  "servicioRecomendado": "Diseño de cejas",
+  "codigo": "AS-AATV",
+  "fecha": "2026-10-30",
+  "hora": "10:00",
+  "erroresConsola": 0
+ }
+}

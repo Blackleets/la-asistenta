@@ -1,0 +1,99 @@
+{
+  "modo": "despues",
+  "matriz": [
+    {
+      "clave": "D11-carta-no-carga",
+      "ok": true,
+      "nota": "Tras B8: botón «Recargar la página» y la carta vuelve al pulsarlo"
+    },
+    {
+      "clave": "D1-cita-token-invalido",
+      "ok": true,
+      "nota": "Tras B8: «Ir a La Asistenta» (funciona: vuelve a la portada) + «Escribir al salón por WhatsApp» (wa.me público)"
+    },
+    {
+      "clave": "D2-explorar-sin-resultados",
+      "ok": true,
+      "nota": "Tras B8: lenguaje de servicios + «Ver todos los servicios» restaura la carta"
+    },
+    {
+      "clave": "D3-explorar-vacio",
+      "ok": true,
+      "nota": "Tras B8: vacío en lenguaje de servicios + «Ver todos los servicios» lleva a la carta real"
+    },
+    {
+      "clave": "D4-foto-invalida",
+      "ok": true,
+      "nota": "CONSERVAR verificado: mensaje claro y «Elegir mi foto» sigue ahí para reintentar"
+    },
+    {
+      "clave": "D5-analisis-fallido",
+      "ok": true,
+      "nota": "CONSERVAR verificado: el error del análisis deja el botón convertido en «Intentar de nuevo»"
+    },
+    {
+      "clave": "D6-huecos-no-cargan",
+      "ok": true,
+      "nota": "Tras B8: «Reintentar» en el propio paso 2 y los huecos cargan al pulsarlo"
+    },
+    {
+      "clave": "D7-reserva-error-generico",
+      "ok": true,
+      "nota": "Tras B8: el error genérico trae «Reintentar la reserva» y al pulsarlo la reserva se hace de verdad"
+    },
+    {
+      "clave": "D8-reserva-409",
+      "ok": true,
+      "nota": "CONSERVAR verificado: 409 real — mensaje con alternativas y vuelta automática al paso 2"
+    },
+    {
+      "clave": "D9-lista-espera",
+      "ok": true,
+      "nota": "CONSERVAR verificado: error de validación en el formulario y alta real al corregirlo"
+    },
+    {
+      "clave": "D12-cita-huecos",
+      "ok": true,
+      "nota": "Tras B8: si la agenda no responde en «Cambiar el día», «Reintentar» trae los huecos"
+    },
+    {
+      "clave": "D13-cita-prep",
+      "ok": true,
+      "nota": "CONSERVAR verificado: la validación de la preparación se dice en el propio formulario"
+    },
+    {
+      "clave": "D10-profesional",
+      "ok": true,
+      "nota": "Tras B8: clave mala se dice en el acceso; Hoy y Agenda con «Reintentar» que recarga la vista"
+    },
+    {
+      "clave": "D14-sin-conexion",
+      "ok": true,
+      "nota": "CONSERVAR verificado: el banner de sin conexión aparece y desaparece solo"
+    }
+  ],
+  "erroresConsola": [
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 409 (Conflict)",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+  ],
+  "extras": {
+    "datosReserva": {
+      "fecha": "2026-10-30",
+      "servicio": "Diseño de cejas",
+      "hora": "10:00"
+    },
+    "enlaceD7": "/cita/bstEZKOvr2tZjoT-kuQJhOeNvQfsIbMS",
+    "enlaceApi": "/cita/KFfzJgLGgvD6uCkc5TOCkuu4W2NldRGM",
+    "canceladaD7": true,
+    "canceladaApi": true,
+    "limpiezaEspera": "descartadas: 1"
+  }
+}

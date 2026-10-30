@@ -49,7 +49,11 @@ Endpoints:
                                        endpoint: horario del salón y
                                        anti-solape → 409 con «alternativas»
                                        si el hueco no es reservable (mismo
-                                       patrón que el servidor web).
+                                       patrón que el servidor web). Y
+                                       guarda «ya pasó»: un inicio en el
+                                       pasado (hora del salón) → 409; la
+                                       disponibilidad del día en curso
+                                       tampoco ofrece horas ya pasadas.
                                        La respuesta incluye el código humano
                                        (AS-XXXX) y el «enlace» mágico
                                        post-reserva (el token en claro SOLO
@@ -199,11 +203,19 @@ def _confirmadas(conn, fecha, negocio_id=comun.NEGOCIO_DEFECTO):
     ]
 
 
-def _alternativas(ocupados, apertura, cierre, duracion):
-    """Inicios libres en rejilla de 15 min (hasta 8), como ofrece la web."""
+def _alternativas(ocupados, apertura, cierre, duracion, corte=None):
+    """Inicios libres en rejilla de 15 min (hasta 8), como ofrece la web.
+
+    corte (minuto del día, comun.corte_hoy): los inicios <= corte no
+    se ofrecen — es el filtro de las horas ya pasadas cuando el día
+    pedido es HOY.
+    """
     libres = []
     t = apertura
     while t + duracion <= cierre and len(libres) < 8:
+        if corte is not None and t <= corte:
+            t += PASO_MIN
+            continue
         if all(t + duracion <= o_ini or t >= o_fin for _, o_ini, o_fin in ocupados):
             libres.append(_a_hora(t))
         t += PASO_MIN
@@ -280,7 +292,13 @@ def huecos_de(conn, servicio, fecha, excluir_id=None, duracion=None,
     apertura, cierre = ventana
     ocupados = [(i, ini, fin) for (i, ini, fin) in _confirmadas(conn, fecha, negocio_id)
                 if i != excluir_id]
-    return _alternativas_todas(ocupados, apertura, cierre, duracion), None
+    libres = _alternativas_todas(ocupados, apertura, cierre, duracion)
+    corte = comun.corte_hoy(dia)
+    if corte is not None:
+        # Día en curso: las horas cuya hora de inicio ya pasó no se
+        # ofrecen (hallazgo QA19: a las 16:25 se ofrecían las 10:00).
+        libres = [h for h in libres if _a_minutos(h) > corte]
+    return libres, None
 
 
 def _alternativas_todas(ocupados, apertura, cierre, duracion):
@@ -665,6 +683,9 @@ class Handler(BaseHTTPRequestHandler):
             apertura, cierre = ventana
             inicio = _a_minutos(hora)
             fin = inicio + duracion
+            # Filtro «ya pasó» del día en curso (None si la fecha no es
+            # hoy): las alternativas de los 409 tampoco ofrecen pasado.
+            corte_hoy = comun.corte_hoy(dia)
             origen = (datos.get("origen") or "app").strip()
             if origen not in ("app", "web", "whatsapp"):
                 origen = "app"
@@ -708,8 +729,23 @@ class Handler(BaseHTTPRequestHandler):
                         return self._json(200, {"cita": fila_a_cita(fila),
                                                 "idempotente": True})
                 ocupados = _confirmadas(conn, fecha, negocio)
+                # Guarda «ya pasó» (tras la idempotencia: un reintento
+                # legítimo devuelve su cita original aunque su hora
+                # haya quedado atrás; una creación NUEVA con inicio en
+                # el pasado se rechaza, venga del canal que venga).
+                if comun.inicio_en_pasado(fecha, hora):
+                    alternativas = _alternativas(ocupados, apertura, cierre,
+                                                 duracion, corte=corte_hoy)
+                    conn.rollback()
+                    conn.close()
+                    return self._json(409, {
+                        "error": "Esa hora ya pasó: elige un hueco a partir "
+                                 "de la hora actual o de otro día",
+                        "alternativas": alternativas,
+                    })
                 if inicio < apertura or fin > cierre:
-                    alternativas = _alternativas(ocupados, apertura, cierre, duracion)
+                    alternativas = _alternativas(ocupados, apertura, cierre,
+                                                 duracion, corte=corte_hoy)
                     conn.rollback()
                     conn.close()
                     return self._json(409, {
@@ -722,7 +758,8 @@ class Handler(BaseHTTPRequestHandler):
                 # inicio < su_fin y su_inicio < fin. Los bordes exactos no chocan.
                 conflictos = [o for o in ocupados if inicio < o[2] and o[1] < fin]
                 if conflictos:
-                    alternativas = _alternativas(ocupados, apertura, cierre, duracion)
+                    alternativas = _alternativas(ocupados, apertura, cierre,
+                                                 duracion, corte=corte_hoy)
                     libre_desde = _a_hora(max(o[2] for o in conflictos))
                     conn.rollback()
                     conn.close()
@@ -944,6 +981,12 @@ class Handler(BaseHTTPRequestHandler):
         if fecha == fila["fecha"] and hora == fila["hora"]:
             conn.close()
             return self._json(200, {"cita": cita_publica(fila), "sin_cambio": True})
+        if comun.inicio_en_pasado(fecha, hora):
+            conn.close()
+            return self._json(409, {
+                "error": "Esa hora ya pasó: elige un hueco a partir de la "
+                         "hora actual o de otro día",
+                "alternativas": []})
         try:
             dia = datetime.strptime(fecha, "%Y-%m-%d").date()
         except ValueError:
@@ -972,7 +1015,8 @@ class Handler(BaseHTTPRequestHandler):
         if inicio < apertura or fin > cierre or any(
                 inicio < o_fin and o_ini < fin for _, o_ini, o_fin in ocupados):
             alternativas = _alternativas(ocupados, apertura, cierre,
-                                         int(fila["duracion_min"]))
+                                         int(fila["duracion_min"]),
+                                         corte=comun.corte_hoy(dia))
             conn.rollback()
             conn.close()
             return self._json(409, {

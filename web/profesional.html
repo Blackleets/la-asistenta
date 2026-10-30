@@ -7,15 +7,32 @@
 <meta name="theme-color" content="#ffffff">
 <link rel="icon" href="/icon.svg" type="image/svg+xml">
 <style>
-@font-face{font-family:'Fraunces';src:url('/fonts/fraunces-normal.woff2') format('woff2');font-weight:400 700;font-style:normal;font-display:swap}
 @font-face{font-family:'Montserrat';src:url('/fonts/montserrat.woff2') format('woff2');font-weight:400 800;font-display:swap}
 :root{
-  /* Misma paleta que la app de la clienta (tokens de marca v5). */
+  /* Paleta de la referencia (ESPEC_REFERENCIA §1.1: tokens MEDIDOS
+     del CSS de fresha.com), adoptada íntegra por orden de Lee (v5).
+     Tintes derivados, documentados: --violeta-tinte = #6950f3 al
+     10 % sobre blanco · --violeta-claro = #6950f3 aclarado al 55 %
+     (solo texto/acento sobre negro) · #F9F8FE = #6950f3 al 4 %
+     (fondo de fila elegida) · fondos y bordes de aviso,
+     error y OK = tintes de #b7570b, #bb1232 y #1f8900. */
   --negro:#0d0d0d; --violeta:#6950f3; --violeta-oscuro:#403591;
   --violeta-tinte:#F0EDFE; --violeta-claro:#BCB0F9; --blanco:#ffffff;
-  --positivo:#1f8900; --tinta:#0d0d0d; --gris:#747a8d;
+  --positivo:#1d7e00; --tinta:#0d0d0d; --gris:#626878;
   --borde:#dee3e7; --superficie:#f5f5f5; --error:#bb1232; --radio:20px;
-  --sombra:0 10px 30px rgba(13,13,13,.08);
+  /* ELEVACIÓN (29/10): la sombra global es un susurro. Premium =
+     contención: mandan el borde hairline y la foto, no la sombra. */
+  --sombra:0 1px 3px rgba(13,13,13,.05);
+  /* QA20 · curvas de movimiento (Emil Kowalski): las del navegador
+     son demasiado flojas; UI entra/sale con ease-out FUERTE y lo que
+     se mueve en pantalla, con ease-in-out fuerte. Nunca ease-in. */
+  --ease-out:cubic-bezier(0.23,1,0.32,1);
+  --ease-in-out:cubic-bezier(0.77,0,0.175,1);
+  /* Escala tipográfica cerrada (MUSA B4, 29/10): 11 micro · 12,5 apoyo ·
+     13,5 cuerpo · 15 acción · 19 destacado · 23 titular · 28 hero.
+     Excepción funcional: inputs y textarea a 16 (iOS hace zoom al
+     enfocar por debajo de 16). Peso 800: solo titulares y números
+     display; precios, estados y llamadas a la acción van a 700. */
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-text-size-adjust:100%}
@@ -25,11 +42,11 @@ body{font-family:'Montserrat',system-ui,sans-serif;background:#fff;color:var(--t
 button{font:inherit}
 svg{flex:none}
 .marca{display:flex;align-items:center;gap:9px;padding:18px 2px 6px}
-.marca .estrella{color:var(--violeta);font-size:22px;line-height:1}
+.marca .estrella{color:var(--violeta);font-size:23px;line-height:1}
 .marca .nombre{font-weight:800;letter-spacing:.14em;font-size:15px}
 .marca .area{margin-left:auto;font-size:11px;font-weight:700;letter-spacing:.08em;
   color:var(--violeta-oscuro);background:var(--violeta-tinte);border-radius:999px;padding:6px 10px}
-h1{font-family:'Fraunces',serif;font-size:27px;font-weight:600;line-height:1.15;margin:10px 0 4px}
+h1{font-family:'Montserrat',sans-serif;font-size:28px;font-weight:800;line-height:1.15;margin:10px 0 4px;letter-spacing:-.01em}
 .sub{color:var(--gris);font-size:13.5px;line-height:1.5}
 .tarjeta{background:#fff;border:1px solid var(--borde);border-radius:var(--radio);
   padding:20px;box-shadow:var(--sombra);margin:16px 0}
@@ -44,7 +61,7 @@ h1{font-family:'Fraunces',serif;font-size:27px;font-weight:600;line-height:1.15;
 .btn:active{transform:scale(.985)}
 .btn-primario{background:var(--negro);color:var(--blanco)}
 .btn-violeta{background:var(--violeta);color:#fff}
-.btn-verde{background:var(--positivo);color:#fff}
+.btn-whatsapp{background:var(--positivo);color:#fff}
 .btn-fantasma{background:transparent;color:var(--negro);border:1.5px solid var(--borde)}
 .btn-peq{padding:10px 14px;font-size:13.5px;border-radius:12px;width:auto;min-height:44px}
 .btn[disabled]{opacity:.38;pointer-events:none}
@@ -54,7 +71,7 @@ h1{font-family:'Fraunces',serif;font-size:27px;font-weight:600;line-height:1.15;
 .enlace.rojo{color:var(--error)}
 .fila-botones{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
 .fila-botones .btn{flex:1}
-.campo{display:block;font-size:13px;font-weight:700;margin:16px 0 7px}
+.campo{display:block;font-size:13.5px;font-weight:700;margin:16px 0 7px}
 input[type=password],input[type=text]{width:100%;border:1.5px solid var(--borde);
   border-radius:14px;padding:14px 16px;font:inherit;font-size:16px;background:#fff;color:var(--tinta)}
 input:focus{outline:2px solid var(--violeta);outline-offset:1px;border-color:var(--violeta)}
@@ -67,7 +84,7 @@ input:focus{outline:2px solid var(--violeta);outline-offset:1px;border-color:var
 .tabs{display:flex;gap:8px;margin:18px 0 4px;position:sticky;top:0;background:#fff;
   padding:10px 0;z-index:5}
 .tab{flex:1;border:1.5px solid var(--borde);background:var(--superficie);color:var(--tinta);
-  border-radius:999px;padding:11px 4px;font-size:13px;font-weight:700;cursor:pointer;
+  border-radius:999px;padding:11px 4px;font-size:13.5px;font-weight:700;cursor:pointer;
   display:flex;align-items:center;justify-content:center;gap:6px;min-height:44px}
 .tab.activa{background:var(--negro);color:#fff;border-color:var(--negro)}
 .tab .bolita{background:var(--violeta);color:#fff;border-radius:999px;font-size:11px;
@@ -76,57 +93,68 @@ input:focus{outline:2px solid var(--violeta);outline-offset:1px;border-color:var
 /* resumen */
 .resumen{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 2px}
 .resumen .dato{background:var(--superficie);border-radius:14px;padding:10px 13px;flex:1;min-width:100px}
-.resumen .dato b{display:block;font-size:20px;font-weight:800}
-.resumen .dato span{font-size:11.5px;color:var(--gris);font-weight:600}
+.resumen .dato b{display:block;font-size:19px;font-weight:800}
+.resumen .dato span{font-size:11px;color:var(--gris);font-weight:600}
 /* tarjetas de cita */
 .cita{border:1.5px solid var(--borde);border-radius:18px;padding:15px 16px;margin-bottom:12px;background:#fff}
 .cita .arriba{display:flex;gap:12px;align-items:flex-start}
-.cita .hora{font-size:21px;font-weight:800;min-width:58px}
+.cita .hora{font-size:19px;font-weight:700;min-width:58px}
 .cita .hora small{display:block;font-size:11px;color:var(--gris);font-weight:600}
 .cita .quien{flex:1;min-width:0}
-.cita .quien b{font-size:16px}
-.cita .quien .serv{color:var(--gris);font-size:13px;margin-top:1px}
+.cita .quien b{font-size:15px}
+.cita .quien .serv{color:var(--gris);font-size:13.5px;margin-top:1px}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
-.chip{background:var(--violeta-tinte);border-radius:999px;padding:5px 10px;font-size:12px;font-weight:600}
+.chip{background:var(--violeta-tinte);border-radius:999px;padding:5px 10px;font-size:12.5px;font-weight:600}
 .chip.estado-confirmada{background:var(--violeta-tinte);color:var(--violeta-oscuro)}
 .chip.estado-cumplida{background:#e5f4e0;color:var(--positivo)}
 .chip.estado-cancelada{background:#fdeaea;color:var(--error)}
 .chip.estado-no_show{background:#fdf0e2;color:#b7570b}
-.prep{background:var(--superficie);border-radius:12px;padding:11px 13px;margin-top:11px;font-size:13px}
+/* canceladas relegadas (B3): una línea atenuada, nunca una tarjeta */
+.canceladas-bloque{margin-top:20px}
+.canceladas-bloque h3{font-size:13.5px;font-weight:700;color:var(--gris);letter-spacing:.03em;margin-bottom:8px}
+.cita-linea{display:flex;gap:10px;align-items:center;padding:8px 12px;
+  border:1px dashed var(--borde);border-radius:12px;margin-bottom:6px;
+  opacity:.62;font-size:13.5px;background:#fff}
+.cita-linea .h{font-weight:700;min-width:40px}
+.cita-linea .n{flex:1;min-width:0}
+.dia .canc-grupo{margin-top:10px;border-top:1px dashed var(--borde);padding-top:8px}
+.dia .canc-tit{font-size:12.5px;font-weight:700;color:var(--gris);margin-bottom:2px}
+.dia .fila.atenuada{opacity:.6}
+.prep{background:var(--superficie);border-radius:12px;padding:11px 13px;margin-top:11px;font-size:13.5px}
 .prep b{display:block;font-size:11px;letter-spacing:.06em;color:var(--gris);margin-bottom:5px}
 .prep div+div{margin-top:5px}
 .prep span{color:var(--gris)}
 .vacio{background:var(--superficie);border-radius:16px;padding:20px;text-align:center;
-  color:var(--gris);font-size:14px;line-height:1.55;margin:12px 0}
+  color:var(--gris);font-size:13.5px;line-height:1.55;margin:12px 0}
 .aviso{background:var(--violeta-tinte);border-radius:16px;padding:15px 16px;font-size:13.5px;
   line-height:1.6;color:var(--tinta);margin:14px 0}
 .aviso b{color:var(--violeta-oscuro)}
 /* agenda por días */
 .dia{border:1.5px solid var(--borde);border-radius:18px;padding:15px 16px;margin-bottom:12px}
-.dia h3{font-size:15.5px;font-weight:800;text-transform:capitalize}
+.dia h3{font-size:15px;font-weight:800;text-transform:capitalize}
 .dia .fila{display:flex;gap:10px;font-size:13.5px;padding:7px 0;border-bottom:1px dashed var(--borde)}
 .dia .fila:last-of-type{border-bottom:none}
-.dia .fila .h{font-weight:800;min-width:44px}
+.dia .fila .h{font-weight:700;min-width:44px}
 .dia .fila .n{flex:1}
-.dia .fila .e{color:var(--gris);font-size:12px}
-.dia .libres{margin-top:9px;font-size:13px;color:var(--gris);line-height:1.6}
+.dia .fila .e{color:var(--gris);font-size:12.5px}
+.dia .libres{margin-top:9px;font-size:13.5px;color:var(--gris);line-height:1.6}
 .dia .libres b{color:var(--positivo)}
 /* bandeja */
 .bandeja-item{border:1.5px solid var(--borde);border-radius:18px;padding:15px 16px;margin-bottom:12px}
 .bandeja-item .texto{background:var(--superficie);border-radius:12px;padding:11px 13px;
-  font-size:13px;line-height:1.55;margin-top:9px;white-space:pre-wrap}
+  font-size:13.5px;line-height:1.55;margin-top:9px;white-space:pre-wrap}
 /* embudo */
 .rejilla{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
 .rejilla .celda{background:var(--superficie);border-radius:16px;padding:15px}
-.rejilla .celda b{display:block;font-size:24px;font-weight:800}
-.rejilla .celda span{font-size:12px;color:var(--gris);font-weight:600;line-height:1.4;display:block;margin-top:2px}
+.rejilla .celda b{display:block;font-size:23px;font-weight:700}
+.rejilla .celda span{font-size:12.5px;color:var(--gris);font-weight:600;line-height:1.4;display:block;margin-top:2px}
 /* servicios */
 .serv-fila{display:flex;gap:10px;align-items:baseline;padding:11px 0;border-bottom:1px dashed var(--borde)}
 .serv-fila:last-child{border-bottom:none}
 .serv-fila .n{flex:1;font-weight:700}
-.serv-fila .d{color:var(--gris);font-size:13px}
-.serv-fila .p{font-weight:800}
-.cargando{color:var(--gris);text-align:center;padding:26px 0;font-size:14px}
+.serv-fila .d{color:var(--gris);font-size:13.5px}
+.serv-fila .p{font-weight:700}
+.cargando{color:var(--gris);text-align:center;padding:26px 0;font-size:13.5px}
 .pie{margin-top:26px;text-align:center}
 </style>
 </head>
@@ -205,12 +233,7 @@ input:focus{outline:2px solid var(--violeta);outline-offset:1px;border-color:var
 
   <!-- MI NEGOCIO -->
   <div id="tab-panel" class="oculto">
-    <h2 style="font-size:19px;font-weight:800;margin:10px 0 4px">Tu embudo</h2>
-    <p class="mini" style="margin-bottom:10px">Lo que ha pasado por tu agenda,
-    contado por La Asistenta desde el primer día.</p>
-    <div class="rejilla" id="panel-embudo"><p class="cargando">Cargando…</p></div>
-
-    <h2 style="font-size:19px;font-weight:800;margin:24px 0 4px">Servicios y horarios</h2>
+    <h2 style="font-size:19px;font-weight:800;margin:10px 0 4px">Servicios y horarios</h2>
     <p class="mini" style="margin-bottom:6px">Tal cual están en tu agenda real:
     es lo que ven tus clientas al reservar.</p>
     <div class="tarjeta" style="margin-top:8px">
@@ -226,6 +249,14 @@ input:focus{outline:2px solid var(--violeta);outline-offset:1px;border-color:var
         el mismo día, sin tocar nada técnico.
       </div>
     </div>
+
+    <h2 style="font-size:19px;font-weight:800;margin:24px 0 4px">Tu embudo · últimos 30 días</h2>
+    <p class="mini" style="margin-bottom:10px">Los movimientos de tu agenda en
+    los últimos 30 días, contados por La Asistenta. Son movimientos, no citas:
+    una misma cita puede contar al confirmarse y otra vez al cumplirse o
+    cancelarse.</p>
+    <div class="rejilla" id="panel-embudo"><p class="cargando">Cargando…</p></div>
+    <p class="mini" id="panel-embudo-periodo" style="margin-top:8px"></p>
   </div>
 
   <p class="pie mini">La Asistenta · Área profesional de Ari Vivas Beauty</p>
@@ -325,11 +356,30 @@ async function salir() {
 }
 
 /* ---------- pestañas ---------- */
+/* B3: cada vista tiene su propio título (antes las cuatro decían
+   «Hoy en tu salón»); el subtítulo da el contexto de la vista. */
+const TITULOS = {
+  hoy: 'Hoy en tu salón',
+  agenda: 'Tu agenda de 7 días',
+  espera: 'Por avisar a tus clientas',
+  panel: 'Mi negocio · carta y cifras',
+};
+const SUBTITULOS = {
+  agenda: 'Desde hoy: tus citas vivas, los huecos libres y, al final de cada día, las canceladas.',
+  espera: 'Clientas que esperan un hueco libre en tu agenda.',
+  panel: 'Tu carta y tu horario primero; después, los movimientos de tu agenda.',
+};
+let fechaHoyTexto = '';
 document.querySelectorAll('.tab').forEach(t => {
   t.onclick = () => {
     document.querySelectorAll('.tab').forEach(x => x.classList.toggle('activa', x === t));
     ['hoy', 'agenda', 'espera', 'panel'].forEach(n =>
       $('#tab-' + n).classList.toggle('oculto', n !== t.dataset.tab));
+    const tab = t.dataset.tab;
+    $('#panel-titulo').textContent = TITULOS[tab] || TITULOS.hoy;
+    $('#panel-fecha').textContent =
+      tab === 'hoy' ? (fechaHoyTexto || $('#panel-fecha').textContent)
+                    : (SUBTITULOS[tab] || '');
   };
 });
 
@@ -338,27 +388,69 @@ async function cargarTodo() {
   await Promise.allSettled([cargarHoy(), cargarAgenda(), cargarEspera(), cargarPanel()]);
 }
 
+/* B8 (MUSA · D5): una vista que no carga ya no se queda en un
+   «prueba a recargar» de palabra — ni en un «Cargando…» eterno si
+   la red muere a mitad (la excepción también aterriza aquí) —:
+   pinta el aviso con un botón «Reintentar» que vuelve a pedir
+   ESA vista. Si el fallo fue una sesión caducada, api() ya habrá
+   devuelto a la profesional a la pantalla de acceso y este aviso
+   queda en el panel oculto, sin estorbar. */
+function pintarFallo(cont, texto, recarga) {
+  cont.innerHTML = `<div class="vacio">${texto}<br>
+    <button class="btn btn-fantasma btn-peq" style="margin-top:10px">Reintentar</button></div>`;
+  cont.querySelector('button').onclick = recarga;
+}
+
 async function cargarHoy() {
-  const {st, datos} = await api('GET', '/api/profesional/hoy');
+  let st, datos;
+  try { ({st, datos} = await api('GET', '/api/profesional/hoy')); }
+  catch (e) { pintarFallo($('#hoy-citas'), 'Tu agenda no responde ahora mismo.', cargarHoy); return; }
   if (st !== 200) {
-    $('#hoy-citas').innerHTML = '<div class="vacio">Tu agenda no responde ahora mismo. Prueba a recargar en un momento.</div>';
+    pintarFallo($('#hoy-citas'), 'Tu agenda no responde ahora mismo.', cargarHoy);
     return;
   }
-  $('#panel-fecha').textContent = 'Ari Vivas Beauty · ' + fmtFecha(datos.fecha, true);
+  fechaHoyTexto = 'Ari Vivas Beauty · ' + fmtFecha(datos.fecha, true);
+  if (!$('#tab-hoy').classList.contains('oculto')) {
+    $('#panel-fecha').textContent = fechaHoyTexto;
+  }
   const r = datos.resumen || {};
+  /* B3 (D2): el titular es lo accionable — por atender — y las
+     canceladas quedan como dato secundario, no como «citas hoy». */
+  const tambien = [];
+  if ((r.cancelada ?? 0) > 0) tambien.push(`${r.cancelada} canceladas`);
+  if ((r.no_show ?? 0) > 0) tambien.push(`${r.no_show} no vinieron`);
   $('#hoy-resumen').innerHTML =
-    `<div class="dato"><b>${r.total ?? 0}</b><span>citas hoy</span></div>` +
-    `<div class="dato"><b>${r.confirmada ?? 0}</b><span>por atender</span></div>` +
-    `<div class="dato"><b>${r.cumplida ?? 0}</b><span>cumplidas</span></div>` +
-    `<div class="dato"><b>${(datos.bandeja || []).length}</b><span>mensajes por enviar</span></div>`;
+    `<div class="dato"><b>${r.por_atender ?? r.confirmada ?? 0}</b><span>por atender</span></div>` +
+    `<div class="dato"><b>${r.cumplida ?? 0}</b><span>cumplidas hoy</span></div>` +
+    `<div class="dato"><b>${(datos.bandeja || []).length}</b><span>mensajes por enviar</span></div>` +
+    (tambien.length
+      ? `<p class="mini" style="flex-basis:100%">También hoy: ${tambien.join(' · ')}.</p>`
+      : '');
   const cont = $('#hoy-citas');
+  const vivas = datos.citas.filter(c => c.estado !== 'cancelada');
+  const canceladas = datos.citas.filter(c => c.estado === 'cancelada');
   if (!datos.citas.length) {
     cont.innerHTML = '<div class="vacio">Hoy no hay citas en tu agenda.<br>Cuando una clienta reserve, aparecerá aquí al momento.</div>';
   } else {
-    cont.innerHTML = datos.citas.map(tarjetaCita).join('');
+    let html = vivas.length
+      ? vivas.map(tarjetaCita).join('')
+      : '<div class="vacio">No te queda ninguna cita viva hoy: lo de hoy ya se atendió o se canceló.</div>';
+    if (canceladas.length) {
+      html += `<div class="canceladas-bloque"><h3>Canceladas de hoy · ${canceladas.length}</h3>` +
+        canceladas.map(lineaCancelada).join('') + '</div>';
+    }
+    cont.innerHTML = html;
     cont.querySelectorAll('[data-accion]').forEach(b => b.onclick = () => accionCita(b));
   }
   pintarBandeja(datos.bandeja || []);
+}
+
+function lineaCancelada(c) {
+  return `<div class="cita-linea">
+    <span class="h">${esc(c.hora)}</span>
+    <span class="n">${esc(c.nombre)} · ${esc(c.servicio)}</span>
+    <span class="chip estado-cancelada">Cancelada</span>
+  </div>`;
 }
 
 function tarjetaCita(c) {
@@ -366,7 +458,7 @@ function tarjetaCita(c) {
       <div><span>Tratamiento reciente:</span> ${esc(c.prep.tratamiento_reciente)}</div>
       <div><span>Retinol/ácidos:</span> ${esc(c.prep.retinol)}</div></div>` : '';
   const wa = waDe(c.telefono);
-  const escribir = wa ? `<a class="btn btn-verde btn-peq" href="${wa}" target="_blank" rel="noopener">${ICO.wa} Escribir</a>` : '';
+  const escribir = wa ? `<a class="btn btn-whatsapp btn-peq" href="${wa}" target="_blank" rel="noopener">${ICO.wa} Escribir</a>` : '';
   let acciones = '';
   if (c.estado === 'confirmada') {
     acciones = `<div class="fila-botones">
@@ -405,7 +497,7 @@ async function accionCita(b) {
     : `/api/profesional/citas/${id}/estado`;
   const cuerpo = accion === 'cancelar' ? {} : {estado: accion};
   const {st} = await api('POST', ruta, cuerpo);
-  if (st !== 200) alert('La agenda no aceptó el cambio. Recarga y prueba de nuevo.');
+  if (st !== 200) alert('La agenda no aceptó el cambio. Vuelvo a cargar tu día para que veas el estado real.');
   await cargarHoy();
 }
 
@@ -421,7 +513,7 @@ function pintarBandeja(lista) {
       <div class="texto">${esc(m.texto)}</div>
       <div class="fila-botones">
         ${m.wa_link
-          ? `<a class="btn btn-verde btn-peq" href="${esc(m.wa_link)}" target="_blank" rel="noopener">${ICO.wa} Enviar por WhatsApp</a>`
+          ? `<a class="btn btn-whatsapp btn-peq" href="${esc(m.wa_link)}" target="_blank" rel="noopener">${ICO.wa} Enviar por WhatsApp</a>`
           : '<span class="mini">Sin teléfono guardado de esta clienta.</span>'}
         <button class="btn btn-fantasma btn-peq" data-bandeja="${m.id}" data-estado="enviada">Ya lo envié</button>
         <button class="btn btn-fantasma btn-peq" data-bandeja="${m.id}" data-estado="descartada">Descartar</button>
@@ -437,10 +529,12 @@ function pintarBandeja(lista) {
 
 /* ---------- agenda ---------- */
 async function cargarAgenda() {
-  const {st, datos} = await api('GET', '/api/profesional/agenda?dias=7');
+  let st, datos;
+  try { ({st, datos} = await api('GET', '/api/profesional/agenda?dias=7')); }
+  catch (e) { pintarFallo($('#agenda-dias'), 'Tu agenda no responde ahora mismo.', cargarAgenda); return; }
   const cont = $('#agenda-dias');
   if (st !== 200) {
-    cont.innerHTML = '<div class="vacio">Tu agenda no responde ahora mismo.</div>';
+    pintarFallo(cont, 'Tu agenda no responde ahora mismo.', cargarAgenda);
     return;
   }
   cont.innerHTML = datos.dias.map(d => {
@@ -448,24 +542,37 @@ async function cargarAgenda() {
       return `<div class="dia"><h3>${fmtFecha(d.fecha, true)}</h3>
         <p class="libres">Cerrado (domingo).</p></div>`;
     }
-    const filas = d.citas.length ? d.citas.map(c =>
+    const vivas = d.citas.filter(c => c.estado !== 'cancelada');
+    const canceladas = d.citas.filter(c => c.estado === 'cancelada');
+    const filas = vivas.length ? vivas.map(c =>
       `<div class="fila"><span class="h">${esc(c.hora)}</span>
        <span class="n">${esc(c.nombre)} · ${esc(c.servicio)}</span>
        <span class="e">${ESTADOS[c.estado] || esc(c.estado)}</span></div>`).join('')
-      : '<p class="libres">Sin citas este día.</p>';
+      : '<p class="libres">Sin citas vivas este día.</p>';
     const libres = (d.libres || []).length
       ? `<p class="libres"><b>Huecos libres:</b> ${d.libres.map(x => x.desde + '–' + x.hasta).join(' · ')}</p>`
       : '<p class="libres">Agenda completa: no queda ningún hueco.</p>';
-    return `<div class="dia"><h3>${fmtFecha(d.fecha, true)}</h3>${filas}${libres}</div>`;
+    /* B3 (D2): las canceladas cierran el día, atenuadas y agrupadas;
+       nunca ocupan filas por encima de las vivas ni de los huecos. */
+    const canc = canceladas.length
+      ? `<div class="canc-grupo"><p class="canc-tit">Canceladas · ${canceladas.length}</p>` +
+        canceladas.map(c =>
+          `<div class="fila atenuada"><span class="h">${esc(c.hora)}</span>
+           <span class="n">${esc(c.nombre)} · ${esc(c.servicio)}</span>
+           <span class="e">Cancelada</span></div>`).join('') + '</div>'
+      : '';
+    return `<div class="dia"><h3>${fmtFecha(d.fecha, true)}</h3>${filas}${libres}${canc}</div>`;
   }).join('');
 }
 
 /* ---------- lista de espera ---------- */
 async function cargarEspera() {
-  const {st, datos} = await api('GET', '/api/profesional/espera');
+  let st, datos;
+  try { ({st, datos} = await api('GET', '/api/profesional/espera')); }
+  catch (e) { pintarFallo($('#espera-lista'), 'La lista de espera no responde ahora mismo.', cargarEspera); return; }
   const cont = $('#espera-lista');
   if (st !== 200) {
-    cont.innerHTML = '<div class="vacio">La lista de espera no responde ahora mismo.</div>';
+    pintarFallo(cont, 'La lista de espera no responde ahora mismo.', cargarEspera);
     return;
   }
   const entradas = datos.lista_espera || [];
@@ -485,15 +592,15 @@ async function cargarEspera() {
       </div>
       <div class="fila-botones">
         ${e.wa_link
-          ? `<a class="btn btn-verde btn-peq" href="${esc(e.wa_link)}" target="_blank" rel="noopener">${ICO.wa} Avisar por WhatsApp</a>`
+          ? `<a class="btn btn-whatsapp btn-peq" href="${esc(e.wa_link)}" target="_blank" rel="noopener">${ICO.wa} Avisar por WhatsApp</a>`
           : '<span class="mini">Sin teléfono guardado: no se le puede avisar desde aquí.</span>'}
         <button class="btn btn-fantasma btn-peq" data-espera="${e.id}" data-estado="atendida">Atendida</button>
         <button class="btn btn-fantasma btn-peq" data-espera="${e.id}" data-estado="descartada">Descartar</button>
       </div>
     </article>`;
   cont.innerHTML =
-    (porAvisar.length ? '<h2 style="font-size:17px;font-weight:800;margin:6px 0 10px">Por avisar ahora</h2>' + porAvisar.map(tarjeta).join('') : '') +
-    (esperando.length ? '<h2 style="font-size:17px;font-weight:800;margin:18px 0 10px">En espera de hueco</h2>' + esperando.map(tarjeta).join('') : '');
+    (porAvisar.length ? '<h2 style="font-size:19px;font-weight:800;margin:6px 0 10px">Por avisar ahora</h2>' + porAvisar.map(tarjeta).join('') : '') +
+    (esperando.length ? '<h2 style="font-size:19px;font-weight:800;margin:18px 0 10px">En espera de hueco</h2>' + esperando.map(tarjeta).join('') : '');
   cont.querySelectorAll('[data-espera]').forEach(b => b.onclick = async () => {
     b.disabled = true;
     await api('POST', `/api/profesional/espera/${b.dataset.espera}/estado`,
@@ -522,8 +629,13 @@ async function cargarPanel() {
     const por = emb.value.datos.por_tipo || {};
     contE.innerHTML = ETIQUETAS_EMBUDO.map(([k, et]) =>
       `<div class="celda"><b>${por[k] ?? 0}</b><span>${et}</span></div>`).join('');
+    /* B3: el periodo, declarado con sus fechas exactas. */
+    const dd = emb.value.datos;
+    $('#panel-embudo-periodo').textContent = dd.desde
+      ? `Contado del ${fmtFecha(dd.desde)} al ${dd.hasta ? fmtFecha(dd.hasta) : 'hoy'}.`
+      : '';
   } else {
-    contE.innerHTML = '<div class="vacio">El embudo no responde ahora mismo.</div>';
+    pintarFallo(contE, 'El embudo no responde ahora mismo.', cargarPanel);
   }
   const contS = $('#panel-servicios');
   if (serv.status === 'fulfilled' && serv.value.st === 200) {
@@ -537,7 +649,7 @@ async function cargarPanel() {
       `<b>Horario:</b> lunes a viernes ${esc(h.lunes_viernes || '')} · ` +
       `sábados ${esc(h.sabado || '')} · domingos ${esc(h.domingo || '')}.`;
   } else {
-    contS.innerHTML = '<div class="vacio">Tu carta no responde ahora mismo.</div>';
+    pintarFallo(contS, 'Tu carta no responde ahora mismo.', cargarPanel);
   }
 }
 

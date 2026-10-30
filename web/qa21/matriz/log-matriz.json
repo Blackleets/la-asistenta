@@ -1,0 +1,144 @@
+{
+ "fase": "QA21-matriz",
+ "filas": [
+  {
+   "id": "buscador-vacio",
+   "ok": false,
+   "error": "sin aviso de vacío: Diseño de cejasNatural y definido, a tu medida18 €25 minReservarProbar con mi fotoOmbré Brows HennaColor y definición con henna30 €65 minReservarProbar con mi f"
+  },
+  {
+   "id": "pack-e2e",
+   "ok": true,
+   "datos": {
+    "sel": [
+     "Diseño de cejas",
+     "Ombré Brows Henna"
+    ],
+    "fecha": "2026-10-31",
+    "hora": "12:00",
+    "codigo": "AS-AATW",
+    "icsVisible": true,
+    "detalle": "Diseño de cejas + Ombré Brows Henna · 48 €sábado, 31 de octubre a las 12:00 (90 min)Para QA21 Pack",
+    "barra": {
+     "lineasNombre": 1,
+     "altoBarra": 95,
+     "precio": "48 €"
+    },
+    "resumenPaso3": {
+     "total": "48 €",
+     "duracion": "90 min",
+     "lineas": [
+      "Diseño de cejas · 25 min18 €",
+      "Ombré Brows Henna · 65 min30 €"
+     ]
+    }
+   }
+  },
+  {
+   "id": "enlace-ver",
+   "ok": false,
+   "error": "sin token del pack"
+  },
+  {
+   "id": "enlace-prep",
+   "ok": false,
+   "error": "el prep no confirmó el guardado"
+  },
+  {
+   "id": "enlace-reagendar",
+   "ok": false,
+   "error": "el reagendado no confirmó: undefined"
+  },
+  {
+   "id": "pro-hoy",
+   "ok": true,
+   "datos": {
+    "fecha": "2026-10-30",
+    "hora": "10:00",
+    "codigo": "AS-AATX"
+   }
+  },
+  {
+   "id": "espera-domingo",
+   "ok": false,
+   "error": "el alta en espera no confirmó: Escribe tu nombre para apuntarte."
+  },
+  {
+   "id": "error-409",
+   "ok": true,
+   "datos": {
+    "horaObjetivo": "13:30",
+    "mensaje": "Ese hueco se ocupó mientras reservabas. Huecos libres ahora: . Vuelve a elegir la hora.",
+    "ocupacionCancelada": true
+   }
+  },
+  {
+   "id": "token-inventado",
+   "ok": true,
+   "datos": {
+    "irAsistenta": true,
+    "whatsapp": true,
+    "texto": "LA ASISTENTA Tu cita, siempre a mano Este es tu enlace personal: consúltala, prepárala, cámbiala o cancélala cuando lo necesites. Este enlace no corresponde a n"
+   }
+  },
+  {
+   "id": "foto-invalida",
+   "ok": true,
+   "datos": {
+    "mensaje": "Esa foto no es JPG, PNG ni WebP. Prueba con otra."
+   }
+  },
+  {
+   "id": "guardar-look",
+   "ok": true,
+   "datos": {
+    "recomendado": "Diseño de cejas"
+   }
+  },
+  {
+   "id": "guardados-y-perfil",
+   "ok": true,
+   "datos": {
+    "guardados": "Diseño de cejas18 € · 25 min · Ari Vivas BeautyReservar",
+    "looks": "Diseño de cejas29 de octubre · Tienes unas cejas preciosas, muy densas y pobladas que enmarcan tu mirada con mucha personalidad. Esta es solo una primera orient",
+    "perfilEstado": "Guardado. Solo vive en este dispositivo."
+   }
+  },
+  {
+   "id": "mi-cita",
+   "ok": false,
+   "error": "Mi cita no muestra el pack: Diseño de cejas · AS-AATXviernes, 30 de octubre a las 10:00Para QA21 Pro"
+  },
+  {
+   "id": "profesional",
+   "ok": false,
+   "error": "sin agradecimiento en bandeja: PRUEBA MECANICAS 2 · Diseño de cejas · 2026-11-12 AS-AAKT ¡Hola PRUEBA! 💖 Soy Arianna, de Ari Vivas Beauty. Gracias por venir hoy por tu Diseño de cejas: ha sido un placer atenderte. Si necesitas cualquier retoque o tu "
+  },
+  {
+   "id": "pack-cancelar",
+   "ok": false,
+   "error": "sin token del pack"
+  }
+ ],
+ "consola": [
+  {
+   "tipo": "log",
+   "txt": "Failed to load resource: the server responded with a status of 409 (Conflict)"
+  },
+  {
+   "tipo": "log",
+   "txt": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  },
+  {
+   "tipo": "log",
+   "txt": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+  }
+ ],
+ "resumen": {
+  "filasOk": 7,
+  "filasTotal": 15,
+  "erroresConsola": 3,
+  "packCodigo": "AS-AATW",
+  "proHoyCodigo": "AS-AATX"
+ }
+}

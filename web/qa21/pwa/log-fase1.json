@@ -1,0 +1,21 @@
+{
+ "fase": "QA21-pwa-fase1",
+ "consola": [],
+ "resultado": {
+  "servido": "la-asistenta-shell-v29",
+  "swActivo": true,
+  "hayReg": true,
+  "activoEstado": "activated",
+  "esperando": false,
+  "instalando": false,
+  "controlador": true,
+  "caches": [
+   "la-asistenta-shell-v29"
+  ],
+  "app": {
+   "reco": true,
+   "pastillas": 8
+  }
+ },
+ "erroresConsola": 0
+}

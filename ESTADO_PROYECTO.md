@@ -2242,3 +2242,2040 @@ Se suman a lo pendiente: `agenda/agenda_api.py`,
 `web/qa18/DEFECTOS_QA18.md` (cierre de abiertos) y
 `web/qa18/LIMPIEZA_D05.md`. Los respaldos `*.bak-20261029-d02b`
 y la copia de BD de `backups/` quedan fuera del repo.
+
+## 46. PAQUETE DE ENTREGA DEL HACKATHON + PRE-ENSAYO TÉCNICO QA19 (29/10/2026)
+
+Con la app verificada (QA18 + cierre §45), este paquete prepara
+TODO lo que el jurado ve además de la app, para que el 04/11 sea
+pegar y subir. Entregable: **`ENTREGA_HACKATHON.md`** (raíz del
+proyecto, en inglés, listo para pegar en el formulario): nombre y
+tagline, descripción corta y larga (problema, solución, piloto
+real), «How we used Meta technology» (Muse Spark como cerebro en
+producción sobre Baseten en sus dos puestos — análisis web y
+operadora de WhatsApp sobre Hermes —; Muse Image + SAM 3.1 como
+integración preparada y etiquetada como tal), impacto con las
+cifras de MEDICIONES.md y las baterías, «built with», enlaces
+(repo + app en vivo) y el guion final del vídeo de 3 minutos
+alineado con el runbook `ENSAYO_Y_DEMO.md` §2 (qué se graba en el
+ensayo del 02/11, en qué orden y con qué textos en pantalla). El
+propio documento marca con ⚠️ PENDING los campos no cerrados:
+**la URL del vídeo** (se graba tras el ensayo del 02/11) y **la
+confirmación viva de WhatsApp** (mensaje real de Lee + conversación
+completa, el 02/11). Regla de oro aplicada: solo afirmaciones
+verificadas; lo preparado-y-dormido va etiquetado.
+
+### Pre-ensayo técnico de la secuencia de demo (QA19)
+
+Script `web/qa19/preensayo.mjs` (CDP a 412×915 contra la app real
+en la máquina, misma plomería que QA18; log
+`web/qa19/log-preensayo.json` y 8 capturas `p01…p08` en
+`web/qa19/`). **Sin gastar ni un mensaje de Twilio**: la pata de
+WhatsApp es el ensayo del 02/11. Resultado: **8/8 pasos OK, 0
+errores de consola, scrollW 412 en todos los pasos** (sin desborde
+horizontal). La cita creada se llamó «Pre-ensayo Demo» y quedó
+**cancelada** al terminar, como siempre.
+
+| # | Paso | Resultado | Tiempo |
+|---|---|---|---|
+| 1 | Abrir la app | OK | 1,9 s (interactiva en 715 ms; home según espec, SW controlando) |
+| 2 | Buscar un servicio («henna») | OK | 1,5 s (aterriza en Explorar con «Ombré Brows Henna» visible) |
+| 3 | Ver el Recomendado | OK | 2,7 s (carrusel de 4 tarjetas: salón + Diseño 18 € · Henna 30 € · Lamination 45 €; el deslizamiento funciona, scrollLeft 333) |
+| 4 | Análisis de cejas con la foto de ejemplo | OK | 20,0 s el paso; **análisis 15,1 s de extremo a extremo en la interfaz** (12,26 s de modelo, lo que la propia app declara en su aviso) |
+| 5 | Reservar el servicio recomendado | OK | 4,7 s («Reservar este servicio» siembra el paso 2; cita AS-AAKU, hoy 29/10 10:00 — ver hallazgo) |
+| 6 | Confirmación con código y enlace mágico | OK | 3,1 s (el enlace abre la cita: CONFIRMADA, AS-AAKU, datos correctos) |
+| 7 | Vista de la profesional en su panel | OK | 4,9 s (clave del negocio; AS-AAKU localizada en «Hoy») |
+| 8 | Cancelar la cita de la demo | OK | 6,2 s (cancelada desde el enlace; sigue cancelada tras recargar) |
+
+Detalle del paso 4: la puerta de consentimiento se verificó
+(botón deshabilitado hasta aceptar); Spark recomendó **Diseño de
+cejas (18 € · 25 min)** con alternativa Brow Lamination, y la
+pantalla de resultado declara ella misma que la propuesta visual
+aún no está disponible y que no se muestran imágenes falsas — la
+etiqueta honesta de Muse Image/SAM funciona en producción, no
+solo en los documentos. **Entrada para la decisión del runbook
+(§2, plano 1:50–2:15)**: 15,1 s está muy por debajo del criterio
+de ~45 s para grabar el análisis EN VIVO (QA18 midió 12,2 s el
+mismo día); el plan es grabarlo en vivo en el ensayo, con el plan
+B etiquetado del runbook si Baseten entra en racha lenta.
+
+### Hallazgo menor (documentado, NO parcheado en este paquete)
+
+`GET /api/disponibilidad` para el día en curso devuelve la jornada
+completa **sin filtrar las horas ya pasadas**: a las ~16:25 el
+primer hueco ofrecido de hoy era las 10:00, y la reserva se
+completó en esa hora pasada (así lo eligió el script, que toma el
+primer hueco; una persona elige un hueco con sentido). Sin impacto
+en la demo ni en el ensayo (se elige hueco futuro), pero es una
+observación real de producto. **Recomendación**: filtrar en la
+disponibilidad las horas pasadas del día en curso, con su prueba
+en la batería web. No se ha parcheado aquí por disciplina de
+alcance: el núcleo de reservas no se toca en semana de entrega
+salvo decisión expresa del principal.
+
+### Qué falta EXACTAMENTE para entregar
+
+1. **Ensayo general 02/11 con Twilio real** (runbook
+   `ENSAYO_Y_DEMO.md` §1, 13 mensajes de 100 presupuestados):
+   incluye el mensaje real de Lee al sandbox, que es el gesto que
+   desbloquea la fila «WhatsApp real» de la matriz — hasta
+   entonces sigue marcada NO PROBABLE SIN LEE, sin disfraz.
+2. **Grabación del vídeo de 3 min** (tarde del 02/11 o 03/11,
+   según el runbook §2) y su URL, que rellena el campo ⚠️ de
+   `ENTREGA_HACKATHON.md`.
+3. **Congelación del repo el 04/11**: diff pequeño sobre la sync
+   auditada de hoy (commit `0eddb61`): notas del ensayo,
+   `ENTREGA_HACKATHON.md`, este ESTADO y `web/qa19/`, tras la
+   auditoría de secretos por dos vías de siempre. Objetivo
+   interno: entregado el 04/11 a las 23:00 Madrid (deadline
+   oficial: 04/11 21:00 ET = 05/11 03:00 Madrid).
+
+No bloquean la entrega (quedan como están declarados): la
+rotación del token de la agenda (preparada, espera el OK de Lee)
+y la clave de equipo de Meta (Muse Image/SAM 3.1 se entregan
+declarados como integración preparada).
+
+### Nota de sync para el repo público
+
+Se suman a lo pendiente de la congelación del 04/11:
+`ENTREGA_HACKATHON.md` y `web/qa19/` (script, log y capturas del
+pre-ensayo). La cita AS-AAKU del pre-ensayo consta «cancelada» en
+la agenda: la agenda del piloto sigue con **0 citas vivas**.
+
+## 47. CIERRE DEL HALLAZGO QA19 — HUECOS EN EL PASADO (29/10/2026)
+
+El hallazgo de §46 queda **CERRADO**: ninguna vía puede ya ofrecer
+ni crear una cita cuyo inicio ya pasó. La hora que manda es la del
+salón (Europe/Madrid), no la UTC del servidor — la máquina vive en
+UTC y sin esta distinción el filtro habría fallado cada tarde.
+
+**Piezas** (solo `agenda/`; ni `web/index.html` ni
+`web/web_server.py` se han tocado en esta pasada):
+
+- `agenda_comun.py`: `ZONA_SALON`, `ahora_salon()`,
+  `inicio_en_pasado(fecha, hora)` y `corte_hoy(fecha)` — la regla
+  vive una sola vez y la comparten API y MCP.
+- **Disponibilidad**: `huecos_de` (API — los huecos del enlace
+  mágico) excluye los inicios <= ahora cuando la fecha es HOY;
+  días futuros y domingo cerrado intactos, lógica de solapes sin
+  tocar. El MCP (`consultar_disponibilidad`) filtra igual, y las
+  «alternativas» de los 409 de creación/reagendación pasan por el
+  mismo corte: ninguna respuesta de la agenda ofrece ya pasado.
+- **Creación**: guarda dentro de la transacción de `POST /citas`,
+  DESPUÉS de resolver la idempotencia — un reintento legítimo
+  sigue devolviendo su cita original aunque su hora haya quedado
+  atrás; una creación NUEVA con inicio en el pasado → **409 «Esa
+  hora ya pasó: elige un hueco a partir de la hora actual o de
+  otro día»**, sin cita creada. El MCP (`registrar_cita`) rechaza
+  con el ValueError equivalente, con instrucciones a Hermes de
+  ofrecer el próximo hueco libre. Y **reagendar** por el enlace a
+  una hora pasada → el mismo 409 (puerta simétrica en la misma
+  función: mover una cita al pasado era el mismo agujero).
+
+**Evidencia antes/después (máquina real, jueves 29/10)**:
+
+- ANTES (16:31): huecos de hoy por la vía del enlace = **39,
+  primero 10:00**; crear hoy a las 10:00 → **201** (cita creada
+  en hora pasada, reproducido el hallazgo de QA19).
+- DESPUÉS (16:33): huecos de hoy = **12, primero 16:45** (el
+  siguiente cuarto de hora); crear hoy a las 10:00 → **409 «Esa
+  hora ya pasó»**; la creación futura sigue intacta (201).
+- MCP verificado contra una COPIA de la BD (la real no se tocó):
+  registrar hoy 10:00 y ayer 12:00 → ValueError «ya pasó»;
+  disponibilidad de hoy toda futura (12 libres, primera 16:45);
+  registro futuro normal OK.
+- Despliegue: API de agenda reiniciada sola (pid 99376) y
+  **gateway de Hermes relanzado** con `run-logs/relanzar_gateway.py`
+  (gateway pid 99529, MCP nuevo pid 99635) para que la guarda
+  viva también en la vía WhatsApp; webhook y web intactos,
+  `/salud` ×3 en verde.
+
+**Pruebas**: 3 nuevas en `pruebas_api_guarda.py` (disponibilidad
+de hoy sin pasados por la vía del enlace; crear en pasado → 409
+«ya pasó»; el intento no crea ninguna cita). **Baterías finales:
+web 32/32 · guarda 11/11 (antes 8/8) · mecánicas 23/23 · fase2
+22/22.**
+
+Incidencia de la pasada (ajena al arreglo): el primer pase de la
+batería web dio 30/31 porque el hueco 30/10 10:00 estaba ocupado
+por la cita **312 «PRUEBA WEB E2E» confirmada**, residuo de una
+pasada abortada de la propia batería (creada 15:34 UTC sin llegar
+a su limpieza del paso 9). Cancelada como artefacto de prueba
+— con la regla D-05: marcador inequívoco, cancelar y nunca
+borrar — y la batería repetida: **32/32**. La guarda nueva no
+podía ser la causa: solo rechaza inicios pasados y ese hueco es
+futuro.
+
+**Nota honesta de alcance**: la lista de huecos que pinta la web
+la calcula `web_server.py` en local (no pasa por `huecos_de`).
+Lo que este arreglo garantiza en la capa autoritativa de la
+agenda es que ninguna superficie puede CREAR ni REAGENDAR a una
+hora pasada — la invariante de fiabilidad — y que las
+disponibilidades servidas por la agenda (enlace y MCP) ya no
+ofrecen pasado. El filtro de la lista web pertenece al trabajo
+en curso sobre `web_server.py`.
+
+Respaldos `*.bak-20261029-pasado` (local y máquina) de los cuatro
+ficheros tocados. **Nota de sync** para la congelación del
+04/11: se suman `agenda/agenda_comun.py`, `agenda/agenda_api.py`,
+`agenda/mcp_agenda.py` y `agenda/pruebas_api_guarda.py`.
+
+## 48. CABLEADO META COMPLETO — el probador visual de cejas queda dormido pero enchufado (29/10/2026)
+
+Orden de Lee (16:23): «dejar cableado todo para cuando tengamos
+[la clave]; deja la app como Fresha manteniendo nuestro enfoque».
+Fontanería invisible: **la app no cambia visualmente en nada**
+sin clave (verificado abajo); el día que la clave de equipo de
+Meta exista, el probador visual se enciende sin obra siguiendo
+`ACTIVACION_META.md`.
+
+**Piezas nuevas:**
+
+- `probador/proveedor_meta.py` — cliente de la Meta Model API
+  (`https://api.meta.ai/v1`, Bearer) cumpliendo el contrato de
+  INTERFACES.md §4: `listar_modelos()`, `editar_cejas()` (Muse
+  Image, 0,01 $/imagen oficial) y `segmentar()` (SAM 3.1,
+  0,0025 $/imagen), con la instrucción de edición construida SOLO
+  desde el análisis validado de Spark (estrategia A del benchmark
+  H1). La clave se lee SOLO del entorno del servidor (variable
+  `META_MODEL_API_KEY` o `web/meta.env`, 0600, solo máquina), en
+  cada llamada y sin caché: nunca está en el repo ni en los logs.
+  Errores mapeados: 401 → `ClaveNoValida` sin reintentos (estado
+  interno del operador); 429 → espera (Retry-After) y reintentos
+  acotados → `LimiteAlcanzado`; 5xx/timeout/red → reintentos
+  acotados → `ErrorProveedor`; sin clave →
+  `ProveedorNoConfigurado` sin hacer ninguna llamada.
+  ⚠️ **A confirmar con la primera llamada real** (marcado en el
+  código y en ACTIVACION_META.md, no inventado): la forma exacta
+  de la petición de edición de `muse-image-1.0` y la invocación
+  de SAM 3.1 — la documentación oficial recopilada (BENCHMARK_H1
+  §1.2) no las fija; SAM consta como protocolo de streaming con
+  librerías oficiales (meta-models/meta-sam). Si difieren, se
+  ajusta solo ese fichero.
+- `probador/stub_meta.py` — stub local de api.meta.ai para
+  probar sin clave y sin gasto (modelos, Responses con imagen,
+  máscara SAM, y comportamientos 401/429/lenta gobernados por la
+  clave falsa que reciba).
+- `probador/test_proveedor_meta.py` — 13 pruebas contra el stub
+  por HTTP real: petición bien formada, respuesta procesada y
+  payload listo para guardarse como look, errores mapeados y el
+  interruptor volcándose con claves falsas (entorno y fichero).
+
+**Cableado en la web (sin cambio visual sin clave):**
+
+- `GET /api/capacidades` expone `probador_visual_cejas.disponible`
+  según haya clave en el entorno. `web/modulos.json` NO se toca
+  (es estático; la capacidad es dinámica y vive en este endpoint).
+- El trabajo de análisis (`ejecutar_analisis`) devuelve el payload
+  de siempre más `visual: {disponible: false}`; el aviso y la
+  pantalla quedan **exactamente** como estaban. Con capacidad, el
+  mismo trabajo encadena `editar_cejas()` y el payload trae la
+  imagen; si la generación falla, el análisis se entrega igual y
+  el fallo queda en el log interno (`visual_clave_no_valida`,
+  `visual_error`) — a la clienta solo le llega un mensaje
+  genérico, jamás el 401 ni la palabra «clave».
+- `index.html`: bloque «PROPUESTA VISUAL · ORIENTATIVA» en el
+  resultado y párrafo de consentimiento que nombra a Meta (Muse
+  Image), ambos `display:none` por defecto y solo visibles si el
+  payload/la capacidad los trae (INTERFACES.md §2: el proveedor
+  se cuenta ANTES de enviar la foto). «Guardar este look» guarda
+  también la imagen GENERADA (nunca la foto original; tope de
+  1,5 MB para no reventar el almacenamiento del dispositivo) y
+  *Mis looks* la enseña en miniatura. SW → shell **v17**.
+
+**Verificación (sin clave real y sin gasto; prohibido llamar a
+api.meta.ai en esta fase y no se ha llamado):**
+
+- Probador: **18/18** (13 nuevos de Meta + 5 de FASHN), en local
+  y en la máquina.
+- **Vuelco del interruptor contra la máquina real: 15/15**
+  (script en `run-logs/flip_meta.py`): instancia de PRUEBA de la
+  web (puerto 8099) con clave falsa apuntando al stub (18123) —
+  `/api/capacidades` vuelca a `disponible: true`; análisis REAL
+  con la foto de ejemplo → payload con visual listo de
+  `meta-model-api`/`muse-image-1.0`, imagen del stub procesada y
+  aviso nuevo; con la clave rechazada (401) → análisis entregado
+  igual, visual en error genérico sin filtrar nada, y el log
+  interno registra `visual_clave_no_valida`. Producción (8090)
+  respondió `disponible: false` antes y después, intacta; el
+  fichero temporal de entorno se borró y los puertos de prueba
+  quedaron libres.
+- **Baterías finales: web 32/32 · guarda 11/11 · mecánicas
+  23/23 · fase2 22/22.** La guarda estrenó hoy sus 3 pruebas de
+  «pasado» (§47) y su primera pasada contra el nuevo código dio
+  10/11 por la cita fantasma **302 «PRUEBA PASADO HOY»**, residuo
+  de la evidencia «antes» de §47 (creada a las 16:31 con el 201
+  que demostraba el hallazgo): cancelada con la regla D-05
+  (marcador inequívoco, cancelar y nunca borrar) y la batería
+  repetida a 11/11.
+
+**Queda pendiente, literalmente, solo la clave:** Lee la crea en
+dev.meta.ai y la guarda en la bóveda (paso 0 de
+`ACTIVACION_META.md`); después: escribirla en `web/meta.env`
+(0600), `GET /v1/models` de solo lectura, confirmar las formas
+de Muse Image/SAM, humo con la foto de ejemplo (≈0,01 $) y el
+**benchmark H1** (8 fotos autorizadas de BENCHMARK_H1 §3.1 —
+IMG-02…06 por descargar, IMG-07/08 con consentimiento escrito —;
+coste estimado ≈0,86 $, presupuesto 2 $). Hasta entonces la
+integración se sigue entregando declarada como preparada, ahora
+con la fontanería probada de punta a punta contra el stub.
+
+Respaldos `*.bak-20261029-meta` (local y máquina) de
+`web/web_server.py`, `web/index.html`, `web/sw.js` y
+`probador/INTERFACES.md`. **Nota de sync** para la congelación
+del 04/11: se suman `probador/proveedor_meta.py`,
+`probador/stub_meta.py`, `probador/test_proveedor_meta.py`,
+`web/web_server.py`, `web/index.html`, `web/sw.js`,
+`probador/INTERFACES.md` y `ACTIVACION_META.md`.
+
+## 49. FILTRO GEMELO EN LA LISTA WEB — cerrado el cabo de §47/§48 (29/10/2026)
+
+La nota honesta de alcance de §47 queda **CERRADA**: la lista de
+huecos que pinta la web — que `web/web_server.py` calcula en local,
+sin pasar por `huecos_de` — ya no enseña horas pasadas de HOY. La
+agenda sigue siendo la capa autoritativa (crear/reagendar en
+pasado → 409) y ahora ninguna superficie ni siquiera OFRECE el
+pasado.
+
+**Pieza** (solo `web/web_server.py` y su batería; ni `agenda/`,
+ni `web/index.html`, ni `probador/` tocados):
+
+- `_cargar_agenda_comun()`: carga `agenda/agenda_comun.py` por
+  ruta (el mismo patrón importlib del proveedor Meta de §48) y
+  `_corte_hoy(fecha)` delega en `agenda_comun.corte_hoy` — la
+  regla «ya pasó» (Europe/Madrid) sigue viviendo UNA sola vez, en
+  la agenda, y la web la comparte en vez de copiarla. Si el módulo
+  no se pudiera cargar, la réplica local usa la misma zona
+  (`_zona_salon`) y la misma regla: el filtro nunca desaparece en
+  silencio.
+- `_huecos_con_duracion` (el núcleo compartido por un servicio y
+  por los packs): tras calcular los inicios libres como siempre —
+  las duraciones, también las sumadas de un pack, ya bloquearon
+  al generar cada inicio —, si la fecha es HOY filtra los inicios
+  con minuto <= corte. Días futuros y domingo cerrado, intactos.
+  El filtro cubre también las «alternativas» de los 409 de la
+  web, que salen de esta misma función (como en la agenda, §47).
+
+**Evidencia antes/después (máquina real, jueves 29/10, tarde)**:
+
+- ANTES (16:39): disponibilidad web de hoy, Diseño de cejas =
+  **39 huecos, primero 10:00** (a la vista de la clienta, horas
+  que la agenda habría rechazado al reservar); pack de hoy:
+  35, primero 10:00.
+- DESPUÉS (16:41): hoy Diseño = **12 huecos, primero 16:45** —
+  el mismo resultado que la vía de la agenda en §47 —; pack de
+  hoy: **8, primero 16:45, último 18:30** (la duración sumada
+  de 90 min se sigue respetando: 18:30 + 90 min = cierre
+  20:00). Controles: lunes futuro 09/11 intacto (39 huecos,
+  10:00–19:30) y domingo 01/11 «domingo cerrado».
+- Despliegue: reiniciada SOLO la web (pid 98876 → 100693);
+  webhook (8080) y agenda (8081) intactos, `/salud` ×3 en
+  verde, SHA-256 local = máquina en los dos ficheros tocados.
+
+**Pruebas**: la batería web suma la prueba **15** (dinámica, como
+la gemela de la guarda: disponibilidad de HOY sin ningún inicio
+<= ahora, en hora del salón — en su primera pasada: «12 huecos,
+primero=16:45, ahora=16:44») y su prueba 2 se mueve del 29/10 —
+que pasó a ser «hoy» — al lunes futuro 09/11, conservando su
+sentido (día completo, 10:00–19:30). **Baterías finales: web
+33/33 (antes 32/32) · guarda 11/11 · mecánicas 23/23.**
+
+Respaldos `*.bak-20261029-webpasado` (local y máquina) de
+`web/web_server.py` y `web/pruebas_web.py`. **Nota de sync**
+para la congelación del 04/11: se suman `web/web_server.py` y
+`web/pruebas_web.py`.
+
+## 50. PLAN ANTI-SUEÑO — vigilia programada para ensayo, entrega y días del jurado (29/10/2026)
+
+**Orden de Lee** (29/10 18:01: «Monta el plan anti-sueño para los días
+del jurado»): que ningún juez — ni el ensayo del 02/11 — encuentre la
+app dormida. La máquina se pausa a los 30 min sin uso y una visita web
+NO la despierta; el único despertar fiable es el `wake` del helper.
+
+**Pieza ejecutora**: `bin/vigilia.sh` (en el workspace, que sobrevive
+a los reemplazos de VM; copia también en la máquina). En cada pasada:
+lee el estado de la máquina por API; si no está `running`, la despierta
+(`wake`) y espera a que conste `running` (máx. ~3 min); comprueba
+`/salud` de los tres servicios dentro de la máquina (8080 webhook ·
+8081 agenda · 8090 web) y las URLs públicas de 8080 y 8090; si algo
+falla, espera 20 s y reintenta UNA sola vez (con nuevo despertar si la
+máquina volvió a caer). Deja UNA línea por ejecución en
+`run-logs/vigilia.log` (hora Europe/Madrid, estado inicial, wake,
+código por servicio, resultado y duración) y sale 0 si todo está sano,
+1 si algo quedó caído tras el reintento.
+
+**Prueba real (29/10 18:03)**: la máquina llevaba suspendida desde
+las 17:15 (auto-suspensión por inactividad). Una sola ejecución:
+`inicial=suspended wake=ok intento=1 8080=200 8081=200 8090=200
+ext8080=200 ext8090=200 resultado=OK duracion=16s`. De paso, el
+subcomando `wake` del helper `custom.instabox` queda **verificado**
+(la doc del conector lo daba por no probado): despierta en segundos y
+los procesos preservados vuelven sirviendo sin relanzar nada.
+
+**Crons creados** (sin duplicar: revisado `cron.list` — no existía
+ninguna vigilia de esta máquina; owner
+`goal:meta-ai-hackathon-registration`; intervalo de 20 min en
+Europe/Madrid; como el programador no expresa rangos de fechas, la
+ventana y la caducidad van como compuerta dentro de las instrucciones
+de cada cron, verificadas con `cron.view`):
+
+- `la-asistenta-vigilia-trabajo` — anclado al **02/11 09:00**. Activo
+  SOLO el **02/11** (ensayo general) y el **04/11** (entrega), de
+  **09:00 a 23:59**: la máquina despierta y sana durante toda la
+  jornada. **Última ejecución útil: 04/11/2026.**
+- `la-asistenta-vigilia-jurado` — anclado al **05/11 14:00**. Activo
+  del **05/11 al 10/11**, de **14:00 a 02:00** (ventana pensada para
+  el jurado de EE. UU.; anuncio de ganadores 09–10/11; la ventana de
+  la noche del 10/11 termina el 11/11 a las 02:00).
+
+Ambos: **silencio total si todo está sano**; informan al chat SOLO si
+el despertar falla o un servicio queda caído tras el reintento.
+
+**Caducidad y retirada prevista: 11/11/2026.** Ambos crons quedan
+listados para retirarse ese día (tras la última ventana del jurado).
+Sus instrucciones declaran la caducidad: si una ejecución cae fuera de
+fecha, no despiertan la máquina e informan una sola vez de que el cron
+ha caducado y debe retirarse.
+
+**Nota**: la vigilia NO sustituye el calentamiento manual del runbook
+de ensayo (§1 de `ENSAYO_Y_DEMO.md`, que ya declara esta cobertura en
+su pre-vuelo): es la red de seguridad entre pasadas, no el
+procedimiento de la jornada.
+
+## 51. PASE ESTRELLA DE PULIDO — QA20 (29/10/2026, orden de Lee «Mejora más la app»)
+
+Dirección del pase (CTO): NADA de funciones nuevas ni rediseños. La
+app se mejora en cómo se SIENTE y cómo CARGA, que era donde quedaba
+distancia con una app de pago. La home conserva la anatomía de la
+espec (intocable en estructura) y la lógica de agenda no se ha
+tocado. Vara de medir: los skills de Emil Kowalski instalados
+(design-eng, animate, mobile-native, animation-vocabulary, break-ui).
+Respaldos fechados `*.bak-20261029-pulido`: `web/index.html` y
+`web/sw.js` (local y máquina) y `web/pruebas_web.py` (máquina).
+
+**Hallazgo previo (no causado por el pase): la batería web era
+frágil a la hora del día.** La primera pasada base dio 28/33 sin
+haber tocado aún código de la app: el bloque profesional creaba su
+cita de hoy a la hora FIJA «19:30», y pasadas las 19:30 la guarda de
+§47 la rechazaba (409) y cascaban 5 fallos. Robustizada la batería
+SIN relajar aserciones ni cambiar el total (33): la cita va al
+ÚLTIMO hueco libre real de hoy (el papel del 19:30) o, si hoy no
+queda ninguno, al PRIMERO del siguiente día con huecos, y la
+limpieza D-02b la localiza con el mismo criterio (hoy o agenda de 7
+días). Las 2 citas residuales de la depuración (ids 349 y 352,
+«PRUEBA PROFESIONAL», 30/10 10:00 y 10:30) quedaron CANCELADAS,
+nunca borradas (regla D-05). Una rearrancada solo de la web reinició
+los contadores de rate-limit (precedente §45; límites intactos).
+Base verificada antes de pulir: **33/33**.
+
+**Movimiento con oficio.** Tokens `--ease-out` y `--ease-in-out`
+(curvas fuertes de Emil) en `:root`; fuera el `ease` pelado de la
+UI. Pantallas a 240 ms; los pasos de la reserva deslizan según la
+dirección (clase `atras` en `mostrarPaso`); `ir()` hace scroll
+INSTANTÁNEO (el smooth luchaba con la entrada de cada pantalla).
+Estados de pulsado completados donde faltaban o saltaban sin
+transición (buscador, nav, flechas y días del calendario, flotantes
+del salón, tarjetas de módulo, botón de vídeos, guardar, segmentos,
+chips, enlaces, botones de «Mis looks») y hover de `.btn-primario`
+solo tras `@media (hover:hover) and (pointer:fine)`. El radio de la
+hora tiene el punto SIEMPRE presente y crece `scale(0)→scale(1)` al
+elegir (verificado por estilo computado: 0 → 1). Los indicadores de
+paso tiñen en transición y el número hace un micro-pop al pasar a
+«hecho»; la barra de progreso tiñe en 300 ms. Modal de TikTok con
+velo en fundido y caja desde `scale(.97)`. Carrusel con
+`scroll-snap-stop: always` y `overscroll-behavior-x: contain`
+(también la fila de vídeos). Base de sensación nativa:
+`-webkit-tap-highlight-color: transparent`, `overscroll-behavior:
+none`, `touch-action: manipulation` y `user-select: none` en
+botones. `prefers-reduced-motion` sigue respetado por el bloque
+global existente. Detectado y retirado un duplicado propio:
+`.nav-btn:active` ya existía con scale(.96) más abajo en la hoja;
+mi scale(.92) quedaba muerto por cascada — manda el .96 original.
+
+**Carga que se nota.** Las fotos APARECEN con fundido de 350 ms
+(clase `.desv` + helper `suavizar(img)`: tarjetas dinámicas del
+salón, del Recomendado y de Explorar, y las estáticas — hero del
+salón, tarjeta de análisis, The Lounge y las 5 miniaturas de
+vídeo), con fondo tinte violeta en los huecos para que nunca se vea
+un rectángulo blanco; el hueco ya lo reservaba el aspecto de cada
+tarjeta, así que el fundido no mueve nada. Esqueletos con la FORMA
+del contenido (`.sk-foto`): bloque 4:3 en el carrusel, fotos de
+170 px en Explorar, filas en la carta del salón, en servicios de la
+reserva y en «Más en camino»; `cargarHuecos()` muestra esqueleto
+mientras consulta. **Tiempos de Inicio** (3 pasadas con caché y SW
+limpios, navegador local de la máquina): hasta el carrusel poblado
+434 ms → **432 ms** de mediana; `domInteractive` de la primera
+pasada 307 → 119 ms. No empeora; el cambio es de percepción, no de
+red.
+
+**La espera del análisis, por fases honestas.** Mientras Spark
+trabaja sus ~12–15 s reales, el texto cruza por tramos con fundido:
+«Enviando tu foto al análisis…» (0–3 s) · «Mirando la forma de tus
+cejas…» (3–9) · «Comparando con los diseños del salón…» (9–18) ·
+«Eligiendo el servicio que mejor encaja…» (18–35) · «Ultimando tu
+recomendación…» (35–75) · «Está tardando más de lo habitual, pero
+sigue en marcha…» (>75). PROHIBIDO y no hecho: porcentajes o barras
+que no midan nada; el contador de segundos reales se queda.
+Verificado en el flujo real (foto de ejemplo): a los 2 s «Enviando
+tu foto…», a los 9 s «Comparando con los diseños del salón…»; fotos
+fijas con el panel en cuadro a 3,5 s y 11 s en
+`web/qa20/despues/analisis-espera-fase{1,2}.png`. Latencia del
+modelo idéntica antes/después: 12,3 s (el pase no toca el modelo).
+
+**Micro-cierres.** La confirmación entra en secuencia sobria: el
+círculo hace pop (450 ms), el trazo del ✓ se DIBUJA
+(`stroke-dashoffset`, delay 180 ms) y el código AS-XXXX aparece
+después (delay 300 ms). La captura «instante» del después caza el
+círculo aún sin trazo y sin código: la secuencia funciona. Botones
+que guardan se ven VIVOS con su rueda (`.btn.ocupado`: sin el gris
+de deshabilitado, sin segundo toque posible) en «Confirmar
+reserva» y «Apuntarme a la lista de espera». `pulsoBoton()`: el
+propio botón confirma ~1,8 s («Guardado ✓» en Perfil, «¡Enlace
+copiado!» en la confirmación, «¡Copiado!» en Mi cita). El resultado
+del análisis entra en cascada breve (40 ms entre bloques).
+
+**Prueba de rotura** (`web/qa20/rotura/`, por la frontera real):
+nombre plausible de 55 caracteres («María José de los Ángeles
+Fernández-Gutiérrez de la Torre») por el formulario → reserva
+confirmada (AS-AANV/AS-AANX según pasada) y cancelada por su
+enlace; `scrollWidth` 412 y CERO elementos fuera del viewport en el
+paso 3 y en la confirmación (el nombre se parte en dos líneas en la
+tarjeta «Tu cita»). Pack de los 4 servicios (93 € + a consultar):
+el resumen queda dentro del viewport (18→394 px) con el precio
+visible. Día sin huecos interceptando `/api/disponibilidad` en la
+frontera fetch: mensaje honesto y sin desbordes. Día completo: la
+lista de horas y los pasos aguantan (39 filas medidas en un día
+real). Pulsados verificados con valor exacto por estilo computado:
+buscador .94 y nav .96 con ratón real mantenido; pastilla .94 y
+segmento .96 con pseudo-estado forzado por CDP; radio de hora
+0 → 1 en el flujo real. Cero excepciones JS en todos los recorridos
+QA20. La primera versión del guion de rotura tropezó con un hecho
+de la app (el primer servicio viene PRESELECCIONADO: pulsarlo lo
+deselecciona) — corregido el guion, no la app.
+
+**Veredictos por pantalla** (comparativas lado a lado en
+`web/qa20/comparativa-*.png`, vistas una a una): Inicio en carga =
+**MEJOR** (el esqueleto tiene la forma de la tarjeta con foto; el
+de antes eran dos barras sin significado). Inicio cargado y
+Explorar = iguales en fotograma fijo: su mejora es la aparición de
+las fotos y la respuesta al toque, no el retrato. Espera del
+análisis = **MEJOR** (fases reales frente a un texto único).
+Resultado = igual en fijo; la entrada en cascada es la mejora.
+Confirmación = **MEJOR en la entrada** (secuencia tick → trazo →
+código); el fotograma final es el mismo, como debe ser. **Nada
+revertido**: ningún cambio empeoró su pantalla; lo único retirado
+es la regla duplicada de `.nav-btn` citada arriba, sin efecto
+visual.
+
+**Cierre verificado tras el despliegue**: recorridos QA20 5/5 y
+5/5 con 0 errores de consola; baterías **web 33/33 · guarda 11/11
+· mecánicas 23/23 · fase2 22/22**. SW: v17 → v18 por el pase y
+**v19** por la retirada del duplicado (sin cambio visual). Vistas
+servidas: `web/icons/vista-pulido-inicio.png` y
+`web/icons/vista-pulido-confirmacion.png` (SHA idénticos a
+`qa20/despues/`). Artefactos en `web/qa20/`: `qa20.mjs` (recorrido
+y tiempos antes/después), `fase.mjs` (foto fija de la espera),
+`rotura.mjs` + `rotura/`, `antes/`, `despues/` con sus logs y las
+comparativas.
+
+**Nota de sync para la congelación del 04/11** (se suma a las de
+§§46–50): entran también `web/index.html`, `web/sw.js` (v19),
+`web/pruebas_web.py` (robustización horaria del bloque profesional
+descrita arriba), `agenda/` sin cambios en este pase, `web/qa20/`
+entero y esta §51 de `ESTADO_PROYECTO.md`.
+
+## 52. MUSA · BLOQUE B1 — CONTRASTE AA DEL TEXTO DE APOYO (29/10/2026)
+
+Primer bloque del plan de `DIAGNOSTICO_UX_MUSA.md` (defecto D4),
+ejecutado con su alcance exacto: **solo valores de color** en
+`web/index.html`, `web/cita.html` y `web/profesional.html` (los tres
+`:root` comparten valores idénticos tras el cambio) + la regla de
+color del domingo en el calendario + bump del SW (**v19 → v20**).
+Ni una clase, ni un texto, ni una mecánica tocados; el diff completo
+contra los respaldos `*.bak-20261029-b1` (local y máquina) son 6
+líneas de valores y 1 regla de solo color. El violeta y el negro de
+la paleta quedan como están: todos los ajustes son de valor dentro
+de la misma familia cromática.
+
+**Ratios calculados con la fórmula WCAG 2.x** (la implementación
+reproduce antes de fiarse los cuatro ratios del diagnóstico:
+4,28 / 2,27 / 1,84 / 4,09 exactos):
+
+| Par de lectura | Antes | Después |
+|---|---|---|
+| `--gris` `#747a8d`→`#626878` sobre blanco | 4,28 ✗ | **5,57** ✓ |
+| `--gris` sobre `#f5f5f5` (superficie) | 3,92 ✗ | **5,11** ✓ |
+| `--gris` sobre `#F0EDFE` (tinte violeta) | 3,72 ✗ | **4,84** ✓ |
+| Placeholder del buscador `#a4adba`→`#6c727b` sobre blanco | 2,27 ✗ | **4,85** ✓ |
+| Días deshabilitados (pasados / fuera de ventana) `#bfbfbf`→`#8a8a8a` sobre blanco | 1,84 ✗ | **3,45** ✓ (≥3) |
+| Domingos deshabilitados: `#b23a48` sobre tinte `#f9e9ec` (tratamiento nuevo) | 1,84 ✗ (el mismo gris que los pasados) | **4,98** ✓ (≥3) |
+| Chip «Disponible ahora»: `--positivo` `#1f8900`→`#1d7e00` sobre `#EDF6EB` | 4,09 ✗ | **4,70** ✓ |
+| Chip «Cumplida» (profesional): `--positivo` sobre `#e5f4e0` | 3,96 ✗ | **4,55** ✓ |
+| `--positivo` sobre blanco / blanco sobre `--positivo` (`.btn-verde`) | 4,53 | **5,20** ✓ |
+
+**Domingo distinguido del día pasado** (exigencia del bloque): la
+rejilla del calendario empieza en lunes, así que el domingo es la
+7ª columna; la regla `.cal-dia[disabled]:nth-child(7n)` pinta SOLO
+color (número rosa almanaque `#b23a48` sobre tinte `#f9e9ec`) sin
+tocar JS, clases ni estructura — verificado en la captura: los
+domingos 4/11/18/25 de octubre llevan su círculo rosa y los pasados
+entre semana van en el gris nuevo. Sin iconografía nueva.
+
+**Dos precisiones al diagnóstico, documentadas en vez de forzadas**
+(regla del bloque): (1) su tabla D4 cita `--gris` a 4,28:1, que es
+el ratio **sobre blanco**; sobre `#f5f5f5` — fondo real de parte de
+esos textos — el ratio de partida era **3,92:1** (su propio texto
+de B1 ya exigía pasar en ambos fondos; el valor elegido pasa en
+los dos y también sobre el tinte violeta). (2) La tabla no listaba
+el chip «Cumplida» del área profesional (`--positivo` sobre
+`#e5f4e0`, 3,96:1): es el mismo token y la misma familia de par, y
+queda corregido por el mismo cambio de `--positivo` en los tres
+ficheros (en `cita.html` el mismo valor corrige además `.pastilla.ok`
+y `.ok-caja`, que comparten el par `#EDF6EB`).
+
+**Verificación**: despliegue por `put` con SHA-256 idénticos
+local = máquina en los 4 ficheros; web reiniciada (pid 104329 →
+110699, `/salud` 200). Capturas antes/después a 412×915 con el
+guion `web/qa-b1/b1.mjs` (CDP contra la máquina, 0 errores de
+consola en ambas pasadas): geometría idéntica (824×1830 en las 6
+capturas) y comparativas lado a lado que demuestran **cero cambios
+de layout** — servidas en `web/icons/vista-b1-inicio.png`,
+`vista-b1-calendario.png` y `vista-b1-profesional.png` (originales
+en `web/qa-b1/antes/` y `web/qa-b1/despues/`). Baterías tras el
+despliegue: **web 33/33 · guarda 11/11 · mecánicas 23/23**.
+
+**Nota de sync para la congelación del 04/11** (se suma a las de
+§§46–51): entran también `web/index.html`, `web/cita.html`,
+`web/profesional.html`, `web/sw.js` (v20), `web/qa-b1/` entero,
+`web/icons/vista-b1-*.png`, `web/icons/b1-*.png` y esta §52 de
+`ESTADO_PROYECTO.md`.
+
+## 53. MUSA · BLOQUE B2 — EL RESULTADO HABLA COMO ORIENTACIÓN (29/10/2026)
+
+Segundo bloque del plan de `DIAGNOSTICO_UX_MUSA.md` (deficiencia
+D1), ejecutado con su alcance exacto: en la pantalla de resultado
+del análisis, la recomendación deja de presentarse como veredicto
+y pasa a hablar como orientación. Cambios en `web/index.html`,
+`web/web_server.py` y bump del SW (**v20 → v21**). El contrato del
+análisis NO cambia: mismos campos JSON, misma validación
+(`validar_analisis` intacta), mismo mecanismo asíncrono con
+sondeo; `latencia_s` sigue viajando en el payload y en el log del
+servidor — lo que sale es su exhibición a la clienta. Respaldos
+`*.bak-20261029-b2` en local y máquina.
+
+**Textos exactos antes → después**:
+
+1. **Aviso del resultado** (payload de `/api/analizar`, en
+   `web_server.py`). Antes: «Análisis real con Muse Spark. La
+   propuesta visual generada (ver tus cejas con el servicio
+   aplicado) aún no está disponible: no mostramos imágenes
+   falsas.», y el cliente le añadía «(Análisis real en 11.24 s con
+   Muse Spark.)» — la tecnología nombrada dos veces y el tiempo
+   con centésimas en la cara de la clienta. Después: «Esto es una
+   orientación a partir de tu foto, no un diagnóstico: Arianna
+   confirma el diseño contigo en el salón antes de trabajar.
+   Análisis real con Muse Spark. La propuesta visual generada
+   (ver tus cejas con el servicio aplicado) aún no está
+   disponible: no mostramos imágenes falsas.» — orientación
+   primero, confirmación en el salón (el flujo real del negocio),
+   tecnología una sola vez, sin tiempo. El sufijo del cliente se
+   elimina: `mostrarResultado` pinta `d.aviso` tal cual.
+2. **`AVISO_CON_VISUAL`** (dormido, sin clave Meta) reescrito con
+   la misma voz: abre con la misma frase de orientación y la
+   propuesta visual pasa a «también orientativa: una aproximación
+   para ayudarte a decidir, no el resultado exacto del servicio»;
+   «Muse Spark» queda como única marca nombrada en el aviso
+   (Muse Image sigue nombrado en la nota de la propia tarjeta
+   visual, que es donde describe la imagen).
+3. **Etiqueta de la tarjeta**: «RECOMENDACIÓN» → «ORIENTACIÓN», y
+   línea nueva DENTRO de la tarjeta, visible con ella y no en una
+   nota al pie: «Una orientación desde tu foto, no un
+   diagnóstico: Arianna confirma el diseño contigo en el salón
+   antes de empezar.»
+4. **`PROMPT_SISTEMA`** (D1 señalaba que no instruía orientación):
+   se añade la instrucción de escribir resumen, motivo,
+   motivo_alternativo y consejo «como una ORIENTACIÓN cercana,
+   nunca como un diagnóstico ni un veredicto», con fórmulas («te
+   puede encajar», «una buena opción para ti sería») y la
+   obligación de dejar claro en el resumen que es una primera
+   orientación desde la foto y que Arianna confirma el diseño con
+   la clienta en el salón antes de trabajar. La forma exacta del
+   JSON no se toca.
+
+**Presentación y orden**:
+
+- `.reco .etiqueta` y `.reco .datos`: de `var(--positivo)` (verde,
+  semántica de oferta) a `var(--negro)`. Verificado por estilo
+  computado en el recorrido real: rgb(29,126,0) → rgb(13,13,13)
+  en ambos.
+- **Rasgos**: las 4 píldoras-frase (chips con frases enteras del
+  modelo) pasan a lista etiqueta→valor (`.rasgos` / `.rasgo` /
+  `.rasgo-k` / `.rasgo-v` nuevas; el contenedor conserva el id
+  `res-chips`). La clase `.chip` queda intacta para los datos
+  cortos del resto de la app.
+- **Orden de acciones**: primaria («Reservar este servicio») →
+  alternativa → secundarias agrupadas (Guardar look / Elegir otro
+  servicio / Borrar mi foto); `#res-aviso` se mueve al final de la
+  sección y CIERRA la pantalla (antes se intercalaba entre la
+  tarjeta alternativa y «Guardar look»). La regla de la cascada de
+  entrada (§51) no cambia; el aviso, último hijo, entra el último.
+
+**Verificación** (guion `web/qa-b2/b2.mjs`, CDP a 412×915 contra la
+máquina, dos análisis REALES con la foto de ejemplo, 0 errores de
+consola en ambas pasadas):
+
+- **ANTES** (12,1 s): recomendación «Brow Lamination · 45 € ·
+  65 min», etiqueta y datos en verde rgb(29,126,0), 4 chips-frase,
+  aviso viejo con el sufijo de centésimas,
+  avisoTrasAcciones=false.
+- **DESPUÉS** (18,1 s, dentro del rango documentado de 10–46 s):
+  recomendación «Diseño de cejas · 18 € · 25 min» (nombre, precio
+  y duración exactos de la carta); etiqueta «ORIENTACIÓN» y datos
+  en negro rgb(13,13,13); 4 filas de rasgos y 0 chips-frase; el
+  propio modelo ya habla como orientación — su resumen cierra:
+  «Esta es solo una primera orientación desde la foto y Arianna
+  confirma el diseño contigo en el salón antes de trabajar para
+  adaptarlo a tu gusto», y el motivo abre «Una buena opción para
+  ti sería el Diseño de cejas, ya que te puede encajar…»; aviso
+  nuevo íntegro y avisoTrasAcciones=true.
+- **Recorrido resultado→reserva** en ambas pasadas: clic en
+  «Reservar este servicio» → paso 2 con el servicio recomendado
+  fijado en el resumen («Brow Lamination · viernes, 30 de
+  octubre» antes; «Diseño de cejas · viernes, 30 de octubre»
+  después). No se confirmó ninguna reserva.
+- **Baterías tras el despliegue: web 33/33 · guarda 11/11 ·
+  mecánicas 23/23 · fase2 22/22 · probador 18/18** (13 Meta + 5
+  FASHN, contra stub, en local).
+- Comparativa del resultado completo servida en
+  `web/icons/vista-b2-resultado.png` (detalle de la tarjeta en
+  `web/icons/vista-b2-reco.png`), **revisada visualmente**: cada
+  criterio de aceptación del bloque se ve en la imagen.
+  Precisión de conteo: dentro de los bloques del resultado la
+  tecnología se nombra UNA vez (el aviso); el pie global de la
+  app («Probador de cejas con Muse Spark · …»), presente en
+  todas las pantallas, no pertenece al resultado ni al alcance
+  de B2.
+- **Despliegue**: `put` con SHA-256 idénticos local = máquina en
+  los 3 ficheros; web reiniciada (pid 110699 → 111950).
+  Incidencia honesta del despliegue: un primer intento de
+  reinicio lanzando `web_server.py` a mano murió al arrancar (sin
+  `AGENDA_API_TOKEN` en el entorno: la web exige el entorno que
+  prepara `arrancar.sh`) y dejó la web caída ~1 min hasta
+  relanzarla con `arrancar.sh`; webhook (8080) y agenda (8081) no
+  se tocaron en ningún momento. La composición de la comparativa
+  se hizo en local (la máquina no tiene PIL) desde las capturas
+  servidas por `web/icons/`, verificadas por SHA-256 idéntico a
+  las de la máquina.
+
+**Resto de D1 fuera del alcance exacto de B2 (sin tocar)**: la
+tarjeta de Inicio que abre el embudo sigue diciendo «la IA
+analiza tus cejas y te recomienda el servicio que mejor encaja» —
+promete sin matiz; queda anotada para un bloque futuro o decisión
+de Lee, no se ha colado en B2.
+
+**Nota de sync para la congelación del 04/11** (se suma a las de
+§§46–52): entran también `web/index.html`, `web/web_server.py`,
+`web/sw.js` (v21), `web/qa-b2/` entero,
+`web/icons/vista-b2-resultado.png`, `web/icons/vista-b2-reco.png`,
+`web/icons/b2-*.png` y esta §53 de `ESTADO_PROYECTO.md`.
+
+## §54 · MUSA Bloque B3 — el «Hoy» profesional que sirve para abrir el día (29/10/2026, noche)
+
+Tercer bloque del plan de DIAGNOSTICO_UX_MUSA.md (deficiencia D2):
+el área profesional medía mal el día — el titular anunciaba
+«43 citas hoy» contando las canceladas, las canceladas se listaban
+a pleno peso mezcladas en Hoy y por encima de los huecos en
+Agenda, el embudo acumulado sin periodo iba antes que la carta, y
+las cuatro vistas compartían el mismo título de página. Además el
+área no tenía batería HTTP propia. Orden del bloque: primero la
+red, después el arreglo.
+
+- **Red primero — `web/pruebas_profesional.py` (NUEVA, 25
+  comprobaciones)**: sin sesión, las 6 rutas de lectura devuelven
+  401 sin revelar datos; clave falsa 401 («Clave no válida»);
+  acceso crea sesión (cookie HttpOnly); hoy/agenda/espera/bandeja/
+  embudo/servicios responden con su forma; cadena de acciones con
+  efecto verificado EN LA AGENDA (cita de prueba marcada cumplida
+  desde el área → su agradecimiento aparece en la bandeja →
+  descartado desde el área; segunda cita cancelada desde el área
+  con efecto; estado inventado 400; salir mata la sesión, 401
+  después). Sobre el código ACTUAL (pre-arreglo): **las 20 de red
+  en verde y las 5 aserciones B3 en rojo**, documentando los
+  defectos con números (sin `por_atender`; una cancelada antes que
+  una viva entre 43 citas; lo mismo por días en Agenda; embudo con
+  `desde=None`; 3 de los 4 títulos ausentes del HTML). Precisión:
+  `pruebas_web.py` §14 ya ejercitaba parte de la cadena profesional
+  — la afirmación del diagnóstico «no existe batería HTTP del
+  panel» era imprecisa; la dedicada ahora existe y cubre también
+  bandeja y acciones con efecto cruzado.
+- **El arreglo (mismas rutas y contratos; campos aditivos)**:
+  - *Servidor* (`web/web_server.py`): `/api/profesional/hoy` suma
+    `resumen.por_atender` (= confirmadas, las que esperan a
+    Arianna) y devuelve las citas con las vivas primero y las
+    canceladas al final (orden estable: dentro de cada grupo manda
+    la hora, como venían de la agenda); `/api/profesional/agenda`
+    aplica el mismo orden dentro de cada día;
+    `/api/profesional/embudo` declara periodo por defecto — últimos
+    30 días (`desde` = hoy−29 en Europe/Madrid) salvo `desde`/
+    `hasta` explícitos, que se respetan — y la agenda lo devuelve
+    en la respuesta (`desde`/`hasta` ya viajaban en su contrato).
+  - *Panel* (`web/profesional.html`): el resumen de Hoy titula con
+    **por atender · cumplidas hoy · mensajes por enviar** y las
+    canceladas/no-vinieron pasan a una línea secundaria («También
+    hoy: …»); la lista principal solo lleva citas vivas con sus
+    acciones intactas y las canceladas cierran el día en un bloque
+    propio («Canceladas de hoy · N») de líneas atenuadas (borde
+    discontinuo, opacidad .62, sin acciones: una cancelada no tiene
+    nada que decidir). En Agenda, cada día pinta vivas → huecos
+    libres → grupo «Canceladas · N» atenuado al final de la
+    tarjeta. **Un título por vista**: «Hoy en tu salón» · «Tu
+    agenda de 7 días» · «Por avisar a tus clientas» · «Mi negocio ·
+    carta y cifras», con subtítulo propio por vista (la fecha de
+    Hoy se conserva al volver a la pestaña). En «Mi negocio»,
+    **Servicios y horarios va ahora ANTES que el embudo**; el
+    embudo se titula «Tu embudo · últimos 30 días», explica que
+    cuenta movimientos (una misma cita puede contar al confirmarse
+    y otra vez al cumplirse o cancelarse — por eso los contadores
+    no son citas y no tienen por qué reconciliar entre sí) y cierra
+    con el periodo exacto («Contado del … al …»). Ni una cifra
+    inventada: todo sale de la agenda real.
+  - *Rider D1 (resto anotado en §53)*: las DOS tarjetas que dicen
+    «te recomienda el servicio que mejor encaja» (la de Inicio y la
+    del hub Probador, `web/index.html`) pasan a la voz de
+    orientación de B2: «te orienta sobre el servicio que mejor te
+    puede encajar; Arianna lo confirma contigo en el salón».
+- **QA visual (guion propio `web/qa-b3/b3.mjs`, 412×915, clave
+  leída solo dentro de la máquina; 0 errores de consola en ambas
+  pasadas)**: ANTES sobre el día real cargado de QA — titular
+  «43 · citas hoy · 0 · por atender» y tarjetas de canceladas a
+  pleno peso; en Agenda, 12 filas «Cancelada» antes de la primera
+  cumplida y los huecos fuera de pantalla. Escenario honesto para
+  el 30/10: citas marcadas «PRUEBA B3 ESCENARIO» en huecos reales
+  (3 canceladas a horas tempranas + 2 confirmadas vivas; al
+  terminar, las vivas se cancelaron — ids 394/395 — y el resto
+  quedó en estados terminales, como manda la casa). DESPUÉS sobre
+  EL MISMO día real: titular «0 · por atender · 2 · cumplidas hoy
+  · 7 · mensajes por enviar · También hoy: 32 canceladas · 9 no
+  vinieron», vivas primero, bloque de canceladas atenuado al
+  final; en Agenda, «Huecos libres: 10:00–20:00» visible en la
+  primera pantalla y «Canceladas · 32» cerrando el día.
+  Comparativas revisadas visualmente una a una:
+  `web/icons/vista-b3-hoy.png` y `web/icons/vista-b3-agenda.png`
+  (compuestas en local, la máquina no tiene PIL).
+- **Baterías al cierre (todas contra la máquina real)**: web
+  **33/33** · guarda **11/11** · mecánicas **23/23** · fase2
+  **22/22** · profesional (nueva) **25/25**. Incidencia honesta de
+  la verificación, SIN tocar una sola aserción: las corridas
+  encadenadas de baterías durante el bloque agotaron el límite de
+  acceso profesional (8 intentos/15 min por IP — el documentado en
+  §50) y dos corridas intermedias de `pruebas_web.py` salieron
+  30/32 y 19/32 con fallos en cascada (429→401 en la cadena §14 y
+  el anti-solape sucio por las citas del propio escenario B3 a las
+  10:30). Con la ventana de 15 min limpia y el escenario retirado,
+  la corrida única final dio **33/33** — los fallos eran del
+  entorno de prueba, no del código; queda la lección operativa de
+  espaciar las corridas que usan la clave.
+- **Despliegue**: `put` con SHA-256 idénticos local = máquina en
+  `web/web_server.py`, `web/profesional.html`, `web/index.html` y
+  `web/sw.js` (shell **v21 → v22**); web reiniciada SOLO con
+  `arrancar.sh` (pid 111950 → 113678); webhook (8080) y agenda
+  (8081) no se tocaron. La clave profesional se leyó únicamente
+  dentro de la máquina (baterías y guion QA); jamás impresa ni
+  extraída.
+
+**Nota de sync para la congelación del 04/11** (se suma a las de
+§§46–53): entran también `web/web_server.py`,
+`web/profesional.html`, `web/index.html`, `web/sw.js` (v22),
+`web/pruebas_profesional.py`, `web/qa-b3/` entero,
+`web/icons/vista-b3-hoy.png`, `web/icons/vista-b3-agenda.png` y
+esta §54 de `ESTADO_PROYECTO.md`.
+
+## §55 · MUSA Bloque B4 — sistema visual único: tokens y escala (29/10/2026, noche)
+
+Cuarto bloque del plan de `DIAGNOSTICO_UX_MUSA.md` (deficiencia
+D3): los tres ficheros dejan de tener cada uno su sistema y pasan
+a compartir UNO. Sin tocar estructura, textos, rutas ni mecánicas:
+las pantallas se ven iguales; lo que cambia es que ahora hay un
+sistema cerrado debajo. SW **v22 → v23**. Respaldos
+`*.bak-20261029-b4` en local y en la máquina.
+
+- **Una sola fuente de tokens**: el bloque `:root` canónico es el
+  que ya tenía `index.html` (lleva los valores AA de B1 intactos,
+  la regla de elevación y las curvas §51) y queda copiado **byte a
+  byte** en `index.html`, `cita.html` y `profesional.html` —
+  verificación por SHA-256 del bloque extraído de los tres
+  ficheros desplegados: un único hash (`4a584bdbbb48…`). La vía es
+  copia verificada idéntica porque la arquitectura sirve ficheros
+  sueltos, sin build ni plantilla compartida. Divergencias
+  resueltas: `--sombra` canónica = el susurro
+  `0 1px 3px rgba(13,13,13,.05)` (la regla de elevación deliberada
+  del 29/10: manda el borde hairline, no la sombra); la profunda
+  `.08` de cita/profesional la precedía y desaparece — en las
+  comparativas el cambio es indistinguible. Cita y profesional
+  ganan además `--ease-out`/`--ease-in-out` (declarados en el
+  bloque común; sin uso nuevo en este bloque).
+- **Escala tipográfica cerrada**: de **25 tamaños distintos** en
+  uso (24 en index, 13 en cita, 16 en profesional, con
+  fraccionarios como 11,5/13,5/16,5 mezclados sin criterio) a
+  **7 peldaños con rol**: 11 micro · 12,5 apoyo · 13,5 cuerpo ·
+  15 acción · 19 destacado · 23 titular · 28 hero. Única
+  excepción, funcional y documentada en el propio `:root`:
+  inputs y textarea se quedan a 16 (por debajo, iOS hace zoom al
+  enfocar). Mapeo aplicado valor a valor: 10/11/11,5→11 ·
+  12→12,5 · 13→13,5 · 14→13,5 (con dos subidas deliberadas a 15:
+  los datos de la recomendación y el hueco elegido de `/cita`,
+  que son acción) · 14,5/15,5/16/16,5→15 · 17/18/20→19 ·
+  21→23 (salvo la hora de la cita del panel, 21→19: es dato
+  destacado, no titular) · 22/24/25→23 · 27/29/31→28. La escala
+  queda escrita como comentario en el `:root` canónico: el
+  sistema se lee donde vive.
+- **El 800 solo para titulares de verdad**: reclasificadas a 700
+  **25 reglas** (19 en index —incluida `.prod-card .pc-precio`,
+  detectada en la verificación posterior a la transformación—,
+  1 en cita, 5 en profesional): precios, llamadas a la acción,
+  etiquetas, estados, días del calendario y horas dejan de gritar
+  en 800. Se quedan en 800: la marca, el titular de Inicio, el
+  mes del calendario, el código AS-XXXX grande, el título de
+  próxima apertura (index); los titulares de tarjeta, el nombre
+  de la marca, los números display del resumen y el día de la
+  agenda (profesional, más sus 5 titulares inline/de plantilla).
+- **Familia de botones con nombres veraces**: de 8 variantes (con
+  dos nombres que mentían y una muerta) a una familia cerrada:
+  `.btn-primario` (negro) · `.btn-secundario` (blanco con borde;
+  es la ex-`.btn-lavanda` de index, que pintaba blanco) ·
+  `.btn-violeta` (la ex-`.btn-lavanda` de `/cita`, que sí pintaba
+  violeta; su definición ya era idéntica a la del panel) ·
+  `.btn-fantasma` · `.btn-peligro` (cita) · `.btn-texto` (index) ·
+  `.btn-whatsapp` (ex-`.btn-verde`) · modificador `.btn-peq` y
+  estado `.btn.ocupado`; `.btn-guardar` y `.btn-perfil-ico` son
+  componentes-ícono, aparte. `.btn-videos` era CSS muerto (0 usos
+  en markup y JS): sus 3 reglas se retiran. **Los radios de botón
+  quedan fuera del bloque por decisión registrada**: la
+  enumeración de alcance manda (`.btn` sigue a 999 en
+  index/profesional y a 16 en cita); si se unifican, será un
+  bloque propio con su comparativa.
+- **Verde con una sola semántica**: disponibilidad/éxito. El
+  token `--positivo` sigue solo en chips, pastillas y cajas de
+  estado/disponibilidad; el único botón verde que queda es el de
+  WhatsApp (`.btn-whatsapp`, solo enlaces wa.me), y «Mover mi
+  cita» de `/cita` —una acción principal pintada de verde— pasa a
+  `.btn-primario`. Los precios siguen en negro (B2), verificado
+  en la comparativa del Resultado («45 € · 65 min» en negro).
+- **Verificación**: comparativas antes/después a 412×915 de las
+  seis pantallas (Inicio, Explorar, Salón, Reserva paso 2,
+  Resultado con análisis real —18,1 s antes y 33,4 s después; la
+  recomendación varía entre corridas, es el modelo real— y
+  Profesional·Hoy), revisadas píxel a píxel:
+  `web/icons/vista-b4-inicio.png`, `vista-b4-explorar.png`,
+  `vista-b4-salon.png`, `vista-b4-reserva.png`,
+  `vista-b4-resultado.png` y `vista-b4-profesional.png`, servidas
+  en la máquina. Sin diferencias visibles no previstas: los
+  únicos deltas son los del mapeo (titulares ±1–3 px a su
+  peldaño, 800→700 en precios/CTA) y el reflow natural de ±0,5 px
+  en dos párrafos. Baterías al cierre: web **33/33** ·
+  profesional **25/25** · guarda **11/11** · mecánicas **23/23** ·
+  fase2 **22/22**. La transformación fue un script determinista
+  auditado (`web/qa-b4/transformar_b4.py`, 141 cambios
+  registrados) con el diff completo revisado contra los respaldos
+  antes de desplegar; guion de capturas en `web/qa-b4/b4.mjs`.
+- **Incidencia honesta de la verificación** (sin tocar una sola
+  aserción ni un límite): las primeras corridas de la batería web
+  salieron 31/33 y luego en cascada (9/31) por el límite de
+  reservas (30/h por IP) — los contadores viven **en la memoria
+  del proceso web**, vivo desde las 20:46 UTC con las corridas de
+  B3, y `arrancar.sh` es idempotente: no reinicia un servicio
+  sano, así que mis «reinicios» no los pusieron a cero. Además,
+  una corrida en cascada dejó la cita de prueba «PRUEBA
+  PROFESIONAL» (id 426) **confirmada** mañana a las 10:00 y el
+  escenario web chocaba con ella (409 correcto del anti-solape);
+  se canceló por el canal propio de la agenda
+  (`POST /citas/426/cancelar`: queda cancelada, no borrada) y la
+  agenda quedó como estaba: 0 confirmadas futuras. Con el proceso
+  web detenido y relanzado por `arrancar.sh` (pid 116394) y la
+  agenda limpia, la corrida única dio **33/33**. Lección que
+  amplía la de §54: antes de una batería, contadores a cero =
+  proceso nuevo, no `arrancar.sh` a secas.
+- **Despliegue**: `put` con SHA-256 idénticos local = máquina en
+  `web/index.html` (`d1d75f8c…`), `web/cita.html` (`6fe9be02…`),
+  `web/profesional.html` (`16f1cf7c…`) y `web/sw.js`
+  (`3c11c934…`, shell **v23**); webhook (8080) y agenda (8081) no
+  se tocaron; la clave profesional se leyó solo dentro de la
+  máquina.
+
+**Nota de sync para la congelación del 04/11** (se suma a las de
+§§46–54): entran también `web/index.html`, `web/cita.html`,
+`web/profesional.html`, `web/sw.js` (v23), `web/qa-b4/` entero,
+`web/icons/vista-b4-inicio.png`, `web/icons/vista-b4-explorar.png`,
+`web/icons/vista-b4-salon.png`, `web/icons/vista-b4-reserva.png`,
+`web/icons/vista-b4-resultado.png`,
+`web/icons/vista-b4-profesional.png` y esta §55 de
+`ESTADO_PROYECTO.md`. Los respaldos `*.bak-20261029-b4` NO viajan
+al repo.
+
+## §56 · MUSA Bloque B5 — una sola voz de titular (29/10/2026, noche)
+
+Quinto bloque del plan de `DIAGNOSTICO_UX_MUSA.md` (deficiencia
+D3, la mitad de identidad): los titulares hablaban con DOS voces
+— Montserrat solo en Inicio; Fraunces (serif editorial) en el
+resto de pantallas (salón, reserva, resultado, cita,
+profesional) — y la dirección editorial con serif ya fue
+RECHAZADA por Lee el 29/10 (pase QA15). La voz canónica es la
+de Inicio: **Montserrat**. Sin tocar textos, estructura, rutas
+ni mecánicas; los tamaños son los peldaños de la escala cerrada
+de B4 y no se mueven. SW **v23 → v24**. Respaldos
+`*.bak-20261029-b5` en local y en la máquina.
+
+- **El mapeo** (transformación determinista auditada,
+  `web/qa-b5/transformar_b5.py`: 18 sustituciones con
+  coincidencia exacta única, diff completo revisado contra los
+  respaldos antes de desplegar). Titulares de sección/hero →
+  Montserrat **800** con `letter-spacing:-.01em` (la voz exacta
+  de `#p-inicio .seccion-titulo`, la pantalla aprobada): en
+  index, `.salon-titulo` 28 (interlineado 1.12→1.15, el ajuste
+  mínimo de ritmo al cambiar de familia) y `.seccion-titulo`
+  base 23 — que ahora coincide con su propio override de
+  Inicio — y `.confirmada h2` 28; en cita, `header h1` 28
+  (1.12→1.15); en profesional, `h1` 28. Títulos de tarjeta →
+  Montserrat **700** (el patrón de `.salon-card h3` de Inicio):
+  en index, `.tarjeta h2` 23, `.reco h3` 23, `.lounge-card h3`
+  19 y `.prod-card h3` 19; en cita, `.tarjeta h2` 23. El reparto
+  800/700 ya era el de B4: lo que cambia es solo la familia.
+- **El código también es voz**: `.codigo` de `/cita` (el
+  AS-XXXX sobre pastilla negra) iba en Fraunces 700 mientras el
+  de la confirmación en index ya era Montserrat 800: unificado
+  a Montserrat 800 con su tracking `.12em` — el mismo código se
+  lee igual en las dos pantallas en las que aparece.
+- **El acento del h1 de `/cita`**: «siempre a mano» iba en
+  itálica serif violeta dentro del titular. La Montserrat
+  cargada no tiene itálica (400–800, solo recta) y fingirla con
+  oblicua sintética sería un atajo de imprenta: el acento pasa
+  a ser **de color** (`header h1 em` gana `font-style:normal` y
+  conserva el violeta). En la comparativa se lee deliberado y
+  de la misma familia que la marca.
+- **Fraunces: dónde queda y por qué**. En `cita.html` y
+  `profesional.html` queda **sin ningún uso**: sus `@font-face`
+  se retiran y esas dos superficies dejan de descargar la
+  fuente (67 KB la normal; en cita también la itálica, 81 KB).
+  En `index.html` la recta queda sin uso: se retira su
+  `@font-face` y sale del precache del SW. Sobrevive SOLO la
+  **itálica**, para dos acentos de cita textual que no son
+  titulares: el lema del salón (`.salon-sub em`, 13,5 px, bajo
+  el nombre ya en Montserrat) y las reseñas literales de la
+  tienda (`.resena p`). Regla resultante: Fraunces deja de ser
+  voz de titular en toda la app; lo que queda es itálica de
+  cita, decisión documentada aquí y no resto olvidado. El
+  comentario histórico del CSS («sin Fraunces y sin hero
+  editorial») se conserva como lo que es: historia del diseño.
+- **Invariante B4 verificado tras el cambio**: el bloque
+  `:root` extraído de los tres ficheros sigue byte a byte
+  idéntico entre sí (SHA-256 `4a584bdbbb48…`, el canónico
+  de §55); los valores AA de B1 intactos.
+- **Verificación visual** (guion propio `web/qa-b5/b5.mjs`,
+  412×915, 0 errores de consola en ambas pasadas): ANTES sobre
+  producción post-B4 y DESPUÉS tras el despliegue, con
+  análisis REAL en las dos pasadas (12,1 s y 12,1 s; la misma
+  recomendación, «Diseño de cejas», en ambas) y la reserva
+  completa de cada pasada cancelada desde la propia página
+  `/cita` por el canal propio (AS-AARH y AS-AARJ quedan
+  canceladas, no borradas). Comparativas lado a lado revisadas
+  píxel a píxel: `web/icons/vista-b5-salon.png`,
+  `vista-b5-profesional.png`, `vista-b5-cita.png`,
+  `vista-b5-resultado.png`, `vista-b5-confirmada.png`,
+  `vista-b5-reserva.png` (paso 1) y `vista-b5-reserva2.png`
+  (paso 2), servidas en la máquina. Ninguna pantalla pierde:
+  Profesional·Hoy, la Confirmada y los dos pasos de Reserva
+  son indistinguibles salvo la voz del titular; en `/cita` el
+  conjunto gana coherencia (titular y código en la voz de la
+  marca y de la cabecera ASISTENTA). **Dos deltas declarados,
+  sin ajuste aplicado**: (1) en Salón, el h2 de la tarjeta de
+  análisis («¿No sabes qué servicio elegir?») pasa a dos
+  líneas — la nueva voz es más ancha que la serif a igual
+  peldaño — y la tarjeta crece ~30 px; al reposo, la barra fija
+  de reserva cubre la última línea del párrafo siguiente, el
+  mismo patrón con el que ya cubría el título «Servicios»:
+  todo el contenido se alcanza con scroll, y el único ajuste
+  posible sería bajar el peldaño 23 que fijó la escala cerrada
+  de B4, fuera del alcance de este bloque; (2) en Reserva
+  paso 1, el párrafo introductorio reenvuelve una palabra
+  («una» salta de línea) por el reflow de borde al cambiar la
+  métrica del titular que lo precede — sin texto cortado ni
+  cambio de jerarquía (misma categoría de reflow aceptada
+  en §55).
+- **Baterías al cierre** (todas contra la máquina real; suite
+  única tras relanzar el proceso web en fresco por
+  `arrancar.sh` — contadores a cero, lección de §§54/55):
+  web **33/33** · profesional **25/25** · guarda **11/11** ·
+  mecánicas **23/23** · fase2 **22/22**.
+- **Despliegue**: `put` con SHA-256 idénticos local = máquina
+  en `web/index.html` (`58519f86…`), `web/cita.html`
+  (`fd132626…`), `web/profesional.html` (`3d9ed8a0…`) y
+  `web/sw.js` (`8f79d3ae…`, shell **v24**); web reiniciada solo
+  con `arrancar.sh` (pid 116914 → 118620); webhook (8080) y
+  agenda (8081) no se tocaron; la clave profesional se leyó
+  solo dentro de la máquina.
+
+**Nota de sync para la congelación del 04/11** (se suma a las
+de §§46–55): entran también `web/index.html`, `web/cita.html`,
+`web/profesional.html`, `web/sw.js` (v24), `web/qa-b5/`
+entero, `web/icons/vista-b5-salon.png`,
+`web/icons/vista-b5-profesional.png`,
+`web/icons/vista-b5-cita.png`,
+`web/icons/vista-b5-resultado.png`,
+`web/icons/vista-b5-confirmada.png`,
+`web/icons/vista-b5-reserva.png`,
+`web/icons/vista-b5-reserva2.png` y esta §56 de
+`ESTADO_PROYECTO.md`. Los respaldos `*.bak-20261029-b5` NO
+viajan al repo.
+
+## §57 · MUSA Bloque B6 — wayfinding honesto: la navegación dice dónde estás (29/10/2026, noche)
+
+Sexto bloque del plan de `DIAGNOSTICO_UX_MUSA.md` (deficiencia
+D5-wayfinding): la barra de navegación mentía — `NAV_DE` fijaba
+`p-reserva → nav-probador` (durante TODO el flujo de reserva se
+iluminaba «Probador», entraras desde donde entraras),
+`p-proxima → nav-inicio` (la próxima apertura iluminaba siempre
+«Inicio») y `p-confirmada → nav-perfil`. Solo cambian
+`web/index.html` (la lógica de la pestaña activa) y el SW
+(**v24 → v25**). Ni estructura, ni iconos, ni textos de las
+pestañas. Respaldos `*.bak-20261029-b6` en local y en la máquina.
+
+- **El criterio (el diagnóstico no lo fijaba para la reserva;
+  su tabla de componentes manda «la pestaña del contexto real
+  de la pantalla o ninguna»): herencia de contexto.** Reserva,
+  confirmación y próxima apertura NO tienen pestaña propia: son
+  pantallas de flujo lanzadas desde un contexto, y heredan la
+  pestaña de ESE contexto. La reserva captura la pestaña de la
+  pantalla activa al entrar (`pestanaFlujo`); la confirmación
+  hereda la de la reserva que la produjo; la próxima apertura
+  hereda la de su origen — el mismo `origenProxima` que ya
+  alimentaba su botón Volver, ahora también manda en la
+  pestaña. Si un origen no tuviera pestaña, no se iluminaría
+  ninguna (la rama existe en código; ninguna pantalla
+  alcanzable la dispara hoy: todo origen real es una pantalla
+  de contexto). El Salón conserva su contexto declarado,
+  Explorar (arquitectura del producto, PIVOTE Fase 1): el
+  diagnóstico no lo señaló y no se ha movido.
+- **El cambio**: `NAV_DE` conserva solo las pantallas con
+  contexto fijo (inicio, explorar, probador, consentimiento,
+  foto, resultado, salón, micita, perfil); `pestanaPara(id,
+  anterior)` resuelve las de flujo; `ir()` lee la pantalla que
+  se deja ANTES de conmutar (sin ese orden, la herencia leería
+  ya la pantalla nueva). `PASOS` (la barra de progreso del
+  análisis) no se toca.
+- **Área profesional — verificado SIN el defecto**: el único
+  camino que cambia de vista es el propio clic en la pestaña,
+  que actualiza `.tab.activa`, panel visible y título (los de
+  B3) en el mismo gesto; el acceso aterriza en Hoy con su
+  pestaña activa ya en el HTML. No había nada que corregir:
+  queda verificado en la matriz de las dos pasadas (4/4).
+- **Verificación (guion propio `web/qa-b6/b6.mjs`, navegación
+  real a 412×915, 0 errores de consola en ambas pasadas)**:
+  - **ANTES** (producción v24): 17/17 filas reproducen
+    exactamente las mentiras diagnosticadas — reserva desde
+    Salón, Inicio, Explorar y Mi cita → «Probador»; próxima
+    apertura desde Explorar y desde el Probador → «Inicio»;
+    confirmación de una reserva hecha desde Explorar →
+    «Perfil» — y lo que ya era verdad sale verdad (consentimiento
+    y la reserva sin foto desde el recorrido → «Probador»;
+    próxima apertura desde Inicio → «Inicio», su origen real).
+    Reserva de prueba AS-AARX cancelada desde la propia página
+    `/cita` (queda cancelada, no borrada).
+  - **DESPUÉS** (v25): **20/20 filas honestas** — reserva desde
+    Inicio → «Inicio»; desde Explorar y desde el Salón →
+    «Explorar»; desde Mi cita → «Perfil»; desde el Resultado y
+    desde el consentimiento sin foto → «Probador» (su contexto
+    real); confirmación → «Probador» heredado del flujo del
+    Resultado (análisis real, 12,1 s; reserva AS-AARY, cancelada
+    por el canal propio); próxima apertura → la de su origen
+    («Explorar» desde Explorar, «Probador» desde el Probador,
+    «Inicio» desde Inicio); Inicio/Explorar/Probador/Perfil/Mi
+    cita/Salón/consentimiento/foto/resultado, cada una con la
+    suya. Profesional 4/4 (pestaña activa = panel visible =
+    título por vista en Hoy/Agenda/Por avisar/Mi negocio).
+  - **Comparativa visual** servida en
+    `web/icons/vista-b6-matriz.png` (compuesta en local — la
+    máquina no tiene PIL — desde las capturas de ambas pasadas,
+    copiadas a `web/icons/b6-a-*.png` y `b6-d-*.png`), revisada
+    píxel a píxel: las pantallas pareadas son idénticas salvo
+    la pestaña encendida en la barra inferior.
+- **Baterías al cierre** (corrida única tras relanzar el
+  proceso web en fresco por `arrancar.sh` — contadores a cero,
+  lección de §§54/55): web **33/33** · profesional **25/25** ·
+  guarda **11/11** · mecánicas **23/23** · fase2 **22/22**.
+- **Despliegue**: `put` con SHA-256 idénticos local = máquina
+  en `web/index.html` (`1aa4457c…`) y `web/sw.js` (`6e43301d…`,
+  shell **v25**); web reiniciada solo con `arrancar.sh`
+  (pid 119419 → 120449); webhook (8080) y agenda (8081) no se
+  tocaron; la clave profesional se leyó solo dentro de la
+  máquina.
+
+**Nota de sync para la congelación del 04/11** (se suma a las
+de §§46–56): entran también `web/index.html`, `web/sw.js`
+(v25), `web/qa-b6/` entero, `web/icons/vista-b6-matriz.png`,
+`web/icons/b6-a-*.png`, `web/icons/b6-d-*.png` y esta §57 de
+`ESTADO_PROYECTO.md`. Los respaldos `*.bak-20261029-b6` NO
+viajan al repo.
+
+## §58 · MUSA Bloque B8 — ningún error es un callejón (29/10/2026, noche)
+
+Octavo bloque del plan de `DIAGNOSTICO_UX_MUSA.md` (deficiencia
+D5-errores). B7 queda aparcado (decisión de Lee pendiente; no se
+ha tocado). Regla del bloque: todo estado de error alcanzable
+ofrece al menos una acción de continuación REAL en la misma
+pantalla — nada de botones decorativos — y los mensajes que ya
+eran buenos se conservan palabra por palabra. Cambian
+`web/cita.html`, `web/index.html` y `web/profesional.html`; el SW
+sube **v25 → v26** por los cambios de la clienta y **v26 → v27**
+por el arreglo del carrusel (ver «Dos defectos cazados»);
+`cita.html` no entra en el cascarón del SW (las navegaciones a
+`/cita/*` van siempre a red), así que su arreglo intermedio no
+necesitó subida propia. Respaldos `*.bak-20261029-b8` en local y
+en la máquina.
+
+- **Inventario declarado antes de tocar** (auditoría de las tres
+  superficies): 14 estados en la clienta, 7 en `/cita` y 8 en el
+  área profesional. Con salida digna ya (CONSERVAR, verificados
+  en la matriz): el banner de sin conexión, la foto no válida y
+  la de ejemplo, el análisis fallido (el botón pasa a «Intentar
+  de nuevo»), el error de la propuesta visual dentro del
+  resultado, el día sin huecos/domingo con su tarjeta de espera,
+  el **409 (fondo intacto: mensaje, alternativas y vuelta
+  automática al paso 2)**, la lista de espera, «Mi cita» vacía,
+  el acceso profesional y la sesión caducada, la preparación y
+  el 409 de reagendar en `/cita`. Sin salida o con la salida solo
+  insinuada en prosa: los de los cambios siguientes.
+- **`/cita/<token>` inválido (el callejón de la captura 17 del
+  diagnóstico)**: junto a la caja de error — cuyo mensaje del
+  servidor no cambia — aparecen dos acciones reales: «Ir a La
+  Asistenta» (`/`, primario negro) y «Escribir al salón por
+  WhatsApp» (verde WhatsApp, clase nueva `.btn-whatsapp` gemela
+  de la de la portada, al wa.me público `584249134367` que ya usa
+  `index.html`). Verificado pulsando la primera: vuelve a la
+  portada y la carta carga.
+- **Explorar**: la búsqueda sin resultados dice ahora «Ningún
+  **servicio** coincide con «…»» (fuera el lenguaje de productos)
+  y trae «Ver todos los servicios», que limpia la búsqueda y
+  restaura la carta; el vacío de módulo activo sin carta pasa a
+  «Sin servicios cargados todavía» / «…aún sin servicios
+  cargados» y gana el mismo botón, que lleva a la carta de
+  belleza. (El estado de módulo se provocó inyectando un módulo
+  falso SOLO en el contexto de la página de QA: el registro real
+  no se tocó.)
+- **Reserva**: (a) si la agenda no responde al pedir los huecos
+  (paso 2), el aviso «La agenda no respondió.» trae botón
+  «Reintentar» que vuelve a pedirlos (cambiar el día sigue
+  reintentando igual); (b) la rama **genérica** del error al
+  confirmar gana su acción equivalente a la del 409: «Reintentar
+  la reserva» junto a la caja, que repite el mismo intento (en la
+  matriz, tras el 502 inyectado, el reintento completó una
+  reserva real). La rama 409 no se ha tocado.
+- **La carta no carga al arrancar** (servidor caído): los cuatro
+  avisos «…no cargó; prueba a recargar la página» pierden la
+  prosa y ganan botón «Recargar la página» que recarga de verdad;
+  una marca `estado.cartaFallo` hace que Explorar enseñe el mismo
+  aviso con su botón en vez de la rejilla vacía que dejaba
+  `pintarExplorar()`.
+- **`/cita` · huecos al reagendar**: mismo «Reintentar» que en el
+  paso 2 de la clienta. Y una regla CSS de una línea
+  (`.huecos>p{grid-column:1/-1}`): los mensajes hijos de la
+  rejilla de huecos (cargando, domingo, sin huecos, error)
+  quedaban apretados en una columna de ~85 px; ahora ocupan todo
+  el ancho — se vio al fotografiar el error nuevo.
+- **Profesional**: las vistas que no cargan (Hoy, Agenda, lista
+  de espera, embudo y carta) ya no dejan un «prueba a recargar»
+  en prosa ni un «Cargando…» eterno si la red muere a mitad (la
+  excepción de red aterriza en el mismo aviso): `pintarFallo()`
+  pinta el aviso con botón «Reintentar» que recarga ESA vista.
+  La alerta de acción rechazada decía «Recarga y prueba de
+  nuevo» cuando es la propia pantalla la que recarga el día:
+  el texto ahora dice lo que pasa («Vuelvo a cargar tu día para
+  que veas el estado real»); el mecanismo no cambia.
+- **No provocados en vivo, declarados**: la acción profesional
+  rechazada (P7) no se pudo provocar en navegación real — exige
+  una cita confirmada de HOY y a la hora de la pasada ya no se
+  podía crear ninguna (guarda de pasado) —; queda verificada por
+  código (texto nuevo + la recarga de Hoy ejercida en otras
+  filas). El error de la propuesta visual (Meta) sigue dormido
+  sin clave: no provocable en producción; su pantalla conserva
+  las salidas del resultado.
+- **Dos defectos cazados mirando las capturas** (la matriz se
+  revisó imagen a imagen): (1) el botón «Recargar» del carrusel
+  quedaba fuera de la vista — el aviso iba en dos hijos sueltos
+  de la fila flexible y cada uno ocupaba su propio 80 % —;
+  envuelto en un bloque al 100 %: medido tras el arreglo en
+  x=18, ancho 376, visible sin desplazar, y la recarga trae la
+  carta (SW v27). (2) El «Reintentar» de `/cita` apretado en la
+  rejilla (la regla CSS de arriba).
+- **Verificación (guiones propios `web/qa-b8/b8.mjs`,
+  `captura-b8.mjs` y `captura-carta.mjs`; navegación real a
+  412×915 contra la máquina; los fallos de servidor se provocan
+  interceptando la petición con el dominio Fetch de CDP — la
+  interfaz real recibe un 502 o un corte de red sin tocar el
+  servidor — y el 409 se provoca de verdad ocupando el hueco por
+  la API entre cargar los huecos y confirmar)**:
+  - **ANTES** (producción v25): **7/7 callejones reproducidos**
+    tal cual — token sin ninguna acción visible (0), carta en
+    prosa, sin resultados con «productos», vacío «productos
+    verificados», huecos con la insinuación, genérico sin acción
+    propia y Hoy profesional en prosa.
+  - **DESPUÉS** (v26/v27): **14/14 filas con su salida
+    funcionando** — cada botón nuevo se pulsa en la matriz y se
+    comprueba su efecto (volver a portada, restaurar la carta,
+    cargar los huecos, completar la reserva, recargar la vista);
+    los CONSERVAR ejercidos igual (foto, análisis, 409, espera,
+    prep, acceso, banner offline). Errores de consola de ambas
+    pasadas: solo los fallos provocados (ERR_FAILED, 404, 500,
+    502, 409 y el 401 de la clave mala); cero excepciones JS.
+  - **Datos de prueba**: reservas «PRUEBA B8» del 30/10 (Diseño
+    de cejas 10:00 y la de la API para el 409) canceladas desde
+    la propia página `/cita`; la alta de lista de espera
+    «PRUEBA B8» marcada «descartada» por la API profesional; las
+    citas de las capturas enfocadas (AS-AASS, AS-AAST) canceladas
+    por el canal propio al terminar cada guion. Nada borrado.
+  - **Comparativa visual** servida en
+    `web/icons/vista-b8-matriz.png` (compuesta en local desde las
+    capturas de ambas pasadas, copiadas a `web/icons/b8-a-*.png`
+    y `web/icons/b8-d-*.png`), revisada píxel a píxel: fuera de
+    los estados de error provocados, las pantallas son las de
+    B6. Las capturas de Explorar salieron a mitad de la animación
+    de entrada (se ven lavadas en ambos modos por igual); los
+    DOM de la matriz son la prueba y las fotos, el contexto.
+- **Baterías al cierre** (corrida única tras relanzar el proceso
+  web en fresco por `arrancar.sh` — contadores a cero, lección
+  de §§54/55): web **33/33** · profesional **25/25** · guarda
+  **11/11** · mecánicas **23/23** · fase2 **22/22**. Tras los dos
+  arreglos de captura (rejilla de `/cita` y bloque del carrusel)
+  se re-ejecutó SOLO la batería que lee el fichero tocado en cada
+  caso (`pruebas_web.py`: 33/33 en ambas), con el proceso fresco
+  en la del carrusel.
+- **Despliegue**: `put` con SHA-256 idénticos local = máquina en
+  `web/index.html` (`9fb3be5c…`), `web/cita.html` (`d24e0010…`),
+  `web/profesional.html` (`bed34242…`) y `web/sw.js`
+  (`c465c442…`, shell **v27**); web reiniciada solo con
+  `arrancar.sh` en cada despliegue y antes de cada corrida de
+  cierre (último pid 123835); webhook (8080) y agenda (8081)
+  no se tocaron; la clave profesional se leyó solo dentro de la
+  máquina.
+
+**Nota de sync para la congelación del 04/11** (se suma a las
+de §§46–57): entran también `web/index.html`, `web/cita.html`,
+`web/profesional.html`, `web/sw.js` (v27), `web/qa-b8/` entero,
+`web/icons/vista-b8-matriz.png`, `web/icons/b8-a-*.png`,
+`web/icons/b8-d-*.png` y esta §58 de `ESTADO_PROYECTO.md`. Los
+respaldos `*.bak-20261029-b8` NO viajan al repo.
+
+## §59 · MUSA Bloque B9 — foto: jerarquía correcta y preferencias declaradas opcionales (29/10/2026, noche)
+
+Noveno bloque del plan de `DIAGNOSTICO_UX_MUSA.md` (fricción
+F4/F5 del recorrido): en la pantalla de foto del análisis la
+jerarquía estaba invertida y las preferencias parecían cinco
+decisiones obligatorias. Cambian solo `web/index.html` (el
+bloque de foto de `p-foto`) y el SW (**v27 → v28**). Respaldos
+`*.bak-20261029-b9` en local y en la máquina.
+
+- **Alcance y conflicto declarado (no resuelto en silencio)**:
+  el diagnóstico concreta B9 SOLO en la pantalla de foto del
+  análisis, y así se ha ejecutado. Revisadas contra el
+  diagnóstico las demás superficies con foto: la tarjeta de
+  orientación del resultado NO lleva foto del servicio — B2 la
+  dejó así y el diagnóstico no pide añadirla: ahí mandan el
+  servicio, el precio (en negro) y la acción, y no se ha
+  tocado —; las tarjetas de servicio son B10 (Explorar, foto a
+  170 px, hecho) y la anatomía de Inicio (foto 4:3 con nombre y
+  datos debajo en Recomendado, encuadres por foto de QA16/17)
+  es decisión cerrada de la ESPEC: cualquier cambio de
+  jerarquía de foto ahí contradiría la espec y NO se ha hecho;
+  en el Salón el diagnóstico no concreta cambio de foto. Sin
+  fotos decorativas ni de stock nuevas: las únicas fotos del
+  producto siguen siendo las reales del negocio y la de
+  ejemplo declarada del análisis.
+- **El defecto, reproducido con números sobre la producción
+  actual (v27) antes de tocar** (guion `web/qa-b9/b9.mjs`,
+  navegación real a 412×915, 0 errores de consola): «Elegir mi
+  foto» y «Usar la de ejemplo» median lo mismo (140×56) pero la
+  de ejemplo llevaba el borde negro pleno
+  (`1px solid rgb(13,13,13)` sobre transparente) y la propia el
+  hairline claro (`1px solid rgb(222,227,231)` sobre blanco):
+  el elemento con más peso visual del bloque era la foto
+  ajena. Las 5 preferencias venían pre-marcadas (5/5) sin
+  ningún rótulo que lo dijera.
+- **El cambio** (solo markup y clases del sistema cerrado de
+  B4; ni una clase nueva, ni un ID tocado): fuera la fila a la
+  par; «Elegir mi foto» pasa a `.btn-primario` a ancho
+  completo — la primaria del sistema — y «Usar la de ejemplo»
+  queda debajo como `.btn-secundario .btn-peq` a ancho
+  completo (blanco, hairline, letra de apoyo). Y sobre el
+  primer grupo de preferencias, el rótulo literal del
+  diagnóstico: «Tu estilo — ya viene ajustado; cámbialo solo
+  si quieres.» El diff completo contra el respaldo son esas
+  dos piezas de markup y la constante del SW.
+- **Verificación** (el mismo guion en modo DESPUÉS, tras
+  desplegar): «Elegir mi foto» 290×52 con fondo negro
+  `rgb(13,13,13)` y texto blanco a 15 px — el elemento con
+  más peso visual del bloque es subir la foto propia —;
+  «Usar la de ejemplo» 290×52 blanco con borde hairline a
+  13,5 px, en una línea; rótulo presente y legible sobre
+  NATURALIDAD; preferencias intactas (5/5 pre-marcadas, ahora
+  declaradas: 0 decisiones obligatorias y la pantalla lo
+  dice). **El camino no cambia**: análisis REAL con la foto
+  de ejemplo en las dos pasadas (15,3 s antes → «Diseño de
+  cejas · 18 € · 25 min»; 18,1 s después → «Brow Lamination ·
+  45 € · 65 min»; la recomendación varía entre corridas, es
+  el modelo real), 0 errores de consola en ambas.
+  Comparativas lado a lado revisadas píxel a píxel:
+  `web/icons/vista-b9-foto.png` (la pantalla tocada) y
+  `web/icons/vista-b9-resultado.png` (el resultado SIN
+  cambios, como verificación de no regresión del recorrido
+  completo; originales en `web/icons/b9-a-*.png` y
+  `b9-d-*.png`).
+- **Delta observado y declarado**: al apilar los botones y
+  añadir el rótulo, la tarjeta crece ~120 px y el quinto
+  grupo de preferencias («Intensidad del cambio») queda bajo
+  el pliegue, alcanzable con scroll como el resto del
+  contenido de la app; en la primera pantalla quedan la
+  acción principal, la secundaria, el rótulo y cuatro grupos.
+  Es la consecuencia deliberada del ancho de primaria que
+  manda el bloque; no se ha compensado tocando otros valores.
+- **Baterías al cierre** (corrida única tras relanzar el
+  proceso web en fresco por `arrancar.sh` — contadores a
+  cero, lección de §§54/55): web **33/33** · profesional
+  **25/25** · guarda **11/11** · mecánicas **23/23** ·
+  fase2 **22/22**.
+- **Despliegue**: `put` con SHA-256 idénticos local = máquina
+  en `web/index.html` (`3dd6f2f0…`) y `web/sw.js`
+  (`312b3c8b…`, shell **v28**); web reiniciada solo con
+  `arrancar.sh` (pid 123835 → 125264); webhook (8080) y
+  agenda (8081) no se tocaron; la clave profesional se leyó
+  solo dentro de la máquina.
+
+**Nota de sync para la congelación del 04/11** (se suma a las
+de §§46–58): entran también `web/index.html`, `web/sw.js`
+(v28), `web/qa-b9/` entero, `web/icons/vista-b9-foto.png`,
+`web/icons/vista-b9-resultado.png`, `web/icons/b9-a-*.png`,
+`web/icons/b9-d-*.png` y esta §59 de `ESTADO_PROYECTO.md`.
+Los respaldos `*.bak-20261029-b9` NO viajan al repo.
+
+## §60 · MUSA Bloque B10 — Explorar: una tarjeta, una acción (29/10/2026, noche)
+
+Décimo y último bloque ejecutable del plan de
+`DIAGNOSTICO_UX_MUSA.md` (B7 sigue aparcado: decisión de Lee
+pendiente, no se ha tocado). B9 (§59) había observado que parte
+de B10 ya estaba en el código sin sección propia en este
+ESTADO, así que el bloque empezó con la **auditoría previa**
+contra la definición del diagnóstico, y solo se ejecutó lo que
+faltaba. Cambian solo `web/index.html` (la tarjeta de Explorar)
+y el SW (**v28 → v29**). Respaldos `*.bak-20261029-b10` en
+local y en la máquina.
+
+- **Auditoría previa (definición de B10 → estado encontrado,
+  con evidencia)**:
+  1. *«Foto menos alta»* — **YA ESTABA HECHO, sin sección**:
+     `.prod-card .pc-foto` mide **170 px**. Consta así en los
+     respaldos desde el **28/10/2026** (pase modular,
+     `index.html.bak-20261028-modular`) y en todos los
+     posteriores; la tarjeta `.prod-card` no existe en los
+     respaldos anteriores (`-v6`, `-pivote`): nació con esa
+     foto. La medida de 350 px del diagnóstico era la **tarjeta
+     completa** (su propia tabla de medidas DOM: 376×350) y su
+     tabla de componentes la atribuyó a la foto — imprecisión
+     que §59 ya registró («foto a 170 px, hecho») y que esta
+     auditoría confirma con medición propia ANTES: foto 170,
+     tarjeta 350.
+  2. *«UNA acción primaria negra Reservar»* — **FALTABA**:
+     Reservar era `.btn-fantasma` (transparente, borde negro).
+  3. *«Probar con mi foto como acción secundaria de texto»* —
+     **FALTABA**: era `.btn-secundario` (contorno blanco) y
+     competía en pie de igualdad con Reservar — medidos ambos
+     a 138×58 con el mismo peso 700: el «doble botón contorno
+     sin primaria» del diagnóstico, literal.
+  4. *«Fuera el nombre del salón repetido en cada tarjeta»* —
+     **FALTABA**: las 4 tarjetas llevaban
+     `<span class="chip-dato">Ari Vivas Beauty</span>` en la
+     línea de precio/duración.
+  5. *«Descriptor para Depilación o anatomía sin hueco»* —
+     **FALTABA por las dos vías**: descriptor no tiene ni debe
+     inventarse — el código documenta la decisión de
+     honestidad («Descriptores cortos y honestos: son el
+     lenguaje del propio salón (los usa la recepcionista); de
+     Depilación rápida no afirmamos nada más») y su precio es
+     «Consultar» —; y la anatomía sin foto era MÁS BAJA que la
+     de con foto (`.pc-sinfoto` 110 px frente a 170; tarjeta
+     de 268 frente a 350): un esqueleto distinto, la
+     «anatomía incompleta» del diagnóstico.
+- **El cambio (solo lo que faltaba; diff completo revisado
+  contra el respaldo: 3 piezas)**:
+  - `tarjetaProducto` (solo la usa Explorar): **Reservar pasa
+    a `.btn-primario`** (negra, la primaria del sistema B4) y
+    abre la fila; **«Probar con mi foto» pasa a `.btn-texto`**
+    (la acción de texto del sistema: sin caja, subrayada);
+    **fuera el chip «Ari Vivas Beauty»** de la meta (el nombre
+    del salón sigue donde es título — la tarjeta «El salón ·
+    Ari Vivas Beauty» bajo la carta — y en el resto de la
+    app). El icono de guardar no cambia: es el componente-icono
+    de B4 y su mecánica (Mis guardados) queda intacta.
+  - CSS: dos reglas de adaptación de la fila, en el patrón del
+    propio sistema (como `.fila-botones .btn{flex:1}`):
+    `.pc-acciones .btn-primario{flex:1}` y
+    `.pc-acciones .btn-texto{width:auto;flex:none}`.
+  - **`.pc-sinfoto` 110 → 170 px**: la caja de medio es LA
+    MISMA con foto o sin ella (y la misma que el esqueleto de
+    carga `.sk-foto.alta`, 170): anatomía única sin hueco, sin
+    inventar ni una palabra sobre el servicio.
+  - La anatomía canónica resultante es la del diagnóstico
+    (foto, nombre, descripción cuando es lenguaje del salón,
+    precio·duración, UNA primaria) y convive con las variantes
+    documentadas sin tocarlas: la seleccionable del paso 1
+    (`.servicio-card`) y la de Inicio/Recomendado (espec
+    cerrada de Lee). Textos, precios y mecánicas intactos; el
+    `:root` no se toca (invariante B4 a salvo: el diff no lo
+    roza).
+- **Verificación (guion propio `web/qa-b10/b10.mjs`,
+  navegación real a 412×915 contra la máquina, 0 errores de
+  consola en ambas pasadas)**:
+  - **Medición DOM antes → después**: tarjeta con foto
+    **350 → 340 px** (la fila de acciones baja de 58 a 48 al
+    dejar de ser dos cajas); Depilación **268 → 318** (su
+    caja de medio 110 → 170, la misma que las demás); meta de
+    «18 € · 25 min · Ari Vivas Beauty» a «18 € · 25 min»;
+    estilos computados después: Reservar fondo
+    `rgb(13,13,13)` con texto blanco (`.btn-primario`), Probar
+    transparente a 15/600 (`.btn-texto`), chip del salón:
+    **0 en las 4 tarjetas**.
+  - **Acciones ejercidas igual en las dos pasadas**: guardar
+    alterna y se restaura; «Probar con mi foto» → pantalla de
+    consentimiento; «Reservar» (2ª tarjeta) → paso 2 con
+    «Ombré Brows Henna» en TU CITA. Sin confirmar ninguna
+    reserva.
+  - **Comparativas lado a lado revisadas píxel a píxel**:
+    `web/icons/vista-b10-explorar.png` (la primera pantalla:
+    la primaria negra manda, la secundaria es texto en una
+    línea, y de la segunda tarjeta ya se lee también su
+    precio sobre el pliegue, cosa que antes tapaba la barra
+    de navegación) y `web/icons/vista-b10-depilacion.png`
+    (la tarjeta sin foto con la caja a la altura de las
+    demás, sobre la de Brow Lamination: mismo componente).
+    Originales servidos en `web/icons/b10-a-*.png` y
+    `b10-d-*.png`.
+  - **Delta declarado, sin maquillar**: tarjetas por
+    viewport — el criterio literal del diagnóstico (≥2
+    visibles por intersección) se cumple antes y después
+    (**2**); completas hay **1**, con la segunda visible al
+    **94 %** (antes 88 %) y sus acciones aún justo bajo la
+    barra de navegación. La densidad que queda no es la foto
+    (170, su objetivo ya cumplido) sino la cabecera de la
+    pantalla (244 px: título, buscador y chips) y el cuerpo
+    de la tarjeta; bajar la foto por debajo de la pieza ya
+    cerrada del propio bloque para ganar el número habría
+    sido forzar la métrica, y no se ha hecho (misma categoría
+    de delta declarado que §56).
+  - **Baterías al cierre** (corrida única con el proceso web
+    fresco del despliegue — contadores a cero, lección de
+    §§54/55): web **33/33** · profesional **25/25** · guarda
+    **11/11** · mecánicas **23/23** · fase2 **22/22**.
+- **Despliegue**: `put` con SHA-256 idénticos local = máquina
+  en `web/index.html` (`d7ce56bf…`) y `web/sw.js`
+  (`7af28efb…`, shell **v29**); web detenida y relanzada solo
+  con `arrancar.sh` (pid 125264 → 126594); webhook (8080) y
+  agenda (8081) no se tocaron; la clave profesional se leyó
+  solo dentro de la máquina.
+
+**Nota de sync para la congelación del 04/11** (se suma a las
+de §§46–59): entran también `web/index.html`, `web/sw.js`
+(v29), `web/qa-b10/` entero, `web/icons/vista-b10-explorar.png`,
+`web/icons/vista-b10-depilacion.png`, `web/icons/b10-a-*.png`,
+`web/icons/b10-d-*.png` y esta §60 de `ESTADO_PROYECTO.md`.
+Los respaldos `*.bak-20261029-b10` NO viajan al repo.
+
+## §61 · QA21 — Pase integral post-MUSA y preparación del ensayo (30/10/2026, madrugada)
+
+- **Encargo**: re-verificar la app ENTERA en su estado final
+  post-MUSA (B1–B6, B8–B10 desplegados en §§52–60), no bloque a
+  bloque, antes del ensayo del 02/11: matriz funcional completa,
+  ruta de actualización PWA, secuencia de demo del runbook con
+  tiempos, delta cosmético declarado de §56, baterías completas
+  en verde y cero datos de prueba vivos al cerrar. Sin funciones
+  nuevas ni rediseños. Todo lo de esta sección está ejecutado
+  contra la máquina real a 412×915 (guiones en `web/qa21/`).
+
+### Defecto real reportado por Lee — cabecera «TU CITA» (ARREGLADO, SW v30)
+
+- **El defecto** (captura de Lee en su móvil, Brave, ~00:31,
+  con el pack exacto de su reserva real id 512: Diseño de cejas
+  + Ombré Brows Henna + Depilación rápida, sáb 31/10): la barra
+  oscura fija del flujo de reserva (`.resumen-mini`) componía en
+  UNA fila etiqueta + nombre del pack + precio con `nowrap`; el
+  nombre quedaba exprimido en una **columna de 124 px, 5 líneas
+  palabra por línea** (anchos medidos [123, 97, 58, 76, 45]),
+  la barra medía **161 px** de alto y, al desplazar, tapaba la
+  1ª línea de servicio de la tarjeta de resumen y recortaba la
+  2ª. Los datos eran correctos (48 € + a consultar, 102 min):
+  el fallo era solo de presentación. Reproducido tal cual con
+  guion propio (`web/qa21/cabecera.mjs`: pack3 = el caso exacto
+  de Lee — se eligió 12:00 porque la reserva 512 ocupa
+  10:15–11:57 —, pack4 = el pack máximo de la carta, solo =
+  regresión; no confirma reservas).
+- **El arreglo (solo CSS en `web/index.html`; sin markup ni
+  JS)**: `.resumen-mini` con `flex-wrap:wrap`; `.rm-etq` orden
+  1; `.rm-precio` orden 2 con `margin-left:auto` (fila de
+  cabecera: etiqueta + precio); `.rm-txt` orden 3 con
+  `flex:1 1 100%` (nombre a ancho completo, fecha debajo).
+- **Resultado medido**: pack3, barra **161 → 114 px**, columna
+  **124 → 344 px**, nombre **5 → 2 líneas** [286, 124]; pack4
+  (los 4 servicios, «93 € + a consultar») también 2 líneas y
+  114 px; servicio suelto 63 → 95 px (estructura uniforme,
+  verificado visualmente). Al desplazar, la barra solo cubre
+  la fila de etiqueta de la tarjeta blanca: líneas, Total, Día,
+  Hora y Duración visibles. **Gana claramente lado a lado**
+  (capturas en `web/qa21/cabecera/{antes,despues}/`, copias
+  servidas `web/icons/qa21-{a,d}-*.png`, revisadas una a una).
+- **Despliegue**: SW **v29 → v30**; respaldos
+  `*.bak-20261030-qa21` de `index.html` y `sw.js` en local y en
+  la máquina; SHA local = máquina: index `d6319ded…`, sw
+  `c0048e77…`; web reiniciada con proceso nuevo; `/salud` OK.
+  **El caso queda permanente en la matriz QA21** (pack más
+  largo de la carta real + servicio «a consultar»).
+
+### Delta cosmético de §56 (Salón) — candidato evaluado y RECHAZADO
+
+- Medido en reposo (`web/qa21/salon.mjs`): el h2 «¿No sabes qué
+  servicio elegir?» a 23 px ocupa **2 líneas** (53 px) y la
+  **barra de reserva del salón** `.salon-barra` (preselección
+  por defecto de 1 servicio; y 755–829) cubre la 2ª línea del
+  mini de privacidad y 37 de 53 px del botón «Analizar mis
+  cejas». Matiz frente a §56: quien cubre es la barra del
+  salón, no la barra de navegación. Todo alcanzable con scroll.
+- **Candidato probado solo en sesión** (h2 a 19 px, el peldaño
+  «destacado» de la escala cerrada de B4, sin desplegar): el h2
+  pasa a 1 línea y el mini queda entero visible, **PERO el
+  botón «Analizar mis cejas» queda ENTERO (53/53 px) tras la
+  barra: peor que el estado actual**. Causa raíz: densidad de
+  la primera pantalla (hero + intro + tarjeta) sobre barra fija
+  de 74 px + navegación de 59 px; ningún ajuste de ±31 px lo
+  resuelve. **No se aplica** (regla: si no gana claramente, no
+  se entrega). Riesgo para el 02/11: ninguno — la demo no
+  reposa en esta pantalla y todo se alcanza desplazando.
+
+### Secuencia de demo del runbook contra v30 — 8/8
+
+Guion `web/qa21/secuencia.mjs` (log en
+`web/qa21/secuencia/log-secuencia.json`), sin gastar Twilio:
+
+| Paso | QA19 (v. anterior) | QA21 (v30) |
+|---|---|---|
+| Abrir la app | 1,9 s | **1,2 s** |
+| Buscar «henna» | 1,5 s | **1,5 s** |
+| Recomendado | 2,7 s | **2,7 s** |
+| Análisis (paso completo) | 20,0 s | **17,0 s** |
+| — análisis E2E en la UI | 15,1 s | **12,1 s** |
+| Reservar | 4,7 s | **4,0 s** |
+| Enlace mágico | 3,1 s | **3,1 s** |
+| Panel profesional | 4,9 s | **4,9 s** |
+| Cancelar | 6,2 s | **6,2 s** |
+
+0 errores de consola; `scrollWidth` 412 en todo. Verificado en
+vivo post-MUSA: etiqueta «ORIENTACIÓN» en el resultado (B2),
+precio en negro `rgb(13,13,13)`, el resumen del modelo cierra
+en voz de orientación, puerta de consentimiento intacta. La
+cita de la secuencia se reservó en el **primer hueco futuro
+real** del día (30/10 10:00 — la guarda de pasados de §§47/49
+funciona también aquí) y quedó cancelada (ids 513/514, las dos
+corridas). **Contraste con `ENSAYO_Y_DEMO.md`: ningún paso,
+texto ni pantalla difiere de lo que el runbook promete en la
+v30 → el runbook NO se toca; constancia aquí.**
+
+### Matriz funcional completa — 15/15 (dos corridas)
+
+Guiones `web/qa21/matriz.mjs` (1ª corrida) y
+`web/qa21/matriz-b.mjs` (compleción). La 1ª corrida dio **7/15**
+con 3 errores de consola, **todos provocados** (409, 404 del
+token inventado, 401 de la clave mala). Los 8 fallos se
+diagnosticaron uno a uno contra la BD y el código: **eran
+bugs de mi guion, no de la app** — buscador leído en
+`#explorar-grid` (incluye tarjetas ocultas; el aviso real vive
+en `#sin-resultados-exp`/`#sin-resultados-txt`); token derivado
+de `localStorage` (ya no trae `g.token`; sale del href de
+`#conf-ver-cita`); la espera tiene nombre propio `#esp-nombre`;
+«Mi cita» muestra la reserva más reciente del dispositivo (la
+fila verificó de hecho eso); la bandeja se leyó truncada a 220
+caracteres; el reagendar de `cita.html` usa botones `.hueco`,
+no `.hora-fila`. La compleción re-ejecutó cada fila corregida:
+
+| Fila | Resultado |
+|---|---|
+| buscador-vacio | ✅ aviso «Ningún servicio coincide con…» visible, 0 tarjetas visibles, «Ver todos los servicios» restaura las 4 |
+| pack-e2e | ✅ Diseño + Ombré, 31/10 12:00, **AS-AATW**; sumas en la interfaz: 48 € · 90 min; botón .ics visible |
+| enlace-ver | ✅ (matriz-b, pack AS-AATZ) CONFIRMADA con pack, fecha y titular correctos |
+| enlace-prep | ✅ «¡Guardado! Lo verá el salón junto a tu cita.» — y el prep consta en la BD de la cita |
+| enlace-reagendar | ✅ 31/10 → **03/11 10:00**, confirmado en pantalla y en la BD |
+| pro-hoy | ✅ cita de hoy creada y marcada **cumplida** desde el panel; su agradecimiento llegó a la bandeja |
+| espera-domingo | ✅ «Los domingos el salón cierra» + alta en lista de espera con `#esp-nombre`; descartada después en «Por avisar» en su propia tarjeta |
+| error-409 | ✅ mensaje real «Ese hueco se ocupó mientras reservabas… Vuelve a elegir la hora.»; la cita de ocupación se canceló por su enlace. *Nota: la lista de huecos alternativos del mensaje salió vacía en el texto capturado — el mensaje sigue siendo accionable (vuelve al paso de hora), pero queda anotado como pulido posible, sin riesgo para la demo* |
+| token-inventado | ✅ error con salidas «Ir a La Asistenta» + WhatsApp (B8) |
+| foto-invalida | ✅ «Esa foto no es JPG, PNG ni WebP. Prueba con otra.» |
+| guardar-look | ✅ análisis real → look guardado (recomendado: Diseño de cejas) |
+| guardados-y-perfil | ✅ guardados y Mis looks poblados; datos de perfil guardados en el dispositivo |
+| mi-cita | ✅ muestra la reserva más reciente (en matriz-b, el pack AS-AATZ recién creado) |
+| profesional | ✅ clave mala rechazada con error; Hoy con «QA21 Pro» → Cumplida → agradecimiento en bandeja; pack visible en la Agenda de 7 días; alta de espera en «Por avisar»; Mi negocio con carta de solo lectura y embudo con periodo |
+| pack-cancelar | ✅ cancelada por su enlace mágico y **sigue cancelada tras recargar** |
+
+- **Cierre de restos de la 1ª corrida** (en matriz-b, por sus
+  canales propios): la cita **515** («QA21 Pack», viva) se
+  canceló llamando desde la sesión del panel al mismo endpoint
+  que usa el botón «Cancelar esta cita» (la vista Agenda es de
+  solo lectura y Hoy solo muestra hoy) → 200; el mensaje de
+  bandeja **id 54** se descartó con su selector exacto
+  `[data-bandeja="54"]`.
+- **Observación (sin arreglo, fuera del alcance «sin funciones
+  nuevas»)**: «Mi cita» lee la copia guardada en el dispositivo
+  al reservar; si la cita se reagenda desde otro dispositivo,
+  esa copia no se refresca. Riesgo bajo y ajeno a la demo (el
+  enlace mágico siempre muestra el estado real del servidor).
+- **Estado final en la BD verificado**: citas QA21 513/514/517/
+  518 canceladas, 515 cancelada, 516 cumplida; bandeja 54
+  descartada; espera «QA21 Espera» (id 47) descartada. **Única
+  cita viva futura: la id 512, la reserva real de Lee — intacta.**
+
+### Ruta de actualización PWA — VEREDICTO: limpia
+
+Guion `web/qa21/pwa.mjs` en dos fases con el mismo perfil de
+Chromium (logs y capturas en `web/qa21/pwa/`):
+
+- **Fase 1**: con el `sw.js` v29 (el respaldo
+  `sw.js.bak-20261030-qa21`, que solo difiere en el nombre de
+  la caché) servido temporalmente: instalación fresca →
+  SW v29 `activated` y controlando, caché
+  `la-asistenta-shell-v29` única, app renderiza entera
+  (Recomendado + 8 pastillas), 0 errores de consola.
+- **Fase 2**: restaurado el `sw.js` real v30 (SHA `c0048e77…`
+  verificado tras la restauración) → `registration.update()` +
+  recarga: **la caché v29 desaparece y queda solo
+  `la-asistenta-shell-v30`**, SW activado, página controlada,
+  `/` presente en la caché nueva, app entera funcional, 0
+  errores de consola. **Una instalación vieja se actualiza a
+  la v30 sin quedarse a medias.**
+
+### Baterías completas al cierre (suite única, proceso web fresco)
+
+Web detenida por su pid y relanzada solo con `arrancar.sh`
+(pid nuevo 133503; contadores a cero) y suite en una sola
+pasada contra la máquina real:
+
+**web 33/33 · profesional 25/25 · guarda 11/11 · mecánicas
+23/23 · fase2 22/22 · probador 18/18** (5 FASHN + 13 Meta
+contra stub, `Ran 5 tests OK` / `Ran 13 tests OK`).
+
+Tras las baterías, la única cita viva futura sigue siendo la
+512: las baterías limpian sus propias citas por su canal
+(guarda: ids 525–527 canceladas en su propia limpieza).
+
+### Documentos
+
+- `ENTREGA_HACKATHON.md` actualizado: cifras de baterías en
+  «Impact» (33/33 · 25/25 · 11/11 · 23/23 · 22/22 · 18/18),
+  latencia 12,1 s de QA21 sumada en «How we used Meta», nota
+  del apéndice QA19 corregida (el bug de horas pasadas SÍ se
+  parcheó en §§47/49 — constaba como no parcheado), apéndice
+  nuevo «Full post-redesign re-verification — QA21» y la
+  congelación del 04/11 incluye ya `web/qa21/`.
+- `ENSAYO_Y_DEMO.md`: contrastado paso a paso contra la v30 —
+  **sin diferencias; no se toca** (constancia en esta sección).
+- Incidencia operativa menor: la máquina se suspendió una vez
+  durante QA21 (pausa de 30 min entre corridas) y se despertó
+  por API con `wake` en segundos, con los tres servicios sanos
+  — el mismo procedimiento que el runbook prescribe para el
+  02/11 y que la vigilia cubre ese día.
+
+**Nota de sync para la congelación del 04/11** (se suma a las
+de §§46–60): entran también `web/index.html` (v30,
+`d6319ded…`), `web/sw.js` (v30, `c0048e77…`), `web/qa21/`
+entero (guiones `cabecera.mjs`, `salon.mjs`, `secuencia.mjs`,
+`matriz.mjs`, `matriz-b.mjs`, `pwa.mjs`, con sus logs y
+capturas), `web/icons/qa21-*.png`, `ENTREGA_HACKATHON.md`
+actualizado y esta §61 de `ESTADO_PROYECTO.md`. Los respaldos
+`*.bak-20261030-qa21` NO viajan al repo.
+
+## §62 · ACTIVACIÓN META — credencial verificada, formas reales confirmadas, BENCHMARK H1 (estrategia A) ejecutado; queda UN gesto de Lee (30/10/2026, madrugada)
+
+La clave de equipo de la Meta Model API existe: Lee la creó en
+dev.meta.ai desde su portátil y la pegó en la tarjeta segura del
+conector `custom.meta-model-api` (30/10 ~01:46) — nunca pasó por el
+chat. Lee confirmó además en la página **Billing** de dev.meta.ai
+(30/10 ~01:50) que **los 150 $ de crédito SÍ están aplicados** a su
+cuenta; todo el gasto de esta sección va contra ese crédito.
+
+### Credencial verificada sin gasto (vía conector)
+
+- `GET https://api.meta.ai/v1/models` por la ruta del conector
+  (sustituto de `dynamic_credentials`, canjeado solo en el egress
+  hacia `api.meta.ai`): **HTTP 200, 9 modelos** en la cuenta de Lee:
+  muse-spark-1.3 · muse-spark-1.2 · muse-spark-1.1 ·
+  muse-spark-1.3-contributor · muse-spark-1.2-contributor ·
+  **muse-image-1.0** · **sam-3.1** · muse-voice-transcribe-1.0 ·
+  muse-wonder-1.0. IDs exactos usados: `muse-image-1.0`, `sam-3.1`.
+
+### Formas reales confirmadas (ACTIVACION_META.md paso 2, cerrado)
+
+- **Muse Image** edita sobre la superficie Responses
+  (`input_text` + `input_image` como data URI), tal como estaba
+  cableado: imagen WebP de vuelta, latencia medida ≈ 21 s en el
+  humo, 0,01 $. La forma de `editar_cejas()` queda confirmada sin
+  cambios.
+- **SAM 3.1** responde también por Responses (200, «completed»),
+  pero su salida es el `output_text` del protocolo oficial con
+  tokens `<|box;…|>` y `<|mask;…;data=<alto>,<ancho>,<RLE>|>`.
+  `segmentar()` ya parsea ese formato real (caja + máscara en su
+  RLE nativo); decodificar el RLE a bitmap exige el códec del
+  cliente oficial (meta-models/meta-sam) y queda pendiente — solo
+  lo necesitan las estrategias B/C; producción (A) no lo llama.
+  Ambos ajustes y su evidencia viven en la cabecera de
+  `probador/proveedor_meta.py`.
+
+### Humo (paso 3) — ejecutado por la vía del conector
+
+La edición real sobre la foto de ejemplo del proyecto
+(`web/ejemplo.jpg`, stock autorizado; nunca fotos de clientas)
+generó la propuesta visual con identidad preservada. El flujo de la
+web en la máquina queda verificado en su forma dormida (ver el
+gesto pendiente): sin clave en la máquina, la clienta recibe el
+análisis como siempre y ningún paso visual aparece.
+
+### ⚠️ EL ÚNICO GESTO PENDIENTE — paso 1 en su forma literal
+
+La entrega a la máquina NO pudo completarse desde el agente, por
+diseño de la bóveda: el conector entrega la credencial como
+**sustituto canjeable solo en peticiones del propio agente**;
+ningún canal soportado permite leer su valor en claro ni
+escribirlo en un fichero. Estado real comprobado en la máquina:
+**no existe `/data/la-asistenta/web/meta.env`** y
+`GET /api/capacidades` responde `disponible: false`
+(`proveedor_meta.py estado` → `fuente_clave: ninguna`). No se
+improvisó ningún rodeo inseguro.
+
+**El gesto exacto que falta (solo Lee, ~1 minuto, en la consola de
+la máquina `la-asistenta` de su panel InstaBox):**
+
+```bash
+printf 'META_MODEL_API_KEY=%s\n' 'PEGA-AQUÍ-TU-CLAVE' > /data/la-asistenta/web/meta.env
+chmod 600 /data/la-asistenta/web/meta.env
+```
+
+(El valor es la clave que él creó en dev.meta.ai → API keys; si la
+consola no permite volver a verla, crea una nueva — se muestra una
+sola vez — y usa esa; la del conector puede quedarse como está.)
+Sin reinicio: el servidor lee la clave en cada petición y
+`/api/capacidades` pasará a `disponible: true` en la siguiente
+llamada, encendiendo el paso visual exactamente como quedó
+cableado en §48. Verificación posterior prevista: humo del paso 3
+de ACTIVACION_META.md ya dentro de la web (consentimiento →
+análisis → propuesta visible → guardar en Mis looks).
+
+### Benchmark H1 — estrategia A ejecutada (orden de Lee «Hazlo a tope», 01:55)
+
+Detalle completo y apéndice de resultados en `BENCHMARK_H1.md`;
+artefactos en `h1/resultados/` (set.json · registro.jsonl ·
+puntuacion_tecnica.json · hojas `contacto.jpg` por imagen).
+
+- **Alcance**: estrategia A sobre IMG-01…IMG-06 del set de banco
+  (descargadas de Pexels con ID y licencia registrados y miradas
+  una a una antes de asignar el caso). **IMG-07/IMG-08 no se
+  ejecutaron**: exigen el consentimiento escrito de la plantilla
+  de §3.6, que no consta. Estrategias B/C no ejecutadas (SAM sin
+  códec RLE; la decisión de producción ya era A).
+- **Generación**: 12/12 propuestas (6 casos × 2 intensidades), 0
+  errores, con la MISMA función y la MISMA instrucción que
+  producción (`proveedor_meta`), transporte por el conector.
+- **Latencia de edición**: p50 **16,1 s** · media 16,9 s · rango
+  11,4–24,3 s (criterio §3.6: p50 ≤ 45 s ✓).
+- **Puntuación técnica** (rúbrica §3.4, juez operador; la ciega de
+  Arianna es el voto decisivo y queda pendiente): Calidad media
+  **4,33/5** (natural 4,67 · marcada 4,00 — la marcada tiende a
+  sobre-rellenar), Identidad **5,00/5** (ninguna < 3),
+  Delimitación **5,00/5**, **fugas graves 0/12 (0 %)**. Incluso el
+  caso girado ~90° (IMG-03) editó solo las cejas.
+- **Veredicto**: estrategia A **apta y confirmada para
+  producción** en todos los criterios medibles de §3.6; abierto
+  solo el criterio de aceptación (≥60 % «enseñable» según Arianna),
+  que no bloquea el encendido porque la propuesta se presenta
+  siempre como orientación que ella confirma en el salón.
+- **Ejemplos servidos** en la web viva:
+  `/icons/vista-benchmark-img02.jpg` e
+  `/icons/vista-benchmark-img04.jpg` (original | natural |
+  marcada; HTTP 200 verificado).
+- Observación menor registrada: `construir_instruccion()` añade
+  «/5» tras la naturalidad textual de producción («naturalidad muy
+  natural/5»); es el constructor que usa producción tal cual y el
+  benchmark lo heredó sin tocar — cosmético dentro del prompt, sin
+  efecto observado en los resultados.
+
+### Gasto Meta de la activación (contra el crédito de 150 $)
+
+- Humo: edición 0,01 $ + SAM 0,0025 $ ≈ **0,013 $**.
+- Benchmark H1-A: 12 × 0,01 $ = **0,12 $**.
+- **Total documentado ≈ 0,13 $** (tope autorizado de la orden:
+  1,50 $). Sin ningún otro cargo: el listado de modelos es de solo
+  lectura.
+
+### Baterías completas al cierre (máquina real)
+
+Con el procedimiento de §61 (web detenida por su pid y relanzada
+solo con `arrancar.sh`, pid nuevo 135965, contadores a cero) y la
+suite en una pasada:
+
+**web 33/33 · profesional 25/25 · guarda 11/11 · mecánicas 23/23 ·
+fase2 22/22 · probador 18/18** (unittest contra stub, como siempre;
+la parte Meta REAL queda cubierta por el humo y el benchmark de
+esta sección, no por la batería offline).
+
+Incidencia de procedimiento, registrada: una primera pasada contra
+el proceso web longevo dio profesional 8/24 por el rate-limit de
+acceso en memoria (la propia batería web consume inicios de sesión
+del panel); con proceso fresco y una sola pasada, 25/25 — el mismo
+fenómeno ya documentado en B3/§61. Sin cambios de código.
+
+### Documentos
+
+- `BENCHMARK_H1.md`: apéndice de resultados de la estrategia A.
+- `ENTREGA_HACKATHON.md`: el párrafo de Muse Image + SAM ya
+  recogía la verificación de la clave y el crédito confirmado; se
+  le suma el resultado del benchmark H1 (12 propuestas, p50 16,1 s,
+  identidad y delimitación 5,0/5, aceptación de Arianna pendiente).
+  El único ⚠️ que queda en el documento es la URL del vídeo.
+- `ACTIVACION_META.md`: nota de estado 30/10 en la cabecera con el
+  gesto pendiente y su forma exacta.
+
+**Nota de sync para la congelación del 04/11** (se suma a las de
+§§46–61): entran también `probador/proveedor_meta.py` (formas
+reales confirmadas), `h1/resultados/` (set, registro, puntuación y
+hojas de contacto), `BENCHMARK_H1.md` con su apéndice,
+`ACTIVACION_META.md` con su nota, `ENTREGA_HACKATHON.md`
+actualizado, `web/icons/vista-benchmark-img02.jpg` e
+`img04.jpg`, y esta §62 de `ESTADO_PROYECTO.md`. Excluidos como
+siempre: `web/meta.env` (no existe aún; cuando exista, NUNCA viaja
+al repo), claves y ficheros de entorno.
+
+### Apéndice §62 · El gesto, reducido a un solo guion (30/10/2026, ~02:20)
+
+La forma literal con `printf` resultaba confusa de madrugada, así
+que el gesto queda empaquetado en un guion interactivo creado en
+la máquina: **`/data/la-asistenta/bin/activar-meta.sh`** (copia
+local idéntica en `bin/activar-meta.sh`, SHA-256
+`c5238e8ef842d7e6…` en ambos lados). El guion: explica en una
+línea qué hace, pide «Pega tu clave de Meta y pulsa Enter»
+leyendo **sin eco** (`read -s`; la clave no se imprime, no se
+registra y no viaja como argumento), escribe
+`web/meta.env` con `META_MODEL_API_KEY=<valor>` y permisos
+**600**, comprueba `GET /api/capacidades` y dice el veredicto en
+lenguaje llano («✅ ENCENDIDO» o qué revisar), y cierra diciendo
+que ya puede cerrar la consola.
+
+**La orden exacta que Lee tecleará (una sola línea, en la consola
+de la máquina `la-asistenta` de su panel InstaBox):**
+
+```bash
+bash /data/la-asistenta/bin/activar-meta.sh
+```
+
+**Prueba del guion (con la regla dura respetada)**: jamás se
+ejecutó contra el `meta.env` real. Se probó en la máquina con el
+destino sobreescrito a ficheros temporales
+(`META_ENV_DEST=/tmp/…`, URL de capacidades sustituida por un
+JSON local): rama «encendido» → veredicto correcto; rama «no
+encendido» → consejos correctos; entrada vacía → sale con error
+sin crear fichero. Formato del temporal verificado
+(`META_MODEL_API_KEY=<valor>` en una línea) y permisos **600**.
+Los temporales se borraron tras la prueba.
+
+**Confirmación de cierre**: tras todo lo anterior,
+`/data/la-asistenta/web/meta.env` **sigue sin existir** y
+`GET /api/capacidades` sigue respondiendo `disponible: false` —
+la honestidad del sistema queda intacta hasta que Lee ejecute el
+guion con su clave. Ningún otro fichero de producción se tocó.
+Nota de sync (se suma): entran también `bin/activar-meta.sh` y
+este apéndice.
+
+## §63 · SINCRONIZACIÓN INTERMEDIA DEL REPO PÚBLICO (30/10/2026)
+
+Ejecutada la sync intermedia sobre `0eddb61` (29/10 ~14:05) para
+que la congelación del 04/11 sea un diff pequeño y seguro. Contenido
+compuesto desde las notas de sync de §§46–62: **64 rutas** (12
+actualizaciones y 52 incorporaciones), un solo commit de snapshot
+sobre `main` en github.com/Blackleets/la-asistenta. Hash del
+commit: queda registrado en el fichero de sync
+(`~/workspace/la-asistenta-repo.muse-github-snapshot-sync.json`,
+6ª entrada) y se completa en esta sección en el original interno
+tras la confirmación del push; manifiesto en
+`~/workspace/la-asistenta-paths-v6.bin`.
+
+**Contenido por bloque**:
+
+- **§46 (entrega)**: `ENTREGA_HACKATHON.md` (nuevo) y `web/qa19/`
+  en texto (guion y log del pre-ensayo).
+- **§47 + §49 (guardas de pasado)**: `agenda/agenda_comun.py`,
+  `agenda/agenda_api.py`, `agenda/mcp_agenda.py`,
+  `agenda/pruebas_api_guarda.py`, `web/web_server.py`,
+  `web/pruebas_web.py`.
+- **§48 + §62 (cableado y activación Meta)**:
+  `probador/proveedor_meta.py` (formas reales confirmadas),
+  `probador/stub_meta.py`, `probador/test_proveedor_meta.py`,
+  `probador/INTERFACES.md`, `ACTIVACION_META.md`,
+  `BENCHMARK_H1.md` con su apéndice de resultados, los registros
+  de texto de `h1/resultados/` (`set.json`, `registro.jsonl`,
+  `puntuacion_tecnica.json`, `errores.jsonl`) y
+  `bin/activar-meta.sh`.
+- **§50 (vigilia)**: `bin/vigilia.sh`.
+- **§51 (pulido QA20)**: `web/qa20/` en texto (guiones y logs).
+- **MUSA B1–B6 y B8–B10 (§§52–60)**: `web/index.html`,
+  `web/cita.html`, `web/profesional.html`, `web/sw.js` (v30),
+  `web/web_server.py`, la batería nueva
+  `web/pruebas_profesional.py` y las carpetas `web/qa-b1/`,
+  `web/qa-b2/`, `web/qa-b3/`, `web/qa-b4/`, `web/qa-b5/`,
+  `web/qa-b6/`, `web/qa-b8/`, `web/qa-b9/`, `web/qa-b10/` en
+  texto (guiones, transformadores e informes).
+- **§61 (QA21)**: `web/qa21/` en texto (guiones y logs) y
+  `ENTREGA_HACKATHON.md` actualizado.
+- **ESTADO**: esta historia completa hasta §63, saneada (abajo).
+
+**Auditoría de secretos, por dos vías** (la de siempre, reforzada):
+
+- *Vía local*: grep exhaustivo sobre los 64 ficheros candidatos
+  ANTES de copiar (teléfono actual de Lee en todas sus formas,
+  el antiguo 678, su email, el fragmento del teléfono de Arianna,
+  el token de demo de la agenda, el prefijo de las claves de Meta, SID de Twilio `AC…`,
+  asignaciones con valor literal de KEY/TOKEN/SECRET, `Bearer`
+  con valor, blobs de 40+ caracteres y móviles españoles). Un
+  solo hallazgo: ese fragmento en la §45 interna,
+  saneado SOLO en la copia pública («tel. omitido en la copia
+  pública», la fórmula de siempre); el original interno queda
+  intacto. El resto: limpio. Los teléfonos que aparecen son los
+  ficticios de batería (600123456 y familia) y el wa.me público
+  del salón (584249134367), que es público por la web de Arianna
+  y ya constaba en el repo.
+- *Vía remota*: tras el push, búsqueda de código en GitHub sobre
+  el repo (fragmento saneado, email, teléfono) — 0 resultados
+  (detalle en el informe de la sync).
+
+**Excluidos, confirmados**: `hermes-home/`, `*.db`, logs de
+ejecución, `*.bak-*`, `profesional.env`, `agenda.env`,
+`meta.env` (sigue sin existir), `RUTA_C_TWILIO.md`,
+`ESTADO_PARA_CHATGPT.md`, `PLAN_EXPOSICION.md`, las fotos de
+`h1/set/` y los binarios de `h1/resultados/` (hojas de contacto),
+y **todos los binarios de vistas y capturas** (`web/icons/*.png`,
+`web/qa*/**/*.png|jpg`): el canal de publicación los rechaza y
+las vistas se referencian por su URL viva, como en 0eddb61. El
+README público queda intacto.
+
+**Pendiente EXACTO para la congelación del 04/11**:
+
+1. El humo de activación dentro de la web si Lee ejecuta
+   `bin/activar-meta.sh` (cierre de §62) y su registro.
+2. La URL del vídeo de la demo en `ENTREGA_HACKATHON.md` (único
+   ⚠️ que queda en el documento).
+3. Esta §63 completada con el hash del commit de esta sync.
+4. Retoques finales de última hora y el commit de congelación.
+5. `DIAGNOSTICO_UX_MUSA.md` y `musa-diag/` (evidencia del
+   diagnóstico MUSA): no estaban en las notas de sync de
+   §§52–60 y no viajan en esta sync; decidir su inclusión en la
+   congelación.
+
+La app en producción no se ha tocado en esta sync (ni un
+reinicio): solo se ha actualizado esta historia en la máquina,
+como en cada bloque.

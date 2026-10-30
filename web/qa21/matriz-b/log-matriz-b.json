@@ -1,0 +1,94 @@
+{
+ "fase": "QA21-matriz-b",
+ "filas": [
+  {
+   "id": "panel-cierre-restos",
+   "ok": true,
+   "datos": {
+    "bandeja54Descartada": true,
+    "cita515CanceladaSt": 200
+   }
+  },
+  {
+   "id": "buscador-vacio",
+   "ok": true,
+   "datos": {
+    "aviso": "Ningún servicio coincide con «xyz-sin-resultado». Prueba con «cejas», «henna» o «laminación».",
+    "tarjetasTrasRestaurar": 4
+   }
+  },
+  {
+   "id": "pack-nuevo-e2e",
+   "ok": true,
+   "datos": {
+    "sel": [
+     "Diseño de cejas",
+     "Ombré Brows Henna"
+    ],
+    "fecha": "2026-10-31",
+    "hora": "12:00",
+    "codigo": "AS-AATZ",
+    "detalle": "Diseño de cejas + Ombré Brows Henna · 48 €sábado, 31 de octubre a las 12:00 (90 min)Para QA21 Pack B"
+   }
+  },
+  {
+   "id": "enlace-ver",
+   "ok": true,
+   "datos": {
+    "muestra": "CONFIRMADA AS-AATZ Diseño de cejas + Ombré Brows Henna · 48 € · 90 min sábado, 31 de octubre a las 12:00 Para QA21 Pack B Guarda este enlace: es perso"
+   }
+  },
+  {
+   "id": "enlace-prep",
+   "ok": true,
+   "datos": {
+    "okTxt": "¡Guardado! Lo verá el salón junto a tu cita. Gracias 💖"
+   }
+  },
+  {
+   "id": "enlace-reagendar",
+   "ok": true,
+   "datos": {
+    "okTxt": "¡Hecho! Tu cita AS-AATZ es ahora el martes, 3 de noviembre a las 10:00."
+   }
+  },
+  {
+   "id": "mi-cita",
+   "ok": true,
+   "datos": {
+    "resumen": "Diseño de cejas + Ombré Brows Henna · AS-AATZsábado, 31 de octubre a las 12:00Para QA21 Pack B"
+   }
+  },
+  {
+   "id": "pack-cancelar",
+   "ok": true,
+   "datos": {
+    "codigo": "AS-AATZ",
+    "cancelada": true,
+    "persisteTrasRecarga": true
+   }
+  },
+  {
+   "id": "espera-domingo",
+   "ok": true,
+   "datos": {
+    "domingo": "Los domingos el salón cierra. Prueba otro día.",
+    "altaOk": true
+   }
+  },
+  {
+   "id": "panel-espera-descartar",
+   "ok": true,
+   "datos": {
+    "descartada": true
+   }
+  }
+ ],
+ "consola": [],
+ "resumen": {
+  "filasOk": 10,
+  "filasTotal": 10,
+  "erroresConsola": 0,
+  "packCodigo": "AS-AATZ"
+ }
+}

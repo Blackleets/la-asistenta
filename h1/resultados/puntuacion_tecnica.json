@@ -1,0 +1,134 @@
+[
+ {
+  "imagen": "IMG-01",
+  "estrategia": "A",
+  "intensidad": "natural",
+  "calidad": 4,
+  "identidad": 5,
+  "delimitacion": 5,
+  "fugas": "",
+  "juez": "tecnico (operador, rúbrica §3.4)",
+  "aceptacion_arianna": "pendiente de puntuación ciega"
+ },
+ {
+  "imagen": "IMG-01",
+  "estrategia": "A",
+  "intensidad": "marcada",
+  "calidad": 4,
+  "identidad": 5,
+  "delimitacion": 5,
+  "fugas": "",
+  "juez": "tecnico (operador, rúbrica §3.4)",
+  "aceptacion_arianna": "pendiente de puntuación ciega"
+ },
+ {
+  "imagen": "IMG-02",
+  "estrategia": "A",
+  "intensidad": "natural",
+  "calidad": 5,
+  "identidad": 5,
+  "delimitacion": 5,
+  "fugas": "",
+  "juez": "tecnico (operador, rúbrica §3.4)",
+  "aceptacion_arianna": "pendiente de puntuación ciega"
+ },
+ {
+  "imagen": "IMG-02",
+  "estrategia": "A",
+  "intensidad": "marcada",
+  "calidad": 4,
+  "identidad": 5,
+  "delimitacion": 5,
+  "fugas": "",
+  "juez": "tecnico (operador, rúbrica §3.4)",
+  "aceptacion_arianna": "pendiente de puntuación ciega"
+ },
+ {
+  "imagen": "IMG-03",
+  "estrategia": "A",
+  "intensidad": "natural",
+  "calidad": 4,
+  "identidad": 5,
+  "delimitacion": 5,
+  "fugas": "puntuada con zoom de cara: la foto es apaisada y la cara ocupa poco encuadre",
+  "juez": "tecnico (operador, rúbrica §3.4)",
+  "aceptacion_arianna": "pendiente de puntuación ciega"
+ },
+ {
+  "imagen": "IMG-03",
+  "estrategia": "A",
+  "intensidad": "marcada",
+  "calidad": 4,
+  "identidad": 5,
+  "delimitacion": 5,
+  "fugas": "puntuada con zoom de cara",
+  "juez": "tecnico (operador, rúbrica §3.4)",
+  "aceptacion_arianna": "pendiente de puntuación ciega"
+ },
+ {
+  "imagen": "IMG-04",
+  "estrategia": "A",
+  "intensidad": "natural",
+  "calidad": 5,
+  "identidad": 5,
+  "delimitacion": 5,
+  "fugas": "",
+  "juez": "tecnico (operador, rúbrica §3.4)",
+  "aceptacion_arianna": "pendiente de puntuación ciega"
+ },
+ {
+  "imagen": "IMG-04",
+  "estrategia": "A",
+  "intensidad": "marcada",
+  "calidad": 4,
+  "identidad": 5,
+  "delimitacion": 5,
+  "fugas": "",
+  "juez": "tecnico (operador, rúbrica §3.4)",
+  "aceptacion_arianna": "pendiente de puntuación ciega"
+ },
+ {
+  "imagen": "IMG-05",
+  "estrategia": "A",
+  "intensidad": "natural",
+  "calidad": 5,
+  "identidad": 5,
+  "delimitacion": 5,
+  "fugas": "",
+  "juez": "tecnico (operador, rúbrica §3.4)",
+  "aceptacion_arianna": "pendiente de puntuación ciega"
+ },
+ {
+  "imagen": "IMG-05",
+  "estrategia": "A",
+  "intensidad": "marcada",
+  "calidad": 4,
+  "identidad": 5,
+  "delimitacion": 5,
+  "fugas": "",
+  "juez": "tecnico (operador, rúbrica §3.4)",
+  "aceptacion_arianna": "pendiente de puntuación ciega"
+ },
+ {
+  "imagen": "IMG-06",
+  "estrategia": "A",
+  "intensidad": "natural",
+  "calidad": 5,
+  "identidad": 5,
+  "delimitacion": 5,
+  "fugas": "",
+  "juez": "tecnico (operador, rúbrica §3.4)",
+  "aceptacion_arianna": "pendiente de puntuación ciega"
+ },
+ {
+  "imagen": "IMG-06",
+  "estrategia": "A",
+  "intensidad": "marcada",
+  "calidad": 4,
+  "identidad": 5,
+  "delimitacion": 5,
+  "fugas": "",
+  "juez": "tecnico (operador, rúbrica §3.4)",
+  "aceptacion_arianna": "pendiente de puntuación ciega"
+ }
+]

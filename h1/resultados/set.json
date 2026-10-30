@@ -1,0 +1,44 @@
+[
+ {
+  "imagen": "IMG-01",
+  "fuente": "Pexels 33949302",
+  "licencia": "Licencia Pexels (uso libre)",
+  "dimensiones_descarga": "1200x1800",
+  "caso": "cejas pobladas y tupidas, efecto fluffy — caso ancla (= web/ejemplo.jpg)"
+ },
+ {
+  "imagen": "IMG-02",
+  "fuente": "Pexels 7846544",
+  "licencia": "Licencia Pexels (uso libre)",
+  "dimensiones_descarga": "1000x1500",
+  "caso": "cejas finas y muy claras, poca densidad visible (rubia platino). Desviación: foto desde abajo, ojos semicerrados"
+ },
+ {
+  "imagen": "IMG-03",
+  "fuente": "Pexels 19727580",
+  "licencia": "Licencia Pexels (uso libre)",
+  "dimensiones_descarga": "1000x667",
+  "caso": "pelo muy rizado y voluminoso. Desviación: cabeza girada ~90° (tumbada) y cejas ya marcadas con maquillaje"
+ },
+ {
+  "imagen": "IMG-04",
+  "fuente": "Pexels 9854230",
+  "licencia": "Licencia Pexels (uso libre)",
+  "dimensiones_descarga": "1000x1417",
+  "caso": "pelirroja natural con pecas; cejas claras y suaves"
+ },
+ {
+  "imagen": "IMG-05",
+  "fuente": "Pexels 15075186",
+  "licencia": "Licencia Pexels (uso libre)",
+  "dimensiones_descarga": "1000x1500",
+  "caso": "luz cálida desigual tipo selfie, encuadre parcial; cejas medias naturales"
+ },
+ {
+  "imagen": "IMG-06",
+  "fuente": "Pexels 9516040",
+  "licencia": "Licencia Pexels (uso libre)",
+  "dimensiones_descarga": "1000x1210",
+  "caso": "tono de piel profundo, primer plano de estudio; cejas suaves poco definidas"
+ }
+]

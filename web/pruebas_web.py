@@ -62,11 +62,13 @@ def prueba(nombre, ok, detalle=""):
 st, d = req("GET", WEB + "/api/servicios")
 prueba("servicios = carta real (4)", st == 200 and len(d.get("servicios", [])) == 4, f"st={st}")
 
-# 2 · disponibilidad jueves 29/10 (sin confirmadas ese día)
+# 2 · disponibilidad de un día FUTURO completo (sin confirmadas ese
+# día). Era el 29/10 cuando ese día era futuro; hoy el 29/10 es HOY y
+# su lista lleva el corte «ya pasó» — eso lo prueba la 15.
 st, d = req("GET", WEB + "/api/disponibilidad?servicio=" +
-            urllib.parse.quote("Diseño de cejas") + "&fecha=2026-10-29")
+            urllib.parse.quote("Diseño de cejas") + "&fecha=2026-11-09")
 h = d.get("huecos", [])
-prueba("disponibilidad 29/10: primer hueco 10:00 y último 19:30",
+prueba("disponibilidad 09/11 (lunes): primer hueco 10:00 y último 19:30",
        st == 200 and h and h[0] == "10:00" and h[-1] == "19:30", f"{len(h)} huecos")
 
 # 3 · domingo cerrado
@@ -246,16 +248,58 @@ else:
         hoy_pro = _dt.now(_ZI("Europe/Madrid")).date().isoformat()
     except Exception:
         hoy_pro = _dt.now().date().isoformat()
+    # QA20 (§51): la cita de prueba ya no va a una hora FIJA de hoy
+    # («19:30», que era el último hueco del día cuando se escribió la
+    # prueba): desde la guarda §47 crear en una hora ya pasada es
+    # imposible, y la batería fallaba en cascada en cuanto pasaban las
+    # 19:30. Ahora se lee la disponibilidad REAL: la cita va al ÚLTIMO
+    # hueco libre de hoy (el mismo papel del 19:30) y, si hoy ya no
+    # queda ninguno, al PRIMERO del siguiente día con huecos. Las
+    # aserciones no se relajan: la cita se crea, la profesional la ve
+    # con su código AS-XXXX (en /hoy si es de hoy; si no, en su agenda
+    # de 7 días), admite «no_show» y una «no_show» no se cancela.
+    from datetime import timedelta as _td
+
+    def _huecos_pro(fecha):
+        sth, dh = req("GET", WEB + "/api/disponibilidad?servicio=" +
+                      urllib.parse.quote("Diseño de cejas") +
+                      "&fecha=" + fecha)
+        return dh.get("huecos", []) if sth == 200 else []
+
+    fecha_pro, hora_pro, en_hoy = hoy_pro, None, True
+    _h = _huecos_pro(hoy_pro)
+    if _h:
+        hora_pro = _h[-1]
+    else:
+        en_hoy = False
+        _base = _dt.fromisoformat(hoy_pro).date()
+        for _i in range(1, 8):
+            _f = (_base + _td(days=_i)).isoformat()
+            _h = _huecos_pro(_f)
+            if _h:
+                fecha_pro, hora_pro = _f, _h[0]
+                break
     st, d = req("POST", f"{AGENDA}/citas", {
         "nombre": "PRUEBA PROFESIONAL", "servicio": "Diseño de cejas",
-        "fecha": hoy_pro, "hora": "19:30", "origen": "web"}, TOK)
+        "fecha": fecha_pro, "hora": hora_pro, "origen": "web"}, TOK)
     cita_pro = d.get("cita") or {}
-    prueba("profesional: cita de prueba creada para hoy",
+    prueba("profesional: cita de prueba creada (hueco real)",
            st == 201 and bool(cita_pro.get("id")), f"st={st}")
-    st, d = req("GET", WEB + "/api/profesional/hoy", None, PRO)
-    fila_pro = next((c for c in d.get("citas", [])
-                     if c.get("id") == cita_pro.get("id")), {})
-    prueba("profesional: /hoy trae la cita de prueba con su código AS-XXXX",
+
+    def _fila_pro():
+        if en_hoy:
+            stl, dl = req("GET", WEB + "/api/profesional/hoy", None, PRO)
+            lista = dl.get("citas", [])
+        else:
+            stl, dl = req("GET", WEB + "/api/profesional/agenda?dias=7",
+                          None, PRO)
+            lista = [c for dia in dl.get("dias", [])
+                     for c in dia.get("citas", [])]
+        return stl, next((c for c in lista
+                          if c.get("id") == cita_pro.get("id")), {})
+
+    st, fila_pro = _fila_pro()
+    prueba("profesional: la cita de prueba se ve en el área con su código AS-XXXX",
            st == 200 and bool(fila_pro)
            and (fila_pro.get("codigo") or "").startswith("AS-"), f"st={st}")
     st, d = req("POST", WEB + f"/api/profesional/citas/{cita_pro.get('id')}/estado",
@@ -269,9 +313,7 @@ else:
            f"st={st}")
     st, d = req("POST", WEB + f"/api/profesional/citas/{cita_pro.get('id')}/cancelar",
                 {}, PRO)
-    st2, d2 = req("GET", WEB + "/api/profesional/hoy", None, PRO)
-    fila_fin = next((c for c in d2.get("citas", [])
-                     if c.get("id") == cita_pro.get("id")), {})
+    st2, fila_fin = _fila_pro()
     prueba("profesional: limpieza D-02b, la «no_show» no se cancela (409) y queda cerrada",
            st == 409 and fila_fin.get("estado") == "no_show",
            f"cancelar={st} estado={fila_fin.get('estado')}")
@@ -291,6 +333,37 @@ else:
     st2, d2 = req("GET", WEB + "/api/profesional/hoy", None, PRO)
     prueba("profesional: al salir, la sesión deja de valer (401)",
            st == 200 and st2 == 401, f"salir={st} después={st2}")
+
+# 15 · FILTRO GEMELO «ya pasó» en la lista WEB (§47/§49): la agenda ya
+# no ofrecía ni creaba horas pasadas de HOY, pero la lista que pinta
+# la web se calculaba en local (web_server._huecos_con_duracion) y
+# seguía enseñándolas. Ahora comparte el corte de agenda_comun
+# (corte_hoy, Europe/Madrid). Dinámica, como la prueba gemela de la
+# guarda: vale a cualquier hora — antes de abrir, todo hueco es
+# futuro por construcción; tras el cierre o en domingo, lista vacía.
+from datetime import datetime as _dt3
+try:
+    from zoneinfo import ZoneInfo as _ZI3
+    _ahora15 = _dt3.now(_ZI3("Europe/Madrid"))
+except Exception:
+    _ahora15 = _dt3.now()
+HOY15 = _ahora15.strftime("%Y-%m-%d")
+CORTE15 = _ahora15.hour * 60 + _ahora15.minute
+
+
+def _min15(hhmm):
+    hh, mm = hhmm.split(":")
+    return int(hh) * 60 + int(mm)
+
+
+st, d = req("GET", WEB + "/api/disponibilidad?servicio=" +
+            urllib.parse.quote("Diseño de cejas") + "&fecha=" + HOY15)
+h = d.get("huecos", [])
+prueba("hoy (web): ningún hueco ofrecido en el pasado",
+       st == 200 and all(_min15(x) > CORTE15 for x in h)
+       and (CORTE15 < 600 or "10:00" not in h),
+       f"{len(h)} huecos, primero={h[0] if h else '—'}, "
+       f"ahora={_ahora15.strftime('%H:%M')}")
 
 print()
 fallos = [r for r in res if not r[1]]

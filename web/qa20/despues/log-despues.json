@@ -1,0 +1,100 @@
+{
+ "fase": "QA20-despues",
+ "tiempos": [
+  {
+   "pasada": 1,
+   "carruselListo": true,
+   "hastaCarruselMs": 475,
+   "domInteractive": 119,
+   "loadEvent": 127,
+   "respuesta": 6
+  },
+  {
+   "pasada": 2,
+   "carruselListo": true,
+   "hastaCarruselMs": 432,
+   "domInteractive": 21,
+   "loadEvent": 28,
+   "respuesta": 2
+  },
+  {
+   "pasada": 3,
+   "carruselListo": true,
+   "hastaCarruselMs": 419,
+   "domInteractive": 15,
+   "loadEvent": 24,
+   "respuesta": 2
+  }
+ ],
+ "pasos": [
+  {
+   "n": 1,
+   "nombre": "inicio-esqueleto-y-carga",
+   "ok": true,
+   "datos": {
+    "listo": true
+   },
+   "segundos": 3.4,
+   "scrollW": 412,
+   "captura": "inicio.png"
+  },
+  {
+   "n": 2,
+   "nombre": "explorar",
+   "ok": true,
+   "datos": {
+    "tarjetas": 4
+   },
+   "segundos": 0.7,
+   "scrollW": 412,
+   "captura": "explorar.png"
+  },
+  {
+   "n": 3,
+   "nombre": "analisis-espera-y-resultado",
+   "ok": true,
+   "datos": {
+    "latenciaS": 12.3,
+    "recomendado": "Diseño de cejas",
+    "textoEspera1": "Enviando tu foto al análisis… Lleva 2 s. El análisis es real y a veces tarda hasta 2 minutos: deja esta pantalla abierta y la respuesta llega sola, sin recargar",
+    "textoEspera2": "Comparando con los diseños del salón… Lleva 9 s. El análisis es real y a veces tarda hasta 2 minutos: deja esta pantalla abierta y la respuesta llega sola, sin "
+   },
+   "segundos": 16.7,
+   "scrollW": 412,
+   "captura": "analisis-resultado.png"
+  },
+  {
+   "n": 4,
+   "nombre": "reserva-y-confirmacion",
+   "ok": true,
+   "datos": {
+    "fechaElegida": "2026-10-30",
+    "horaElegida": "10:00",
+    "codigo": "AS-AANU",
+    "detalle": "Diseño de cejas · 18 €viernes, 30 de octubre a las 10:00 (25 min)Para QA20 Pulido"
+   },
+   "segundos": 3.6,
+   "scrollW": 412,
+   "captura": "confirmacion.png"
+  },
+  {
+   "n": 5,
+   "nombre": "cancelar-la-cita",
+   "ok": true,
+   "datos": {
+    "cancelada": true,
+    "codigo": "AS-AANU"
+   },
+   "segundos": 1.4,
+   "scrollW": 412
+  }
+ ],
+ "consola": [],
+ "resumen": {
+  "latenciaAnalisisS": 12.3,
+  "textoEspera1": "Enviando tu foto al análisis… Lleva 2 s. El análisis es real y a veces tarda hasta 2 minutos: deja esta pantalla abierta y la respuesta llega sola, sin recargar",
+  "textoEspera2": "Comparando con los diseños del salón… Lleva 9 s. El análisis es real y a veces tarda hasta 2 minutos: deja esta pantalla abierta y la respuesta llega sola, sin ",
+  "codigo": "AS-AANU",
+  "erroresConsola": 0
+ }
+}

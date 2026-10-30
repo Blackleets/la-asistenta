@@ -1,0 +1,100 @@
+{
+ "fase": "QA20-antes",
+ "tiempos": [
+  {
+   "pasada": 1,
+   "carruselListo": true,
+   "hastaCarruselMs": 499,
+   "domInteractive": 307,
+   "loadEvent": 320,
+   "respuesta": 8
+  },
+  {
+   "pasada": 2,
+   "carruselListo": true,
+   "hastaCarruselMs": 434,
+   "domInteractive": 30,
+   "loadEvent": 35,
+   "respuesta": 2
+  },
+  {
+   "pasada": 3,
+   "carruselListo": true,
+   "hastaCarruselMs": 423,
+   "domInteractive": 20,
+   "loadEvent": 23,
+   "respuesta": 2
+  }
+ ],
+ "pasos": [
+  {
+   "n": 1,
+   "nombre": "inicio-esqueleto-y-carga",
+   "ok": true,
+   "datos": {
+    "listo": true
+   },
+   "segundos": 3.1,
+   "scrollW": 412,
+   "captura": "inicio.png"
+  },
+  {
+   "n": 2,
+   "nombre": "explorar",
+   "ok": true,
+   "datos": {
+    "tarjetas": 4
+   },
+   "segundos": 0.7,
+   "scrollW": 412,
+   "captura": "explorar.png"
+  },
+  {
+   "n": 3,
+   "nombre": "analisis-espera-y-resultado",
+   "ok": true,
+   "datos": {
+    "latenciaS": 12.3,
+    "recomendado": "Diseño de cejas",
+    "textoEspera1": "La Asistenta está mirando tu foto… Lleva 2 s. El análisis es real y a veces tarda hasta 2 minutos: deja esta pantalla abierta y la respuesta llega sola, sin rec",
+    "textoEspera2": "La Asistenta está mirando tu foto… Lleva 9 s. El análisis es real y a veces tarda hasta 2 minutos: deja esta pantalla abierta y la respuesta llega sola, sin rec"
+   },
+   "segundos": 16.7,
+   "scrollW": 412,
+   "captura": "analisis-resultado.png"
+  },
+  {
+   "n": 4,
+   "nombre": "reserva-y-confirmacion",
+   "ok": true,
+   "datos": {
+    "fechaElegida": "2026-10-30",
+    "horaElegida": "10:00",
+    "codigo": "AS-AANT",
+    "detalle": "Diseño de cejas · 18 €viernes, 30 de octubre a las 10:00 (25 min)Para QA20 Pulido"
+   },
+   "segundos": 3.6,
+   "scrollW": 412,
+   "captura": "confirmacion.png"
+  },
+  {
+   "n": 5,
+   "nombre": "cancelar-la-cita",
+   "ok": true,
+   "datos": {
+    "cancelada": true,
+    "codigo": "AS-AANT"
+   },
+   "segundos": 1.4,
+   "scrollW": 412
+  }
+ ],
+ "consola": [],
+ "resumen": {
+  "latenciaAnalisisS": 12.3,
+  "textoEspera1": "La Asistenta está mirando tu foto… Lleva 2 s. El análisis es real y a veces tarda hasta 2 minutos: deja esta pantalla abierta y la respuesta llega sola, sin rec",
+  "textoEspera2": "La Asistenta está mirando tu foto… Lleva 9 s. El análisis es real y a veces tarda hasta 2 minutos: deja esta pantalla abierta y la respuesta llega sola, sin rec",
+  "codigo": "AS-AANT",
+  "erroresConsola": 0
+ }
+}

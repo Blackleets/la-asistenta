@@ -1,0 +1,48 @@
+{
+  "modo": "antes",
+  "matriz": [
+    {
+      "clave": "A7-carta-no-carga",
+      "ok": true,
+      "nota": "Antes: «prueba a recargar la página» en prosa, sin ningún botón"
+    },
+    {
+      "clave": "A1-cita-token-invalido",
+      "ok": true,
+      "nota": "Antes: caja de error sin NINGUNA acción visible (0)"
+    },
+    {
+      "clave": "A2-explorar-sin-resultados",
+      "ok": true,
+      "nota": "Antes: «Ningún producto coincide…» en prosa, sin «Ver todos los servicios»"
+    },
+    {
+      "clave": "A3-explorar-vacio",
+      "ok": true,
+      "nota": "Antes: «Categoría B8: aún sin productos verificados», sin acción de salida"
+    },
+    {
+      "clave": "A5-huecos-no-cargan",
+      "ok": true,
+      "nota": "Antes: reintento solo insinuado («vuelve a elegir el día»), sin botón"
+    },
+    {
+      "clave": "A4-reserva-error-generico",
+      "ok": true,
+      "nota": "Antes: el error genérico no trae acción propia (solo queda el botón Confirmar restaurado)"
+    },
+    {
+      "clave": "A6-profesional-hoy",
+      "ok": true,
+      "nota": "Antes: «Prueba a recargar en un momento» en prosa, sin botón de reintento"
+    }
+  ],
+  "erroresConsola": [
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+  ],
+  "extras": {}
+}

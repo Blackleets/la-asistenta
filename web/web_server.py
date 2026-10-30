@@ -30,6 +30,14 @@ Piezas:
                                trabajo (TTL 10 min, solo en memoria).
                                La foto vive solo en memoria: no se guarda,
                                no se registra, no sale de este proceso.
+  GET  /api/capacidades      → capacidades opcionales según el entorno
+                               del servidor. Hoy: probador visual de
+                               cejas (Meta Model API). Sin clave de
+                               equipo en el servidor, disponible=false
+                               y la experiencia es exactamente la de
+                               siempre; con clave, el trabajo de
+                               análisis encadena la propuesta visual
+                               (Muse Image) y el payload trae «visual».
   POST /api/reservar         → valida hueco (horario + anti-solape) contra la
                                agenda real, crea la cita y la VERIFICA
                                releyéndola antes de decir «confirmada».
@@ -77,11 +85,14 @@ y el precio/duración salen siempre de la carta, nunca del cliente.
 
 Secretos: la clave de Baseten se lee en el servidor del fichero .env de
 Hermes (BASETEN_ENV_FILE) y el token de la agenda de AGENDA_API_TOKEN.
+La clave de Meta, si un día existe, la lee probador/proveedor_meta.py
+de web/meta.env (0600, solo en la máquina; ver ACTIVACION_META.md).
 Ningún secreto llega al navegador ni a los logs.
 """
 
 import base64
 import hashlib
+import importlib.util
 import json
 import os
 import re
@@ -232,6 +243,43 @@ def a_hhmm(minutos):
     return f"{minutos // 60:02d}:{minutos % 60:02d}"
 
 
+def _cargar_agenda_comun():
+    """agenda/agenda_comun.py cargado por ruta (el mismo patrón que el
+    proveedor Meta): la regla «ya pasó» vive UNA sola vez allí —
+    `corte_hoy` / `inicio_en_pasado`, hora del salón Europe/Madrid,
+    §47 de ESTADO — y la lista de huecos de la web la COMPARTE en vez
+    de copiarla."""
+    ruta = os.path.abspath(os.path.join(BASE_DIR, "..", "agenda",
+                                        "agenda_comun.py"))
+    try:
+        spec = importlib.util.spec_from_file_location("agenda_comun_web",
+                                                      ruta)
+        modulo = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(modulo)
+        return modulo
+    except Exception:
+        return None
+
+
+COMUN = _cargar_agenda_comun()
+
+
+def _corte_hoy(fecha):
+    """Corte «ya pasó» de la lista web (filtro gemelo de §47): si
+    «fecha» (date) es HOY en hora del salón, devuelve el minuto actual
+    del día — un inicio solo se ofrece si su minuto es > corte — y si
+    no es hoy, None. La fuente es `agenda_comun.corte_hoy`; si el
+    módulo no se pudiera cargar, la réplica local usa la misma zona
+    (_zona_salon) y la misma regla, para que el filtro nunca
+    desaparezca en silencio."""
+    if COMUN is not None:
+        return COMUN.corte_hoy(fecha)
+    ahora = datetime.now(_zona_salon())
+    if fecha != ahora.date():
+        return None
+    return ahora.hour * 60 + ahora.minute
+
+
 def _huecos_con_duracion(dur, fecha_iso):
     """Núcleo de huecos_libres: inicios libres para una DURACIÓN dada.
 
@@ -257,6 +305,14 @@ def _huecos_con_duracion(dur, fecha_iso):
         if all(t + dur <= o_ini or t >= o_fin for o_ini, o_fin in ocupados):
             libres.append(a_hhmm(t))
         t += PASO_MIN
+    corte = _corte_hoy(f)
+    if corte is not None:
+        # Filtro gemelo de §47: la fecha es HOY — fuera los inicios ya
+        # pasados (la agenda además los rechaza al reservar con 409,
+        # pero la clienta no debe ni verlos). Días futuros intactos;
+        # las duraciones — también las sumadas de un pack — ya
+        # bloquearon arriba al calcular cada inicio.
+        libres = [h for h in libres if a_min(h) > corte]
     return libres, None
 
 
@@ -310,6 +366,12 @@ PROMPT_SISTEMA = (
     '"servicio_alternativo": "otro de la carta, nombre exacto", '
     '"motivo_alternativo": "cuándo preferirlo, 1 frase", '
     '"consejo": "un consejo breve de cuidado"}'
+    " Escribe resumen, motivo, motivo_alternativo y consejo como una "
+    "ORIENTACIÓN cercana, nunca como un diagnóstico ni un veredicto: "
+    "usa fórmulas como «te puede encajar» o «una buena opción para ti "
+    "sería». Deja claro en el resumen que es una primera orientación "
+    "desde la foto y que Arianna confirma el diseño con la clienta en "
+    "el salón antes de trabajar."
 )
 
 
@@ -380,6 +442,52 @@ def validar_analisis(contenido):
     return d
 
 
+# ---------------- probador visual de cejas (Meta Model API) ----------------
+# Cableado DORMIDO (29/10/2026, orden de Lee: «dejar cableado todo
+# para cuando tengamos la clave»): el proveedor vive en
+# probador/proveedor_meta.py y la clave SOLO en el entorno de la
+# máquina (web/meta.env, 0600 — ver ACTIVACION_META.md). Sin clave,
+# meta_disponible() es False y el análisis se comporta EXACTAMENTE
+# como siempre: mismo aviso, sin paso visual, sin ningún cambio en
+# pantalla. Con clave, el trabajo de análisis encadena la edición
+# con Muse Image (estrategia A del benchmark H1) y el payload trae
+# «visual»; si la generación falla, el análisis se entrega igual y
+# el fallo queda en el log interno (un 401 jamás se filtra a la
+# clienta: se traduce a un mensaje genérico).
+
+def _cargar_proveedor_meta():
+    ruta = os.path.abspath(os.path.join(BASE_DIR, "..", "probador",
+                                        "proveedor_meta.py"))
+    try:
+        spec = importlib.util.spec_from_file_location("proveedor_meta", ruta)
+        modulo = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(modulo)
+        return modulo
+    except Exception:
+        return None
+
+
+META = _cargar_proveedor_meta()
+
+MSG_VISUAL_FALLO = ("La propuesta visual no se pudo generar esta vez. "
+                    "Tu análisis está completo y puedes reservar igual.")
+AVISO_CON_VISUAL = ("Esto es una orientación a partir de tu foto, no un "
+                    "diagnóstico: Arianna confirma el diseño contigo en "
+                    "el salón antes de trabajar. Análisis real con Muse "
+                    "Spark. La propuesta visual que acompaña es también "
+                    "orientativa: una aproximación para ayudarte a "
+                    "decidir, no el resultado exacto del servicio.")
+
+
+def meta_disponible():
+    if META is None:
+        return False
+    try:
+        return bool(META.configurado())
+    except Exception:
+        return False
+
+
 # ---------------- trabajos de análisis (asíncronos) ----------------
 
 class SparkTarda(Exception):
@@ -439,16 +547,45 @@ def ejecutar_analisis(data_uri, prefs):
         return None, MSG_NO_VALIDO
     log("analisis_ok", latencia_s=lat)
     por_nombre = {s["nombre"]: s for s in carta()}
-    return {
+    payload = {
         "analisis": analisis,
         "latencia_s": lat,
         "carta": {n: {"precio_etiqueta": s["precio_etiqueta"],
                       "duracion_min": s["duracion_min"]}
                   for n, s in por_nombre.items()},
-        "aviso": ("Análisis real con Muse Spark. La propuesta visual "
-                  "generada (ver tus cejas con el servicio aplicado) aún "
-                  "no está disponible: no mostramos imágenes falsas."),
-    }, None
+        "aviso": ("Esto es una orientación a partir de tu foto, no un "
+                  "diagnóstico: Arianna confirma el diseño contigo en "
+                  "el salón antes de trabajar. Análisis real con Muse "
+                  "Spark. La propuesta visual generada (ver tus cejas "
+                  "con el servicio aplicado) aún no está disponible: "
+                  "no mostramos imágenes falsas."),
+        "visual": {"disponible": False},
+    }
+    if not meta_disponible():
+        return payload, None
+    # Con capacidad Meta: paso visual (estrategia A del benchmark H1:
+    # edición directa con Muse Image desde el análisis validado).
+    # Es un añadido sobre un análisis ya bueno: si falla, el análisis
+    # se entrega igual y el error queda en el log interno.
+    payload["aviso"] = AVISO_CON_VISUAL
+    try:
+        foto_bytes = base64.b64decode(data_uri.split(",", 1)[1])
+        instruccion = META.construir_instruccion(analisis, prefs)
+        resultado = META.editar_cejas(foto_bytes, instruccion)
+        payload["visual"] = {"disponible": True,
+                             **META.payload_visual(resultado)}
+        log("visual_ok", latencia_s=resultado["latencia_s"],
+            modelo=resultado["modelo"])
+    except META.ClaveNoValida:
+        # Estado interno del operador: NUNCA se filtra a la clienta.
+        log("visual_clave_no_valida")
+        payload["visual"] = {"disponible": True, "estado": "error",
+                             "mensaje": MSG_VISUAL_FALLO}
+    except Exception as e:
+        log("visual_error", tipo=type(e).__name__)
+        payload["visual"] = {"disponible": True, "estado": "error",
+                             "mensaje": MSG_VISUAL_FALLO}
+    return payload, None
 
 
 def _trabajo_analisis(tid, data_uri, prefs):
@@ -681,6 +818,17 @@ class Handler(BaseHTTPRequestHandler):
             return self._fichero_cache(
                 os.path.join(BASE_DIR, "modulos.json"),
                 "application/json; charset=utf-8", "no-cache")
+        if ruta == "/api/capacidades":
+            # Capacidades opcionales según el entorno del servidor:
+            # la interfaz lo consulta para saber si el paso visual
+            # existe (y para contarlo en el consentimiento ANTES de
+            # enviar la foto). Sin clave responde disponible=false
+            # y nada cambia en pantalla. La clave nunca sale aquí:
+            # solo si la capacidad existe.
+            return self._json(200, {"probador_visual_cejas": {
+                "disponible": meta_disponible(),
+                "proveedor": "meta-model-api",
+                "modelo": "muse-image-1.0"}})
         if ruta == "/profesional":
             # Página del área profesional: _fichero manda no-store;
             # es personal y nunca se cachea (el SW tampoco la guarda).
@@ -989,6 +1137,12 @@ class Handler(BaseHTTPRequestHandler):
             resumen = {"total": len(citas)}
             for estado in ("confirmada", "cumplida", "cancelada", "no_show"):
                 resumen[estado] = sum(1 for c in citas if c.get("estado") == estado)
+            # B3 (D2): el titular del día es lo accionable — las que
+            # esperan a Arianna — y la lista presenta las vivas primero:
+            # las canceladas van al final, atenuadas, sin competir.
+            resumen["por_atender"] = resumen["confirmada"]
+            citas = sorted(citas, key=lambda c: 1
+                           if c.get("estado") == "cancelada" else 0)
             try:
                 _, bd = agenda_req("GET", "/bandeja?estado=pendiente")
                 bandeja = bd.get("bandeja", [])
@@ -1012,6 +1166,11 @@ class Handler(BaseHTTPRequestHandler):
                     fecha = f.isoformat()
                     _, datos = agenda_req("GET", f"/citas?fecha={fecha}")
                     citas = datos.get("citas", [])
+                    # B3 (D2): como en Hoy, las canceladas cierran el día;
+                    # nunca ocupan filas por encima de las vivas ni de
+                    # los huecos libres.
+                    citas = sorted(citas, key=lambda c: 1
+                                   if c.get("estado") == "cancelada" else 0)
                     salida.append({
                         "fecha": fecha,
                         "cerrado": HORARIO[f.weekday()] is None,
@@ -1038,7 +1197,20 @@ class Handler(BaseHTTPRequestHandler):
         if ruta == "/api/profesional/bandeja":
             return self._pro_proxy_get("/bandeja?estado=pendiente")
         if ruta == "/api/profesional/embudo":
-            return self._pro_proxy_get("/embudo")
+            from urllib.parse import urlparse, parse_qs
+            qs = parse_qs(urlparse(self.path).query)
+            desde = (qs.get("desde") or [None])[0]
+            hasta = (qs.get("hasta") or [None])[0]
+            if not desde:
+                # B3 (D2): periodo declarado por defecto — últimos 30
+                # días (hoy incluido). Sin periodo, los contadores
+                # acumulados «desde el primer día» no servían para
+                # decidir y ni siquiera reconciliaban entre sí.
+                desde = (hoy_salon() - timedelta(days=29)).isoformat()
+            destino = f"/embudo?desde={desde}"
+            if hasta:
+                destino += f"&hasta={hasta}"
+            return self._pro_proxy_get(destino)
         if ruta == "/api/profesional/servicios":
             return self._pro_proxy_get("/servicios")
         return self._json(404, {"error": "ruta no encontrada"})

@@ -9,7 +9,7 @@
  */
 'use strict';
 
-const CACHE = 'la-asistenta-shell-v16';
+const CACHE = 'la-asistenta-shell-v30';
 const NUCLEO = [
   '/',
   '/manifest.webmanifest',
@@ -19,7 +19,6 @@ const NUCLEO = [
   '/icons/apple-touch-icon.png',
 ];
 const EXTRAS = [
-  '/fonts/fraunces-normal.woff2',
   '/fonts/fraunces-italic.woff2',
   '/fonts/montserrat.woff2',
   '/ejemplo.jpg',

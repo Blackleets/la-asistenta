@@ -135,5 +135,5 @@ especializado genera; la aplicación decide qué enseñar.
 |---|---|
 | Clave de Baseten con permisos de despliegue | **Bloqueada**: la actual es solo de inferencia (403 al crear despliegues). La crea Lee en la consola de Baseten. |
 | Motor FASHN VTON v1.5 | Truss + adaptador construidos, tests sin red 5/5, **ninguna generación ejecutada** (coste 0 $). |
-| Clave de equipo de Meta (Muse Image / SAM 3.1) | Sin crear; gate en Billing de dev.meta.ai (solo Lee). |
+| Clave de equipo de Meta (Muse Image / SAM 3.1) | Sin crear; gate en Billing de dev.meta.ai (solo Lee). **Cableado completo el 29/10/2026**: proveedor `probador/proveedor_meta.py`, interruptor de capacidad en la web (`/api/capacidades`), paso visual en el resultado del análisis y look con imagen, todo verificado contra un stub local sin clave y sin gasto (ESTADO §47). Activación en minutos: `ACTIVACION_META.md`. |
 | Catálogo de productos reales | Sin instantánea: la fase de catálogo de moda se detuvo por la corrección de dirección del 28/10 23:45 y el directorio `catalogo/` quedó vacío. |

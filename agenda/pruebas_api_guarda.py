@@ -2,8 +2,9 @@
 """Pruebas de la guarda de agenda en el endpoint POST /citas (puerto 8081).
 
 La guarda vive en la propia API de agenda para que TODOS los canales
-(web, app, MCP) compartan la misma regla: horario del salón y anti-solape
-con intervalos [hora, hora+duración) contra citas confirmadas.
+(web, app, MCP) compartan la misma regla: horario del salón, anti-solape
+con intervalos [hora, hora+duración) contra citas confirmadas, y nada
+de huecos ni reservas en horas ya pasadas (día en curso, hora del salón).
 
 Se ejecuta contra la API en marcha (por defecto 127.0.0.1:8081, dentro de
 la máquina). Las citas de prueba quedan CANCELADAS al final (semántica del
@@ -122,7 +123,54 @@ prueba("domingo cerrado rechazado (409)",
        st == 409 and d.get("alternativas") == [],
        f"st={st} err={d.get('error', '')[:60]}")
 
-# 7 · limpieza: las citas de prueba quedan canceladas, no borradas
+# 7 · disponibilidad de HOY sin huecos pasados (hallazgo QA19): se
+# consulta por la vía real de la agenda — los huecos del enlace mágico
+# (huecos_de) — con una cita vehículo de un día futuro.
+import hashlib as _hl
+from datetime import datetime as _dt, timedelta as _td
+try:
+    from zoneinfo import ZoneInfo as _ZI
+    _ahora = _dt.now(_ZI("Europe/Madrid"))
+except Exception:
+    _ahora = _dt.now()
+HOY = _ahora.strftime("%Y-%m-%d")
+AHORA_MIN = _ahora.hour * 60 + _ahora.minute
+st, d = crear("16:00", fecha="2026-11-05")
+veh = d.get("cita") or {}
+if veh.get("id"):
+    creadas.append(veh["id"])
+_tok_enlace = (veh.get("enlace") or "").rsplit("/", 1)[-1]
+_hash = _hl.sha256(_tok_enlace.encode()).hexdigest()
+st, d = req("GET", f"{API}/enlace/{_hash}/huecos?fecha={HOY}")
+huecos_hoy = d.get("huecos", [])
+prueba("disponibilidad de hoy: ningún hueco en el pasado",
+       st == 200 and all(_min(h) > AHORA_MIN for h in huecos_hoy)
+       and (AHORA_MIN < _min("10:00") or "10:00" not in huecos_hoy),
+       f"{len(huecos_hoy)} huecos, primero="
+       f"{huecos_hoy[0] if huecos_hoy else '—'}, ahora={_ahora.strftime('%H:%M')}")
+
+# 8 · crear con inicio en el pasado -> 409 «ya pasó» y SIN cita creada.
+# Hora pasada de hoy; si la batería corriera antes de la apertura (sin
+# ninguna hora de hoy aún pasada dentro del horario), el mediodía de ayer.
+if AHORA_MIN > _min("10:00"):
+    F_PAS, H_PAS = HOY, "10:00"
+else:
+    F_PAS = (_ahora.date() - _td(days=1)).strftime("%Y-%m-%d")
+    H_PAS = "12:00"
+st, d = req("POST", API + "/citas", {
+    "nombre": "PRUEBA PASADO HOY", "servicio": "Diseño de cejas",
+    "fecha": F_PAS, "hora": H_PAS})
+prueba("crear en hora pasada rechazado (409, «ya pasó»)",
+       st == 409 and "ya pasó" in (d.get("error") or ""),
+       f"st={st} err={(d.get('error') or '')[:60]}")
+st, d = req("GET", API + f"/citas?fecha={F_PAS}")
+fantasma = [c for c in d.get("citas", [])
+            if c.get("nombre") == "PRUEBA PASADO HOY"
+            and c.get("estado") == "confirmada"]
+prueba("el intento en pasado no creó ninguna cita",
+       st == 200 and not fantasma)
+
+# 9 · limpieza: las citas de prueba quedan canceladas, no borradas
 ok_limpieza = bool(creadas)
 for cid in creadas:
     st, d = req("POST", f"{API}/citas/{cid}/cancelar", {})
