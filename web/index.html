@@ -703,9 +703,30 @@ body.en-inicio .cabecera{display:none}
 /* --- Paso visual del análisis (Meta): oculto salvo que el servidor
    lo traiga en el payload; sin capacidad no existe en pantalla --- */
 #res-visual{margin-top:12px}
+/* Criterio de Lee (30/10): con la propuesta lista, la tarjeta visual
+   abre el resultado (primera posición): sin el margen superior que
+   la separa cuando va cuarta. */
+#res-visual.primera{margin-top:0}
 #res-visual img{width:100%;border-radius:14px;display:block}
 #res-visual .mini{margin-top:6px}
 .item-local .il-foto{width:52px;height:52px;object-fit:cover;border-radius:10px;flex:none}
+/* --- Look guardado: tarjeta APILADA (QA24, defecto de Lee 31/10) ---
+   El ítem de look NO usa la fila flex de .item-local: su resumen
+   (hasta 140 caracteres) en la fila quedaba en una columna de 87 px
+   (22 líneas, palabra por línea) entre la miniatura y los controles
+   fijos. Aquí manda el orden: propuesta a ancho completo, título y
+   fecha, texto legible a ancho completo y Reservar como acción
+   ancha al final; la × vive en la fila del título, sin solapes. */
+.item-look{flex-direction:column;align-items:stretch;gap:0;padding:14px}
+.item-look .il-foto-ancha{width:100%;aspect-ratio:4/3;object-fit:cover;
+  border-radius:12px;display:block;margin-bottom:12px;background:var(--violeta-tinte)}
+.item-look .il-cab{display:flex;align-items:flex-start;gap:10px}
+.item-look .il-titulo{flex:1;min-width:0;font-size:16px;font-weight:800;
+  color:var(--negro);line-height:1.3}
+.item-look .il-cab .il-x{margin:-5px -5px 0 0}
+.item-look .il-fecha{font-size:12.5px;color:var(--gris);margin-top:5px}
+.item-look .il-resumen{font-size:14px;line-height:1.55;color:var(--negro);margin-top:7px}
+.item-look .il-btn{width:100%;margin-top:13px;min-height:48px;font-size:13.5px}
 </style>
 </head>
 <body>
@@ -1384,7 +1405,8 @@ El análisis y las reservas necesitan internet y volverán en cuanto vuelva la s
     <div class="tarjeta">
       <h2>Mis looks</h2>
       <p class="mini" style="margin-bottom:12px">Resultados de tus análisis de
-      cejas que decidas guardar. Sin fotos: solo la recomendación.</p>
+      cejas que decidas guardar, con su propuesta visual si la hubo.
+      Tu foto original nunca se guarda.</p>
       <div id="looks-lista"></div>
     </div>
     <div class="tarjeta">
@@ -2144,16 +2166,31 @@ function mostrarResultado(d){
   const v = d.visual || {};
   const bloqueV = $('#res-visual');
   estado.visualLook = null;
+  // Criterio de Lee (30/10 11:00): la foto generada manda ARRIBA —
+  // con la propuesta lista, la tarjeta visual abre el resultado y
+  // la orientación en texto va debajo. El estado de error (y el
+  // oculto) la devuelve a su sitio de siempre, tras la alternativa.
+  const visualASuSitio = () => {
+    const alt = $('#alt-tarjeta');
+    if(alt && bloqueV.previousElementSibling !== alt)
+      alt.after(bloqueV);
+    bloqueV.classList.remove('primera');
+  };
   if(v.estado === 'listo' && v.imagen){
     const img = $('#res-visual-img');
     img.src = v.imagen;
     img.style.display = 'block';
     $('#res-visual-nota').style.display = 'block';
     $('#res-visual-error').style.display = 'none';
+    const seccion = bloqueV.parentNode;
+    if(seccion.firstElementChild !== bloqueV)
+      seccion.insertBefore(bloqueV, seccion.firstElementChild);
+    bloqueV.classList.add('primera');
     bloqueV.style.display = 'block';
     estado.visualLook = {imagen: v.imagen,
       proveedor: v.proveedor || 'meta-model-api', modelo: v.modelo || ''};
   }else if(v.disponible && v.estado === 'error'){
+    visualASuSitio();
     $('#res-visual-img').removeAttribute('src');
     $('#res-visual-img').style.display = 'none';
     $('#res-visual-nota').style.display = 'none';
@@ -2162,6 +2199,7 @@ function mostrarResultado(d){
     ev.style.display = 'block';
     bloqueV.style.display = 'block';
   }else{
+    visualASuSitio();
     bloqueV.style.display = 'none';
   }
   // La foto ya cumplió su función: se descarta de la memoria de la página.
@@ -2889,15 +2927,16 @@ function mostrarLooks(){
   lista.slice().reverse().forEach((look, iRev) => {
     const i = lista.length - 1 - iRev;
     const div = document.createElement('div');
-    div.className = 'item-local';
+    div.className = 'item-local item-look';
     div.innerHTML =
       (look.visual && look.visual.imagen
-        ? `<img class="il-foto" src="${look.visual.imagen}" alt="Propuesta visual guardada de este look">`
+        ? `<img class="il-foto-ancha" src="${look.visual.imagen}" alt="Propuesta visual guardada de este look">`
         : '') +
-      `<span class="il-main"><b>${look.recomendado}</b><br>` +
-      `${look.fechaTxt || ''}${look.resumen ? ' · ' + look.resumen : ''}</span>` +
-      `<button class="il-btn" data-acc="reservar">Reservar</button>` +
-      `<button class="il-x" data-acc="quitar" aria-label="Borrar este look">${SVG_X}</button>`;
+      `<div class="il-cab"><span class="il-titulo">${look.recomendado}</span>` +
+      `<button class="il-x" data-acc="quitar" aria-label="Borrar este look">${SVG_X}</button></div>` +
+      (look.fechaTxt ? `<p class="il-fecha">${look.fechaTxt}</p>` : '') +
+      (look.resumen ? `<p class="il-resumen">${look.resumen}</p>` : '') +
+      `<button class="il-btn" data-acc="reservar">Reservar</button>`;
     div.querySelector('[data-acc="reservar"]').onclick = () => {
       prepararReserva(look.recomendado); ir('p-reserva'); mostrarPaso(2); cargarHuecos();
     };

@@ -23,7 +23,7 @@ Booking reliability outranks AI features. The agenda is the source of truth: eve
 |---|---|
 | **Muse Spark** (`meta-models/muse-spark-open-1026`, Meta's open-weights model, served on Baseten) | The brain: brow-photo analysis and service recommendation in the web app (async, with honest progress polling — measured 12.2 s end-to-end in the UI on a real run), and the conversational operator behind WhatsApp |
 | **Hermes Agent** (Nous Research) | The operator runtime: a WhatsApp receptionist with the salon's real services, prices and rules, tool access to the agenda via MCP, and human hand-off when a request falls outside the catalogue |
-| **Muse Image + SAM 3.1** | Integration prepared, not yet live: the try-on contracts (`probador/INTERFACES.md`) route brow previews and segmentation through them as soon as the Meta team API key is provisioned. Until then the UI labels that step as under construction — no simulated results are ever shown |
+| **Muse Image + SAM 3.1** | Live since 30 Oct 2026: the brow-photo analysis now returns a real generated visual proposal (measured 12.8 s analysis + 13.4 s visual on a real run), shown first in the result card with its honest "orientation only" note; the original photo is never stored. The try-on contracts (`probador/INTERFACES.md`) still describe the future fashion try-on routing |
 | **FASHN VTON v1.5** (Apache 2.0) | Chosen engine for the future fashion try-on module after a licence-first model survey (`MODELOS_TRYON.md` — IDM-VTON and CatVTON were rejected on licence terms). Truss + adapter are built and tested offline; deployment waits on an inference-provider key with deploy permissions |
 
 ## What is live today (pilot: Ari Vivas Beauty)

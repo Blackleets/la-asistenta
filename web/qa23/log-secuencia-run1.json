@@ -1,0 +1,171 @@
+{
+ "fase": "QA23-preensayo-v31",
+ "pasos": [
+  {
+   "n": 1,
+   "nombre": "abrir-la-app",
+   "ok": true,
+   "datos": {
+    "cargaMs": 683,
+    "cacheKeys": [
+     "la-asistenta-shell-v31"
+    ],
+    "activa": "p-inicio",
+    "pastillas": [
+     "Reservar",
+     "Análisis IA",
+     "Diseño de cejas",
+     "Ombré Henna",
+     "Brow Lamination",
+     "Depilación",
+     "El salón",
+     "WhatsApp"
+    ],
+    "buscador": true,
+    "swControlando": true
+   },
+   "segundos": 1.9,
+   "scrollW": 412,
+   "captura": "p01-inicio.png"
+  },
+  {
+   "n": 2,
+   "nombre": "buscar-un-servicio",
+   "ok": true,
+   "datos": {
+    "activa": "p-explorar",
+    "visibles": [
+     "Ombré Brows Henna"
+    ]
+   },
+   "segundos": 1.5,
+   "scrollW": 412,
+   "captura": "p02-buscar-henna.png"
+  },
+  {
+   "n": 3,
+   "nombre": "ver-el-recomendado",
+   "ok": true,
+   "datos": {
+    "nTarjetas": 4,
+    "tarjetas": [
+     "Reservas abiertasAri Vivas BeautySalón de cejas · análisis con IAL–V 10–20 · S 10–144 serv",
+     "25 minDiseño de cejas18 € · 25 min · Natural y definido, a tu medida",
+     "65 minOmbré Brows Henna30 € · 65 min · Color y definición con henna",
+     "65 minBrow Lamination45 € · 65 min · Efecto peinado y fijado"
+    ],
+    "scrollLeftTrasDeslizar": 333
+   },
+   "segundos": 2.7,
+   "scrollW": 412,
+   "captura": "p03-recomendado.png"
+  },
+  {
+   "n": 4,
+   "nombre": "analisis-de-cejas",
+   "ok": true,
+   "datos": {
+    "gate": {
+     "activa": "p-consentimiento",
+     "btnDisabledSinAceptar": true
+    },
+    "previaOk": true,
+    "latenciaS": 38.2,
+    "resultado": {
+     "activa": "p-resultado",
+     "resumen": "Tienes unas cejas preciosas, muy pobladas y expresivas, con un aire natural muy favorecedor. Esta es solo una primera orientación desde la foto y Arianna confirmará el diseño contigo en el salón antes de trabajar, y te p",
+     "etiquetasResultado": [
+      "PROPUESTA VISUAL · ORIENTATIVA",
+      "ORIENTACIÓN"
+     ],
+     "lineaOrientacion": "Tienes unas cejas preciosas, muy pobladas y expresivas, con un aire natural muy favorecedor. Esta es solo una primera orientación desde la foto y Arianna confirmará el diseño contigo en el salón antes",
+     "recomendado": "Brow Lamination",
+     "recoDatos": "45 € · 65 min",
+     "precioColor": "rgb(13, 13, 13)",
+     "alternativo": "Diseño de cejas",
+     "aviso": "Esto es una orientación a partir de tu foto, no un diagnóstico: Arianna confirma el diseño contigo en el salón antes de trabajar. Análisis real con Muse Spark. La propuesta visual que acompaña es tamb",
+     "errorFoto": "",
+     "visual": {
+      "presente": true,
+      "primera": true,
+      "visible": true,
+      "imgTipo": "data",
+      "cabecera": "PROPUESTA VISUAL · ORIENTATIVA",
+      "texto": " PROPUESTA VISUAL · ORIENTATIVA Vista previa generada con IA (Muse Image, Meta) sobre tu foto: sirve para hacerte una idea; el resultado real depende de tu ceja y del trabajo en el"
+     },
+     "ordenTarjetas": [
+      {
+       "id": "res-visual",
+       "y": 95
+      },
+      {
+       "id": "tarjeta",
+       "y": 761
+      },
+      {
+       "id": "tarjeta",
+       "y": 1230
+      },
+      {
+       "id": "alt-tarjeta",
+       "y": 1625
+      }
+     ]
+    }
+   },
+   "segundos": 43.2,
+   "scrollW": 412,
+   "captura": "p04-resultado-analisis.png"
+  },
+  {
+   "n": 5,
+   "nombre": "reservar-el-recomendado",
+   "ok": false,
+   "error": "ninguna candidata con huecos: [{\"fecha\":\"2026-10-31\",\"motivo\":\"sin celda en el calendario\"},{\"fecha\":\"2026-11-02\",\"motivo\":\"sin celda en el calendario\"},{\"fecha\":\"2026-11-03\",\"motivo\":\"sin celda en el calendario\"},{\"fecha\":\"2026-11-04\",\"motivo\":\"sin celda en el calendario\"},{\"fecha\":\"2026-11-05\",\"mo",
+   "segundos": 4.4,
+   "scrollW": 412,
+   "captura": "p05-confirmacion.png"
+  },
+  {
+   "n": 6,
+   "nombre": "enlace-magico",
+   "ok": false,
+   "error": "sin token de la reserva",
+   "segundos": 0,
+   "scrollW": 412,
+   "captura": "p06-cita-enlace.png"
+  },
+  {
+   "n": 7,
+   "nombre": "panel-profesional",
+   "ok": false,
+   "error": "la cita null no aparece en el panel (vista agenda)",
+   "segundos": 6.8,
+   "scrollW": 412,
+   "captura": "p07-profesional.png"
+  },
+  {
+   "n": 8,
+   "nombre": "cancelar-la-cita",
+   "ok": false,
+   "error": "sin token de la reserva",
+   "segundos": 0,
+   "scrollW": 412,
+   "captura": "p08-cancelada.png"
+  }
+ ],
+ "consola": [],
+ "resumen": {
+  "latenciaAnalisisS": 38.2,
+  "visualPrimera": true,
+  "visualImgTipo": "data",
+  "ordenResultado": [
+   "res-visual",
+   "tarjeta",
+   "tarjeta",
+   "alt-tarjeta"
+  ],
+  "servicioRecomendado": "Brow Lamination",
+  "erroresConsola": 0
+ }
+}

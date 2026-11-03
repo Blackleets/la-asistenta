@@ -4198,11 +4198,12 @@ Ejecutada la sync intermedia sobre `0eddb61` (29/10 ~14:05) para
 que la congelación del 04/11 sea un diff pequeño y seguro. Contenido
 compuesto desde las notas de sync de §§46–62: **64 rutas** (12
 actualizaciones y 52 incorporaciones), un solo commit de snapshot
-sobre `main` en github.com/Blackleets/la-asistenta. Hash del
-commit: queda registrado en el fichero de sync
+sobre `main` en github.com/Blackleets/la-asistenta. **Commit:
+`feb89933b0c1c9c27c040778096a43644a5c202a`** (confirmado tras el
+push: head de `main`, con `0eddb61` como anterior inmediato).
+Registrado en el fichero de sync
 (`~/workspace/la-asistenta-repo.muse-github-snapshot-sync.json`,
-6ª entrada) y se completa en esta sección en el original interno
-tras la confirmación del push; manifiesto en
+6ª entrada); manifiesto en
 `~/workspace/la-asistenta-paths-v6.bin`.
 
 **Contenido por bloque**:
@@ -4238,11 +4239,11 @@ tras la confirmación del push; manifiesto en
 
 - *Vía local*: grep exhaustivo sobre los 64 ficheros candidatos
   ANTES de copiar (teléfono actual de Lee en todas sus formas,
-  el antiguo 678, su email, el fragmento del teléfono de Arianna,
-  el token de demo de la agenda, el prefijo de las claves de Meta, SID de Twilio `AC…`,
+  el antiguo 678, su email, el fragmento omitido en la copia pública de Arianna,
+  `la-asistenta-dev`, prefijo `LLM_`, SID de Twilio `AC…`,
   asignaciones con valor literal de KEY/TOKEN/SECRET, `Bearer`
   con valor, blobs de 40+ caracteres y móviles españoles). Un
-  solo hallazgo: ese fragmento en la §45 interna,
+  solo hallazgo: el fragmento omitido en la copia pública en la §45 interna,
   saneado SOLO en la copia pública («tel. omitido en la copia
   pública», la fórmula de siempre); el original interno queda
   intacto. El resto: limpio. Los teléfonos que aparecen son los
@@ -4250,8 +4251,9 @@ tras la confirmación del push; manifiesto en
   del salón (584249134367), que es público por la web de Arianna
   y ya constaba en el repo.
 - *Vía remota*: tras el push, búsqueda de código en GitHub sobre
-  el repo (fragmento saneado, email, teléfono) — 0 resultados
-  (detalle en el informe de la sync).
+  el repo — cuatro términos omitidos en la copia pública:
+  **0 resultados** en las cuatro. Head verificado y ficheros
+  nuevos leídos de vuelta (`BENCHMARK_H1.md` presente).
 
 **Excluidos, confirmados**: `hermes-home/`, `*.db`, logs de
 ejecución, `*.bak-*`, `profesional.env`, `agenda.env`,
@@ -4279,3 +4281,491 @@ README público queda intacto.
 La app en producción no se ha tocado en esta sync (ni un
 reinicio): solo se ha actualizado esta historia en la máquina,
 como en cada bloque.
+
+## §64 · CIERRE DE LA ACTIVACIÓN META — humo dentro de la web: la clave escrita por Lee es RECHAZADA por Meta (401); activación NO completada (30/10/2026, mediodía)
+
+El gesto de Lee ocurrió: ejecutó `bin/activar-meta.sh` en la
+consola de la máquina (`web/meta.env`, 117 bytes, permisos 600,
+30/10 11:54) y el interruptor se encendió — verificado desde el
+chat: `GET /api/capacidades` → `disponible: true`, modelo
+`muse-image-1.0`. Sobre esa base se corrió el paso 3 de
+ACTIVACION_META.md entero, y su resultado es el de este título:
+**el valor pegado no es una clave válida de la Meta Model API**.
+
+**Humo QA22** (`web/qa22/humo-meta.mjs`, Chromium a 412×915,
+flujo real de la clienta con la foto de ejemplo, perfil nuevo):
+
+- Consentimiento: el párrafo visual (la foto también va a Meta
+  para la propuesta) se muestra **visible** con la capacidad
+  encendida ✓ (verificado en el DOM y en captura).
+- Análisis: `analisis_ok` en el log del servidor con latencia
+  **17,99 s** (Spark); el flujo completo en cliente tardó
+  **24,1 s** incluyendo el intento visual. La orientación llegó
+  completa y en su lenguaje (captura mirada: tarjeta «Esto ve
+  La Asistenta» + ORIENTACIÓN «Diseño de cejas · 18 € · 25 min»).
+- Espera sana: muestreo del cargando durante todo el análisis
+  (7 muestras), **0 errores de consola**, ninguna pantalla
+  muerta ni error falso; el sondeo entregó el resultado en
+  cuanto estuvo.
+- Propuesta visual: **no se generó**. El payload llegó en
+  estado `error` con el mensaje honesto diseñado («La
+  propuesta visual no se pudo generar esta vez.») y el log del
+  servidor registró `visual_clave_no_valida` (11:57:44 UTC).
+  El análisis se entregó igual, como manda el diseño: nadie
+  vio una imagen falsa ni un fallo opaco.
+
+**Diagnóstico con evidencia, sin leer la clave jamás**:
+
+- `proveedor_meta.py estado` (desde la máquina): configurado,
+  fuente «fichero» — el proveedor lee `web/meta.env`.
+- `proveedor_meta.py modelos` (misma ruta que usa la web):
+  **HTTP 401 Unauthorized** de `api.meta.ai`. La credencial de
+  la bóveda sigue verificada por la vía del conector (§62);
+  lo que falla es el valor escrito en la máquina. La hipótesis
+  registrada ya en ACTIVACION_META.md: se pegó el valor
+  enmascarado de la lista de claves (que no es una credencial)
+  u otro valor que no es la clave completa mostrada al crearla.
+  La clave no se ha leído, impreso ni registrado en ningún
+  sitio durante este diagnóstico.
+
+**Estado honesto restaurado**: `web/meta.env` **vaciado** (el
+apagado documentado en ACTIVACION_META.md), permisos 600
+conservados → `/api/capacidades` vuelve a `disponible: false`
+(verificado). La experiencia de la clienta es exactamente la
+anterior a la activación: sin párrafo visual en el
+consentimiento y sin nota de error en el resultado. **Gasto
+Meta de este humo: 0,00 $** (el 401 precede a cualquier
+generación; `modelos` es solo lectura). Sin generaciones de
+más: una sola corrida de análisis, como manda el presupuesto.
+
+**Criterio de Lee — la foto arriba: NO aplicado y NO
+verificado.** Lee fijó el 30/10 11:00 que en la tarjeta del
+resultado la foto generada manda ARRIBA, grande, con la
+orientación en texto DEBAJO. Sin generación real no existe
+captura que lo demuestre, y esta casa no entrega cambios de
+presentación sin verificarlos: `index.html` y `sw.js` quedan
+**sin tocar** (SW sigue en v30). Hoy la tarjeta visual
+(`#res-visual`) es la **4ª** del resultado (tras «Esto ve»,
+ORIENTACIÓN y Alternativa), confirmado en el código y en el
+humo. El ajuste queda diseñado y listo para el mismo pase en
+que la generación funcione — solo presentación, sin tocar
+lógica ni cableado: cuando el payload traiga la propuesta en
+estado «listo», la tarjeta `#res-visual` pasa a ser la primera
+del resultado (foto grande arriba, texto debajo); el estado de
+error permanece donde está hoy.
+
+**Baterías al cierre**: probador **13/13** (sigue contra stub;
+la cobertura Meta real es este humo + el benchmark H1 de §62).
+Web **30/32**, con los 2 rojos diagnosticados y **ajenos a la
+activación** (ningún fichero de producción se ha tocado en
+esta tarea): la batería reserva su fixture «hoy 30/10 10:00»,
+un hueco que a esta hora ya pasó (guarda de pasado → 409) y
+que además ocupa un resto de escenario de la batería
+profesional B3 (cita **id 546**, «PRUEBA PROFESIONAL B3»,
+30/10 10:00, `confirmada`; conviene cancelarla como residuo
+de prueba). La misma batería dio 33/33 en §61 (00:58) con el
+hueco aún en el futuro: es podredumbre de fixture por hora
+del día, no una regresión.
+
+**ENTREGA_HACKATHON.md: sin cambios en esta tarea.** Su
+párrafo de herramientas Meta **conserva el ⚠️ de activación**:
+retirarlo sería afirmar una activación que no ha ocurrido.
+El único otro ⚠️ del documento sigue siendo la URL del
+vídeo demo.
+
+**Qué falta, exactamente un gesto**: Lee repite
+`bash /data/la-asistenta/bin/activar-meta.sh` y pega la clave
+**completa y válida** — la que Meta muestra una sola vez al
+pulsar «+ Create API key» en dev.meta.ai, no el valor
+enmascarado de la lista. En cuanto el interruptor encienda
+con una clave que responda 200 a `modelos`, el cierre es un
+solo pase: re-humo QA22 + ajuste foto-arriba con su captura +
+esta sección reeditada como COMPLETA + ENTREGA sin el ⚠️.
+
+Nota de sync para la congelación del 04/11: `web/qa22/`
+(`humo-meta.mjs` y logs en texto; las capturas PNG no viajan,
+como siempre), esta §64, y el ajuste de presentación con su
+registro cuando se ejecute.
+
+**Apéndice §64 · Limpieza del residuo B3 (30/10/2026,
+tarde)**: la cita **id 546** «PRUEBA PROFESIONAL B3» (30/10
+10:00, `confirmada`), señalada arriba como causa ajena a la
+activación de los 2 rojos de la batería web, ha sido
+**cancelada por la vía normal** — `POST /citas/546/cancelar`
+→ 200 — y consta «cancelada», sin borrar el registro, como
+manda la semántica de la casa. Verificado tras la
+cancelación: ninguna cita viva ocupa ya el hueco de hoy
+30/10 a las 10:00, y la reserva real de Lee **id 512**
+(31/10 10:15, 102 min) queda **intacta** en estado
+`confirmada`. **Observación fuera del alcance de esta
+limpieza**: existe otra cita viva con el mismo nombre de
+batería, **id 545** «PRUEBA PROFESIONAL B3» (hoy 30/10
+19:30, `confirmada`), no mencionada en el diagnóstico de
+esta sección; no se ha tocado y queda pendiente de
+decisión.
+
+**Apéndice §64 · Segundo residuo B3 (30/10/2026)**: la
+cita **id 545** «PRUEBA PROFESIONAL B3» (hoy 30/10 19:30,
+`confirmada`), dejada pendiente de decisión en el apéndice
+anterior, ha sido **cancelada por la vía normal** —
+`POST /citas/545/cancelar` → 200 — y consta «cancelada»,
+sin borrar el registro. Verificado tras la cancelación
+(consulta de solo lectura sobre `agenda.db`): **ninguna**
+cita viva (`confirmada`) con nombre de prueba/batería
+queda en la agenda del piloto — la única cita viva es la
+reserva real de Lee **id 512** (31/10 10:15, 102 min),
+que sigue **intacta** en estado `confirmada`.
+
+## §65 · ACTIVACIÓN META COMPLETA — la clave buena, el humo QA22 en verde y la foto arriba (30/10/2026, tarde)
+
+Lee repitió el gesto desde el portátil (la ruta fiable:
+dev.meta.ai en su Chrome → clave NUEVA recién creada, copiada
+entera de la pantalla única → consola de InstaBox en escritorio
+→ Ctrl+V en `bin/activar-meta.sh`). Verificado desde el chat
+antes de este pase: la máquina autentica con SU clave
+(`proveedor_meta.py modelos` → 9 modelos, exit 0) y
+`/api/capacidades` → `disponible: true`. La clave no se ha
+leído ni registrado en ningún momento; vive solo en
+`web/meta.env` (0600, 68 bytes).
+
+**Re-humo QA22** (`web/qa22/humo-meta.mjs`, 412×915, flujo real
+de la clienta, foto de ejemplo):
+
+- Corrida «cierre»: pasos 1–4 OK (flujo completo 40,1 s: Spark
+  11,6 s + `visual_ok` 23,0 s) y el paso 5 en FALLO por defecto
+  **del guion, no de la app**: navegaba a Perfil con `ir()`
+  directo, pero el render de «Mis looks» cuelga de los handlers
+  de navegación (`#nav-perfil` / `#btn-cab-perfil` →
+  `mostrarLooks()`). Guion corregido (clic en `#nav-perfil`,
+  como la clienta) con la lección anotada en el propio fichero.
+- Corrida «cierre2»: **5/5 OK**. Consentimiento con el párrafo
+  visual visible ✓ · análisis: Spark **12,8 s**, propuesta
+  visual REAL generada por la máquina **13,4 s** (`visual_ok`,
+  muse-image-1.0, WebP 1280×1920), flujo total en cliente
+  **28,7 s** · espera muestreada (8 muestras) sin pantalla
+  muerta ni error falso · **0 errores de consola** · guardado
+  en «Mis looks» ejercido de verdad: aviso «con tu propuesta
+  visual; tu foto original nunca se guarda» y la lista
+  renderiza el look con su miniatura generada (1280×1920),
+  verificado en captura.
+
+**⭐ Criterio de Lee aplicado** (su instrucción del 30/10
+11:00: «en donde dice Esto ve La Asistenta allí debería ir una
+foto — cómo se ve realmente»): en `mostrarResultado()`, cuando
+el payload trae la propuesta en estado «listo», la tarjeta
+`#res-visual` pasa a ser la **primera** del resultado (clase
+`.primera`: sin el margen superior de cuando va cuarta); el
+estado de error y el oculto la devuelven a su sitio de siempre,
+tras la alternativa. Solo presentación — ni la lógica ni el
+cableado se han tocado. Demostrado en la captura
+`h4-cierre2-resultado-arriba.png`, mirada con los ojos del
+operador: la tarjeta «PROPUESTA VISUAL · ORIENTATIVA» abre la
+pantalla con la foto generada grande y su nota honesta, y
+debajo empieza «Esto ve La Asistenta» con la orientación en
+texto. Orden medido en el DOM: res-visual (y=95) → Esto ve
+(761) → ORIENTACIÓN (1291) → Alternativa (1686). SW v30 →
+**v31**; `web/qa22/pwa.mjs` (patrón QA21, perfil persistente)
+verifica la actualización de caché: migración limpia — solo
+queda la caché v31, página controlada tras la recarga, app
+renderizando, 0 errores de consola.
+
+**Baterías al cierre**: probador **18/18** (13 Meta contra stub
++ 5 FASHN; la cobertura Meta real es este humo + el benchmark
+H1 de §62) · profesional **25/25** · web **30/32**, con los 2
+rojos **idénticos a los de §64 y con el mismo diagnóstico**:
+el fixture fijo «hoy 30/10 10:00» de «reserva creada y
+verificada» es irrecuperable a esta hora (hueco pasado y
+además ocupado históricamente por citas `cumplida` de
+baterías: 409 «ese hueco ya no está libre»), y «anti-solape»
+depende de esa reserva. No es una regresión: la misma batería
+dio 33/33 en §61 (00:58) con el hueco aún en el futuro.
+Trayecto honesto de la medición: dos corridas previas de la
+batería web salieron degradadas (29/32 y 28/32) porque el
+límite anti-abuso de `/api/analizar` (10/h por IP, en memoria
+del proceso) lo consumieron las propias corridas encadenadas
+de humo+batería de este pase — la sonda directa lo confirmó
+(foto inválida → 429 en vez de 400) — y la corrida final se
+hizo contra proceso fresco, el procedimiento de §61,
+recuperando el análisis a la primera (17,4 s + su visual).
+
+**Gasto del pase**: 4 generaciones reales (los dos humos y los
+análisis con visual de dos corridas de la batería web) ≈
+**0,04 $** contra el crédito de 150 $ — dentro del tope de
+0,10 $ fijado para el cierre.
+
+**Documentación**: ENTREGA_HACKATHON.md **sin el ⚠️ de
+activación** (el párrafo de herramientas Meta y «Built with»
+describen la activación hecha con sus mediciones; el ítem
+«Muse Image + SAM 3.1» de la checklist queda marcado [x]; el
+único ⚠️ que queda en los campos de entrega es la URL del
+vídeo demo) · ACTIVACION_META.md con cabecera de
+**COMPLETADA**. Con esta sección, la activación Meta queda
+cerrada: lo único que la §62 dejó pendiente ya no lo está.
+
+Nota de sync para la congelación del 04/11: `web/index.html`,
+`web/sw.js` (v31), `web/qa22/` (`humo-meta.mjs` corregido,
+`pwa.mjs` y logs en texto; las capturas PNG no viajan, como
+siempre), esta §65, `ACTIVACION_META.md` y
+`ENTREGA_HACKATHON.md`.
+
+## §66 · QA23 — Pre-ensayo del lunes contra la app final v31: la secuencia entera, el análisis a 33–38 s y la escaleta verificada (31/10/2026, tarde)
+
+- **Encargo**: correr la secuencia de demo ENTERA contra la app
+  final (v31, probador visual ENCENDIDO) antes del ensayo del
+  02/11 — el contraste de QA21 fue contra v30 SIN la propuesta —,
+  comparar tiempos con el runbook, actualizar `ENSAYO_Y_DEMO.md`,
+  re-verificar su presupuesto Twilio, su plan de re-unión y la
+  vigilia, y cerrar con baterías contra proceso fresco. Guiones
+  en `web/qa23/`: `secuencia-v31.mjs` (adaptación de la de QA21,
+  con el estado de la tarjeta visual y el orden del resultado) y
+  `sonda-panel.mjs`. Sin gastar Twilio; todas las citas QA23
+  quedaron canceladas (verificado en BD: 0 vivas de QA23).
+
+### Tiempos medidos (412×915, dos corridas)
+
+| Paso | QA21 (v30) | QA23 (v31) |
+|---|---|---|
+| Abrir la app | 1,2 s | 1,2 s (carga útil 0,68 s; caché `la-asistenta-shell-v31`) |
+| Buscar «henna» | 1,5 s | 1,5 s |
+| Recomendado | 2,7 s | 2,7 s |
+| Análisis — paso completo | 17,0 s | 38,1–43,2 s |
+| — E2E en la UI (clic → resultado) | 12,1 s | **33,1–38,2 s** |
+| — servidor: Spark / visual | 12,1 s / — | 11,9–13,5 s / 16,4–17,7 s |
+| Reservar | 4,0 s | 4,0 s |
+| Enlace mágico | 3,1 s | 3,1 s |
+| Panel profesional | 4,9 s («Hoy») | 3,2 s (sonda, «Agenda») |
+| Cancelar | 6,2 s | 6,2 s |
+
+0 errores de consola en todas las corridas; `scrollWidth` 412.
+El desglose de servidor sale de los eventos `analisis_ok` /
+`visual_ok` del log de la web del propio 31/10. Orden del
+resultado verificado en el DOM en las dos corridas:
+`#res-visual` **primera** (clase `primera`, imagen generada como
+data URI) → «Esto ve La Asistenta» → ORIENTACIÓN → alternativa:
+el criterio de Lee de §65 se mantiene en la app final.
+
+### Veredicto de escaleta: CABE en 3:00, con un ajuste
+
+Pregrabados (0:00–0:35), WhatsApp en vivo (0:35–1:50) y panel
+(2:15–2:40) no cambian: clavan los tiempos de QA21. El plano del
+análisis (1:50–2:15) tiene 25 s de pantalla y la latencia real
+es 33–38 s: sigue siendo viable EN VIVO (≤ ~45 s, el criterio
+del propio runbook) **acelerando la espera en edición (×~1,5)**,
+la misma técnica que las esperas de WhatsApp; sin ese ajuste se
+comería 8–13 s del plano siguiente. El rótulo «En construcción —
+vista previa con Muse Image + SAM 3.1» queda **retirado** (la
+propuesta es real desde §65). `ENSAYO_Y_DEMO.md` actualizado en
+consecuencia: nota QA23 en la cabecera, paso 7 de §1 (latencia
+completa y propuesta primera) y fila 1:50–2:15 de §2, más un
+apéndice QA23 con esta tabla y el veredicto.
+
+### Dos hallazgos de GUION (no de la app), corregidos en QA23
+
+- **Calendario**: la 1ª corrida falló el paso de reserva con
+  «sin celda en el calendario» para TODAS las fechas. Causa: un
+  sábado tras el cierre (14:00) el calendario abre ya en el mes
+  del primer día reservable (noviembre), y la lógica heredada de
+  QA21 pulsaba «mes siguiente» a ciegas antes de comprobar,
+  saltándose ese mes entero. Corregido: solo se avanza si la
+  fecha queda más allá del último día visible. 2ª corrida:
+  reserva completa en 4,0 s (lunes 02/11 10:00, AS-AAVT,
+  cancelada en el paso 8). El ensayo del lunes (paso 6 de §1)
+  parte de esta misma situación: sin sorpresa.
+- **Panel en vista «Agenda»**: la rama «agenda» del paso 7
+  buscaba el código AS-XXXX en `#agenda-dias`, pero las tarjetas
+  de Agenda pintan hora, nombre y servicio — el código solo se
+  pinta en «Hoy» (fuente: el render de `profesional.html`). La
+  comprobación era impasable por construcción; nunca se había
+  ejercido porque en QA21 la cita fue del mismo día (rama
+  «Hoy»). Sonda QA23: cita futura creada por la API pública y
+  **visible por nombre en Agenda en 3,2 s** (login → pestaña →
+  cita), 0 errores, cancelada por la API de agenda al terminar.
+  La app está bien; el plano del vídeo usa «Hoy» (4,9 s de
+  QA21), que sigue vigente.
+
+### Baterías de sanidad (proceso fresco, procedimiento §61)
+
+Web detenida por su pid (7386) y relanzada con `arrancar.sh`
+(pid nuevo 14087; `/salud` OK y `disponible: true` tras el
+arranque). **Profesional 25/25** · **web 29/32**, con los 3
+rojos en la cadena del fixture fijo «2026-10-30 10:00»:
+«reserva creada y verificada» (st=400, «elige una fecha entre
+hoy y los próximos 60 días»), «anti-solape» (sin la cita del
+fixture, nada oculta el 10:00 en la parrilla de un día pasado)
+y «doble reserva rechazada (409)» (st=400: el rechazo por fecha
+precede al 409). Es el MISMO diagnóstico de §§64/65 — allí 2
+rojos porque el 30/10 aún era «hoy» —: podredumbre del fixture
+por fecha fija, **no una regresión** (las 29 restantes pasan,
+incluidas las de análisis con visual y las del panel). No se
+persiguen; el arreglo (fecha rodante en el fixture) queda
+anotado para después de la entrega.
+
+### Re-verificación del runbook (lo que el lunes dará por hecho)
+
+- **Presupuesto Twilio del ensayo: 13** ✓ — la aritmética de §1
+  cuadra (join 1 + «Hola» 2 + conversación 8 + derivación 2) y
+  coincide con lo declarado en §0/§1.
+- **Re-unión al sandbox el 02/11** ✓ necesaria y correcta: la
+  unión anterior (28–29/10) caduca a los 3 días sin actividad.
+- **Vigilia del 02/11** ✓ — definición del cron
+  `la-asistenta-vigilia-trabajo` vista directamente: activo,
+  intervalo de 20 min anclado el 02/11 a las 09:00
+  (Europe/Madrid), con compuerta a los días 02/11 y 04/11 entre
+  las 09:00 y las 23:59 → cubre el ensayo y la grabación
+  enteros. El cron del jurado (05–10/11) también está activo.
+
+### ⚠️ Integridad de `ENSAYO_Y_DEMO.md` — cola perdida (acción pendiente)
+
+Al abrir el runbook para este pase, sus TRES copias (local,
+máquina y repo público) resultaron truncadas en el mismo punto:
+el texto se corta a mitad de la celda del rótulo del plano
+2:15–2:40, con un marcador literal de truncado en el fichero, y
+faltan ~6.400 caracteres (el resto de §2 — la fila 2:40–3:00 en
+su redacción de runbook — y las secciones §3 «entrega del
+04/11» y §4 «qué no tocar»). Sin copia íntegra en git (el
+fichero no tiene historial en el clon del repo) ni en respaldos.
+Reparación aplicada, solo con fuentes literales: la celda
+cortada se completó con el rótulo de `GUION_DEMO.md` («Ante la
+duda, deriva a la humana», línea 47) y el fichero actualizado
+queda idéntico en local y máquina (SHA-256 `74e139af…`, ambos
+lados). **§3 y §4 NO se han reconstruido**: deben reponerse
+desde esta misma crónica (§§46, 50 y 65) y
+`ENTREGA_HACKATHON.md` ANTES del ensayo del 02/11. Es el único
+frente documental abierto que deja QA23.
+
+**Gasto Meta del pase**: 4 generaciones reales (2 de la
+secuencia + 2 de las corridas de la batería web) ≈ **0,04 $**
+contra el crédito de 150 $.
+
+**Nota de sync para la congelación del 04/11**: `web/qa23/`
+(`secuencia-v31.mjs`, `sonda-panel.mjs`, `log-secuencia.json`,
+`log-secuencia-run1.json` y `log-sonda-panel.json` en texto;
+las capturas PNG no viajan, como siempre), `ENSAYO_Y_DEMO.md`
+actualizado (con la reparación declarada) y esta §66.
+
+**Apéndice §66 · Reposición de la cola de `ENSAYO_Y_DEMO.md`
+(31/10/2026, tarde)**: ejecutada la reposición que esta misma
+§66 dejó pendiente. Repuestos, solo desde los registros del
+proyecto y sin inventar ni una instrucción: la **fila
+2:40–3:00** de §2 (desde la tabla minuto a minuto y los textos
+de cierre de `GUION_DEMO.md`, y la tabla del guion final de
+`ENTREGA_HACKATHON.md`), la **§3 «Entrega — 04/11»** (desde
+esta §46 — objetivo interno 04/11 23:00 Madrid, límite 21:00
+ET —, la §50 — vigilia del día de entrega —, las notas de sync
+de §§62–66 y el pendiente exacto de §63, y los campos y la
+lista ⚠️ de `ENTREGA_HACKATHON.md`) y la **§4 «Qué no tocar»**
+(TwiML intocable — Fase D y tabla de §0 del propio runbook —,
+arranque solo por `arrancar.sh`, despertar solo por API, los
+`.env` fuera de toda sync — exclusiones de §63 —, presupuesto
+Twilio y autopruebas sin gasto, núcleo de reservas cerrado en
+semana de entrega — §46 —). El fichero lleva dentro su **nota
+de reposición fechada** que lo declara reconstrucción, no
+texto original; del §4 original solo se conserva con evidencia
+el ancla §4.3 (la referencia «ver §4.3» de §0), y las horas
+concretas de la jornada del 04/11 que el original pudiera
+tener **no se han repuesto** por no constar en ningún registro.
+`ENSAYO_Y_DEMO.md` repuesto: 22.432 bytes, SHA-256
+`89b0bcd787960a1390ed293c6b299be99c44146fdb8f1593109beadfc3831951`,
+**idéntico en local y en la máquina**. La copia del repo
+público sigue truncada (7.778 bytes, SHA `7ad3360c…`): **nota
+de sync para la congelación del 04/11** — viajan el
+`ENSAYO_Y_DEMO.md` repuesto y este apéndice, en sustitución del
+punto de la nota de sync original de esta §66 que lo daba por
+«actualizado (con la reparación declarada)».
+
+## §67 · QA24 — La vista del look guardado rehecha en tarjeta apilada: el resumen ya no se exprime en una columna de 87 px (31/10/2026, tarde)
+
+**Origen.** Defecto REAL cazado por Lee en su móvil (31/10 15:51,
+captura suya): en Perfil → «Mis looks», el look «Ombré Brows Henna ·
+31 de octubre» enseñaba el texto del análisis exprimido en una
+columna estrechísima (palabra por línea) entre la miniatura de la
+propuesta y el botón «Reservar» flotante, con la × al margen:
+ilegible y roto. La misma clase de defecto que la cabecera «TU
+CITA» de QA21: contenido real largo en una fila que no le deja
+ancho.
+
+**Reproducción fiel (QA24, `web/qa24/look.mjs`, 412×915, máquina).**
+Los looks viven en el `localStorage` del dispositivo; el guion
+siembra el equivalente exacto del look de Lee (mismo servicio,
+misma fecha, el `resumen` con el recorte de 140 caracteres que
+aplica la propia app al guardar y la propuesta visual como data
+URI) más un segundo look SIN propuesta y un guardado. Medidas del
+ANTES, idénticas a la captura de Lee: la tarjeta medía 330×378 px
+y el portador del resumen (`.il-main`) **87 px de ancho y 22
+líneas**; sin foto, el segundo look quedaba en 149 px y 11 líneas
+(tarjeta de 202 px). Las capturas del antes están en
+`web/qa24/antes/`, miradas con ojos del operador.
+
+**Causa raíz.** `.item-local` es una fila flex horizontal sin
+envoltura (`display:flex;align-items:center`) pensada para filas
+cortas: dentro de la tarjeta de 330 px, la miniatura (52 px), el
+botón «Reservar» (87 px), la × (44 px), gaps y padding consumen
+~245 px y dejan 87 px a un texto de hasta 140 caracteres con
+título y fecha delante. `align-items:center` centraba además los
+controles contra la cinta de texto, de ahí el «Reservar flotante»
+de la captura. No es un fallo del dato ni del guardado: es la
+maquetación.
+
+**Arreglo (solo presentación, en `web/index.html`).** El ítem de
+look deja de usar la fila: `mostrarLooks()` compone ahora una
+tarjeta apilada `.item-local.item-look` con orden fijo — propuesta
+visual a ancho completo (4:3, `.il-foto-ancha`) si la hay; fila de
+título (`.il-titulo`, 16 px/800) con la × (`.il-x`, objetivo de
+44 px) a su derecha; fecha (`.il-fecha`, gris); resumen a ancho
+completo (`.il-resumen`, 14 px/1,55); y «Reservar» (`.il-btn`) a
+ancho completo y 48 px al final. Sin propuesta, la misma tarjeta
+sin la foto. Los manejadores (Reservar → paso 2 con el servicio;
+× → borrar y repintar) no cambian. De paso, el texto de cabecera
+de «Mis looks» decía «Sin fotos: solo la recomendación», falso
+desde que el look guarda su propuesta visual (§65): ahora dice
+que se guarda con su propuesta si la hubo y que la foto original
+nunca se guarda. Respaldos: `index.html.bak-20261031-qa24` y
+`sw.js.bak-20261031-qa24`.
+
+**Verificación (DESPUÉS, mismo guion, capturas miradas).** Con
+propuesta: foto 300×225 arriba; título en UNA línea; resumen a
+**300 px y 4 líneas** (antes 87 px/22); «Reservar» 300×48 al
+final; × en la fila del título sin solapes (`solapeBtnConTexto:
+false`). Sin propuesta: resumen 300 px/4 líneas (antes 149/11).
+Interacción real ejercida: Reservar desde el look abre el paso 2
+con «Ombré Brows Henna · 30 €» preseleccionado; la × del look sin
+foto lo borra (la lista pasa de 2 a 1) y la tarjeta restante queda
+intacta. 0 errores de consola en ambas corridas. Capturas en
+`web/qa24/despues/` (l1–l4) y servidas en `/icons/qa24-*`.
+
+**Superficies hermanas revisadas.** «Mis guardados» usa la misma
+fila `.item-local` con contenido corto y acotado (nombre + precio
+· duración · salón): medida en QA24, tarjeta de 85 px con el texto
+en 2–3 líneas legibles — sana, no se toca. La tarjeta de resultado
+del análisis (donde nace el look) ya es una pila vertical de
+tarjetas desde QA22 y su guardado (botón + nota) va apilado: sin
+el patrón roto. El estado «look sin propuesta» queda cubierto por
+el segundo look de la siembra.
+
+**PWA.** `sw.js` v31 → **v32**; actualización limpia verificada
+con `web/qa24/pwa.mjs` (perfil persistente: fase 1 deja v31
+controlando; fase 2 migra a v32 como única caché, página
+controlada, app renderizando, 0 errores).
+
+**Baterías (proceso web fresco, pid 16553 vía `arrancar.sh`,
+procedimiento §61).** Profesional **25/25** · Probador **18/18**
+(unittest, contra stub como en §§64–65) · Web **29/32**: los 3
+rojos son EXACTAMENTE la cadena del fixture fijo «2026-10-30
+10:00» ya diagnosticada en §§64–66 (la batería pide reservar en
+una fecha ya pasada → 400 «elige una fecha entre hoy y los
+próximos 60 días», y caen anti-solape y doble reserva detrás).
+Podredumbre de fixture por fecha, no regresión: este pase no toca
+ni una línea del flujo de reservas. Su arreglo (fecha rodante)
+sigue anotado para después de la entrega.
+
+**Caso permanente.** `web/qa24/look.mjs` (modos antes|despues)
+entra en la matriz permanente de QA junto a `qa21/cabecera.mjs`:
+contenido largo real en la vista de look, con medidas de ancho de
+columna y líneas como veredicto.
+
+**Nota de sync para la congelación del 04/11.** Viajan:
+`web/index.html`, `web/sw.js` (v32) y `web/qa24/` en texto
+(`look.mjs`, `pwa.mjs`, `antes/log-look-antes.json`,
+`despues/log-look-despues.json`). Las capturas PNG de qa24 quedan
+referenciadas por su URL viva en `/icons/qa24-*`, como en syncs
+anteriores. Excluidos de siempre sin cambios.

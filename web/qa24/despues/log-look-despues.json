@@ -1,0 +1,181 @@
+{
+ "fase": "QA24-look-despues",
+ "consola": [],
+ "medidas": {
+  "looks": {
+   "scrollW": 412,
+   "items": [
+    {
+     "item": {
+      "x": 41,
+      "y": 215,
+      "ancho": 330,
+      "alto": 485,
+      "bottom": 700
+     },
+     "portadorResumen": {
+      "x": 56,
+      "y": 537,
+      "ancho": 300,
+      "alto": 87,
+      "bottom": 624
+     },
+     "lineasPortador": 4,
+     "foto": {
+      "x": 56,
+      "y": 230,
+      "ancho": 300,
+      "alto": 225,
+      "bottom": 455
+     },
+     "btnReservar": {
+      "x": 56,
+      "y": 637,
+      "ancho": 300,
+      "alto": 48,
+      "bottom": 685
+     },
+     "equis": {
+      "x": 317,
+      "y": 462,
+      "ancho": 44,
+      "alto": 44,
+      "bottom": 506
+     },
+     "solapeBtnConTexto": false,
+     "textoVisible": "Ombré Brows Henna31 de octubre¡Qué bonitas cejas se te intuyen en la foto! Se ve"
+    },
+    {
+     "item": {
+      "x": 41,
+      "y": 709,
+      "ancho": 330,
+      "alto": 248,
+      "bottom": 957
+     },
+     "portadorResumen": {
+      "x": 56,
+      "y": 795,
+      "ancho": 300,
+      "alto": 87,
+      "bottom": 881
+     },
+     "lineasPortador": 4,
+     "foto": null,
+     "btnReservar": {
+      "x": 56,
+      "y": 894,
+      "ancho": 300,
+      "alto": 48,
+      "bottom": 942
+     },
+     "equis": {
+      "x": 317,
+      "y": 719,
+      "ancho": 44,
+      "alto": 44,
+      "bottom": 763
+     },
+     "solapeBtnConTexto": false,
+     "textoVisible": "Diseño de cejas28 de octubreTus cejas se ven pobladas y con buena forma natural;"
+    }
+   ]
+  },
+  "guardados": {
+   "scrollW": 412,
+   "items": [
+    {
+     "item": {
+      "x": 41,
+      "y": -50,
+      "ancho": 330,
+      "alto": 85,
+      "bottom": 35
+     },
+     "portadorResumen": null,
+     "lineasPortador": null,
+     "foto": null,
+     "btnReservar": {
+      "x": 215,
+      "y": -30,
+      "ancho": 87,
+      "alto": 44,
+      "bottom": 14
+     },
+     "equis": {
+      "x": 312,
+      "y": -30,
+      "ancho": 44,
+      "alto": 44,
+      "bottom": 14
+     },
+     "solapeBtnConTexto": null,
+     "textoVisible": "Ombré Brows Henna30 € · 65 min · Ari Vivas BeautyReservar"
+    }
+   ]
+  },
+  "looksTrasBorrar": {
+   "scrollW": 412,
+   "items": [
+    {
+     "item": {
+      "x": 41,
+      "y": 215,
+      "ancho": 330,
+      "alto": 485,
+      "bottom": 700
+     },
+     "portadorResumen": {
+      "x": 56,
+      "y": 537,
+      "ancho": 300,
+      "alto": 87,
+      "bottom": 624
+     },
+     "lineasPortador": 4,
+     "foto": {
+      "x": 56,
+      "y": 230,
+      "ancho": 300,
+      "alto": 225,
+      "bottom": 455
+     },
+     "btnReservar": {
+      "x": 56,
+      "y": 637,
+      "ancho": 300,
+      "alto": 48,
+      "bottom": 685
+     },
+     "equis": {
+      "x": 317,
+      "y": 462,
+      "ancho": 44,
+      "alto": 44,
+      "bottom": 506
+     },
+     "solapeBtnConTexto": false,
+     "textoVisible": "Ombré Brows Henna31 de octubre¡Qué bonitas cejas se te intuyen en la foto! Se ve"
+    }
+   ]
+  }
+ },
+ "pasos": [
+  {
+   "semilla": {
+    "looks": 2,
+    "bytesVisual": 190675
+   }
+  },
+  {
+   "reservarDesdeLook": {
+    "pantalla": "p-reserva",
+    "paso2Visible": true
+   }
+  },
+  {
+   "looksTrasBorrar": 1
+  }
+ ],
+ "ok": true
+}

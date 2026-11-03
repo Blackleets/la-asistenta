@@ -1,0 +1,31 @@
+{
+ "fase": "QA23-sonda-panel",
+ "pasos": [],
+ "consola": [],
+ "resumen": {
+  "reserva": {
+   "st": 201,
+   "citaId": 577,
+   "codigo": "AS-AAVW",
+   "hora": "10:00",
+   "hayToken": false,
+   "clavesRespuesta": [
+    "cita",
+    "verificada"
+   ]
+  },
+  "panel": {
+   "dentro": true,
+   "encontrada": true,
+   "segsPanel": 3.2,
+   "textoDia": " Noviembre |  | Cerrado (domingo). |  | Lunes, 2 De Noviembre | 10:00 | QA23 Panel · Diseño de cejas | Confirmada |  | Huecos libres: 10:25–20:00 |  | Canceladas "
+  },
+  "cancelacion": {
+   "cancelada": true,
+   "via": "api-agenda",
+   "http": 200
+  },
+  "erroresConsola": 0,
+  "duracionTotalS": 3.4
+ }
+}

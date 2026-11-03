@@ -1,16 +1,27 @@
-> **ESTADO 30/10/2026 (ver §62 de ESTADO_PROYECTO.md):** pasos 0 y 2
+> **✅ ACTIVACIÓN COMPLETADA — 30/10/2026 (ver §65 de
+> ESTADO_PROYECTO.md).** Lee repitió el paso 1 desde el portátil
+> con una clave **recién creada** (la completa, mostrada una sola
+> vez): la máquina autentica contra Meta con su propia clave
+> (`proveedor_meta.py modelos` → 9 modelos, exit 0) y
+> `/api/capacidades` → `disponible: true`. El cierre QA22 verificó
+> el flujo vivo entero (consentimiento con el párrafo visual →
+> análisis Spark → **propuesta visual real generada por la
+> máquina** → guardado en «Mis looks» con la miniatura generada),
+> con el criterio de Lee aplicado y demostrado en captura: la
+> foto generada abre el resultado, grande, y la orientación en
+> texto va debajo (SW v31; actualización de caché v30→v31
+> verificada limpia). Este documento queda como la receta
+> histórica de la activación.
+>
+> **Historia previa (30/10/2026, ver §§62 y 64):** pasos 0 y 2
 > cumplidos y paso 3 (humo) ejecutado por la vía del conector
 > `custom.meta-model-api`: credencial verificada (GET /v1/models →
 > 200, 9 modelos), formas reales de Muse Image y SAM 3.1 confirmadas
 > y ajustadas en el proveedor, benchmark H1 estrategia A ejecutado
-> (12 propuestas, veredicto en BENCHMARK_H1.md). **Pendiente SOLO el
-> paso 1 en su forma literal**: la bóveda del conector entrega la
-> credencial como sustituto canjeable únicamente en peticiones del
-> agente (nadie puede leerla en claro), así que el fichero
-> `web/meta.env` de la máquina tiene que escribirlo Lee con el valor
-> de la clave tecleado por él en la consola de la máquina — un solo
-> comando, registrado en §62. Hasta entonces `/api/capacidades`
-> sigue en `disponible: false` y la app se comporta como siempre.
+> (12 propuestas, veredicto en BENCHMARK_H1.md). El primer intento
+> del paso 1 (§64, mediodía) escribió un valor que Meta rechazó
+> con **401** (`visual_clave_no_valida`); el fichero quedó vaciado
+> (apagado documentado) hasta el gesto bueno de arriba.
 
 # ACTIVACIÓN META — el día de la clave (probador visual de cejas)
 
