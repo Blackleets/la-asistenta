@@ -1,6 +1,6 @@
 # La Asistenta
 
-**A modular platform for AI-assisted booking and commerce for local businesses** — built for the Meta × Cerebral Valley hackathon, and running today with a real pilot business: **Ari Vivas Beauty**, a brow salon in Madrid ([arivivasbeauty.com](https://arivivasbeauty.com)).
+**A modular platform for AI-assisted booking and commerce for local businesses** — built for the Meta × Cerebral Valley hackathon, and running today with a real pilot business: **Ari Vivas Beauty**, a brow salon in Madrid ([arivivasbeauty.com/reserva-tu-experiencia](https://arivivasbeauty.com/reserva-tu-experiencia)).
 
 A client discovers the salon, gets an AI brow analysis from a photo, sees **real** availability and books into the salon's **real** agenda — from a mobile web app or over WhatsApp, where an AI operator (Hermes) answers, recommends from the real price list and confirms the booking. The owner runs her day from a professional area: today's appointments, a 7-day agenda, a waitlist with one-tap WhatsApp follow-up, and a measured booking funnel.
 
