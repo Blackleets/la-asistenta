@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1240" height="470" viewBox="0 0 1240 470" font-family="Arial, Helvetica, sans-serif">
+  <rect x="0" y="0" width="1240" height="470" fill="#FAF7F2"/>
+  <text x="40" y="50" font-size="28" font-weight="bold" fill="#141310">Architecture — one agenda, two doors, one brain</text>
+  <text x="40" y="78" font-size="14" fill="#6B655C">Every channel writes to the same agenda. The AI converses and recommends — it can never double-book a slot.</text>
+
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#8A8378"/>
+    </marker>
+  </defs>
+
+  <!-- Column A : clients -->
+  <rect x="40" y="120" width="230" height="92" rx="14" fill="#FFFFFF" stroke="#DAD4C6"/>
+  <text x="58" y="152" font-size="17" font-weight="bold" fill="#141310">Client PWA</text>
+  <text x="58" y="176" font-size="12.5" fill="#55504A">discovery · real catalogue · booking</text>
+  <text x="58" y="196" font-size="12.5" fill="#55504A">magic link · saved looks</text>
+
+  <rect x="40" y="252" width="230" height="92" rx="14" fill="#FFFFFF" stroke="#DAD4C6"/>
+  <text x="58" y="284" font-size="17" font-weight="bold" fill="#141310">WhatsApp</text>
+  <text x="58" y="308" font-size="12.5" fill="#55504A">Twilio sandbox channel</text>
+  <text x="58" y="328" font-size="12.5" fill="#55504A">replies travel in the TwiML response</text>
+
+  <!-- Column B : platform -->
+  <rect x="310" y="120" width="290" height="92" rx="14" fill="#FFFFFF" stroke="#DAD4C6"/>
+  <text x="328" y="152" font-size="17" font-weight="bold" fill="#141310">Web server (:8090)</text>
+  <text x="328" y="176" font-size="12.5" fill="#55504A">client app + owner’s professional area</text>
+  <text x="328" y="196" font-size="12.5" fill="#55504A">Python 3.11 standard library · PWA</text>
+
+  <rect x="310" y="252" width="290" height="92" rx="14" fill="#FFFFFF" stroke="#DAD4C6"/>
+  <text x="328" y="284" font-size="17" font-weight="bold" fill="#141310">Hermes Agent</text>
+  <text x="328" y="308" font-size="12.5" fill="#55504A">Nous Research runtime — the WhatsApp</text>
+  <text x="328" y="328" font-size="12.5" fill="#55504A">operator, with agenda tools over MCP</text>
+
+  <!-- Column C : Meta AI -->
+  <rect x="640" y="120" width="250" height="92" rx="14" fill="#F0EBFF" stroke="#6950F3"/>
+  <text x="658" y="152" font-size="17" font-weight="bold" fill="#141310">Muse Spark</text>
+  <text x="658" y="176" font-size="12.5" fill="#55504A">Meta open weights, served on Baseten</text>
+  <text x="658" y="196" font-size="12.5" fill="#55504A">brow analysis · the conversation brain</text>
+
+  <rect x="640" y="252" width="250" height="92" rx="14" fill="#F0EBFF" stroke="#6950F3"/>
+  <text x="658" y="284" font-size="17" font-weight="bold" fill="#141310">Muse Image + SAM 3.1</text>
+  <text x="658" y="308" font-size="12.5" fill="#55504A">Meta Model API (team key)</text>
+  <text x="658" y="328" font-size="12.5" fill="#55504A">visual proposal · segmentation format</text>
+
+  <!-- Column D : truth -->
+  <rect x="930" y="120" width="260" height="92" rx="14" fill="#F5F1E8" stroke="#141310"/>
+  <text x="948" y="152" font-size="17" font-weight="bold" fill="#141310">Agenda API (:8081)</text>
+  <text x="948" y="176" font-size="12.5" fill="#55504A">transactional overlap guard · idempotency</text>
+  <text x="948" y="196" font-size="12.5" fill="#55504A">state machine · per-business scoping</text>
+
+  <rect x="930" y="252" width="260" height="92" rx="14" fill="#F5F1E8" stroke="#141310"/>
+  <text x="948" y="284" font-size="17" font-weight="bold" fill="#141310">SQLite</text>
+  <text x="948" y="308" font-size="12.5" fill="#55504A">the single source of truth</text>
+  <text x="948" y="328" font-size="12.5" fill="#55504A">appointments are states, never deleted</text>
+
+  <!-- Arrows -->
+  <line x1="270" y1="166" x2="306" y2="166" stroke="#8A8378" stroke-width="2" marker-end="url(#arr)"/>
+  <line x1="270" y1="298" x2="306" y2="298" stroke="#8A8378" stroke-width="2" marker-end="url(#arr)"/>
+  <line x1="600" y1="152" x2="636" y2="152" stroke="#8A8378" stroke-width="2" marker-end="url(#arr)"/>
+  <line x1="600" y1="190" x2="636" y2="262" stroke="#8A8378" stroke-width="2" marker-end="url(#arr)"/>
+  <line x1="600" y1="298" x2="636" y2="190" stroke="#8A8378" stroke-width="2" marker-end="url(#arr)"/>
+  <path d="M 455 120 L 455 102 L 1060 102 L 1060 116" fill="none" stroke="#8A8378" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="700" y="94" font-size="12" fill="#6B655C">bookings (web)</text>
+  <path d="M 455 344 L 455 392 L 1150 392 L 1150 216" fill="none" stroke="#8A8378" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="700" y="412" font-size="12" fill="#6B655C">bookings (WhatsApp, via MCP tools)</text>
+  <line x1="1060" y1="212" x2="1060" y2="248" stroke="#8A8378" stroke-width="2" marker-end="url(#arr)"/>
+
+  <text x="40" y="445" font-size="12.5" fill="#6B655C">FASHN VTON v1.5 (fashion try-on) is built and dormant — truss + adapter tested offline; it activates only with a deploy-capable provider key.</text>
+</svg>
