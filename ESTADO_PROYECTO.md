@@ -4240,7 +4240,7 @@ Registrado en el fichero de sync
 - *Vía local*: grep exhaustivo sobre los 64 ficheros candidatos
   ANTES de copiar (teléfono actual de Lee en todas sus formas,
   el antiguo 678, su email, el fragmento omitido en la copia pública de Arianna,
-  `la-asistenta-dev`, prefijo `LLM_`, SID de Twilio `AC…`,
+  token demo omitido en la copia pública, prefijo omitido en la copia pública, SID de Twilio `AC…`,
   asignaciones con valor literal de KEY/TOKEN/SECRET, `Bearer`
   con valor, blobs de 40+ caracteres y móviles españoles). Un
   solo hallazgo: el fragmento omitido en la copia pública en la §45 interna,
@@ -4769,3 +4769,1581 @@ columna y líneas como veredicto.
 `despues/log-look-despues.json`). Las capturas PNG de qa24 quedan
 referenciadas por su URL viva en `/icons/qa24-*`, como en syncs
 anteriores. Excluidos de siempre sin cambios.
+
+## §68 · CONGELACIÓN FINAL DEL REPO PÚBLICO (03/11/2026, víspera de la entrega)
+
+**Commit de congelación: `73876f695bc1f3304fd62794fa559c8b602d29e4`** sobre
+`feb8993` — «Sync post-activación Meta: QA22/QA23/QA24, foto arriba (SW
+v32), runbook repuesto y diagnóstico MUSA», publicado el 03/11/2026
+10:23 UTC; 7ª entrada del registro de sync. **19 rutas.** La verificación
+de cierre se rehízo la noche del 03/11: head de `main` = ese commit y los
+**19 blobs leídos de vuelta idénticos** a las copias auditadas del
+staging (una primera lectura de directorio dio un SHA discordante para
+`web/qa22/humo-meta.mjs`; al re-leer el blob en HEAD es `e35d2f26…`, el
+del fichero local y el del staging: descartada como lectura anómala).
+
+**Contenido por bloque**: este ESTADO hasta §67 (la presente §68 NO
+viaja: vive solo en local y en la máquina) · `ACTIVACION_META.md`
+(COMPLETADA) · `ENTREGA_HACKATHON.md` (sin el ⚠️ de activación; queda
+solo el del vídeo) · `ENSAYO_Y_DEMO.md` repuesto (22.432 B el original;
+22.410 B la copia pública por el saneado de abajo) · `DIAGNOSTICO_UX_MUSA.md`
+(entra: la decisión que la §63 dejó abierta en su punto 5) · `README.md`
+actualizado (stack Meta con la activación hecha y las mediciones de
+QA22) · `web/index.html` y `web/sw.js` (v32, arreglo QA24) · `web/qa22/`
+(`humo-meta.mjs`, `pwa.mjs`) · `web/qa23/` (`secuencia-v31.mjs`,
+`sonda-panel.mjs` y los tres logs JSON) · `web/qa24/` (`look.mjs`,
+`pwa.mjs`, `antes/log-look-antes.json`, `despues/log-look-despues.json`).
+
+**Auditoría de secretos, por dos vías**:
+
+- *Vía local*: grep exhaustivo sobre las 19 copias candidatas (teléfono
+  actual de Lee en todas sus formas, el antiguo 678, su email, el
+  fragmento omitido en la copia pública, prefijo y token demo omitidos en la copia pública, blobs de 40+):
+  **cero literales prohibidos**. Saneados, SOLO en las copias públicas y
+  con la fórmula de siempre («omitido en la copia pública»): en el
+  ESTADO, la mención del fragmento en la §45 y sus dos menciones dentro
+  de la propia §63; en el ENSAYO, la fila «Teléfono de Lee» de su tabla
+  de la §0 (única diferencia entre el original repuesto y la copia
+  publicada). Los únicos 40+ que quedan son SHA de commits citados y
+  slugs de fotos de Pexels del H1.
+- *Vía remota*: búsqueda de código en GitHub tras el push —
+  cinco términos omitidos en la copia pública:
+  **0 resultados en las cinco**.
+
+**Excluidos, confirmados**: `hermes-home/`, `*.db`, logs de ejecución,
+`*.bak-*`, `profesional.env`, `agenda.env`, `meta.env`,
+`RUTA_C_TWILIO.md`, `ESTADO_PARA_CHATGPT.md`, `PLAN_EXPOSICION.md`, las
+fotos de personas de `h1/` y **cero binarios**: las capturas PNG de
+qa22–qa24 no viajan y quedan referenciadas por sus URLs vivas en
+`/icons/…`, como en las syncs anteriores.
+
+**Lo único que queda fuera del repo tras esta congelación**: (1) esta
+§68, que vive solo en el ESTADO local y en el de la máquina; (2) la URL
+del vídeo de la demo, que se rellena en el campo «Demo video» de
+`ENTREGA_HACKATHON.md` en el momento del envío (así lo declara el propio
+paquete y la §3 del runbook) y no requiere otro commit salvo decisión
+contraria.
+
+**Observaciones registradas (ninguna introducida por esta
+congelación)**: `RUTA_C_TWILIO.md` (4.382 B) consta en el repo desde la
+publicación inicial, anterior a la regla de exclusión; esta sync no lo
+toca (git no destructivo) y su retirada, si se decide, es un paso
+aparte. La línea 4243 de la §63 (la lista de patrones de la auditoría
+local) nombra el patrón y el prefijo omitidos en la copia pública — idéntica a
+lo ya publicado en `feb8993`; la tarea de credenciales asociada sigue
+pendiente como tarea aparte y no bloquea la entrega (§§46/63).
+
+La app en producción no se ha tocado en esta congelación (ni un
+reinicio): solo lectura del repo y la escritura de esta §68 en local y
+en la máquina.
+
+## §69 · METRAJE DE LA APP PARA EL VÍDEO DEMO (03/11/2026, noche)
+
+La mitad del vídeo que depende solo de la app ha quedado grabada la
+víspera, contra la app viva a 412×915, con la secuencia real de la
+demo (la de QA23) ejecutada por screencast CDP
+(`Page.startScreencast`; no hizo falta la alternativa de capturas a
+intervalos). Guiones en `video-demo/grabar-segmentos.mjs` y
+`video-demo/grabar-resto.mjs` (local y máquina); frames y `meta.json`
+en la máquina (`video-demo/frames/<segmento>/`), logs en
+`video-demo/log-grabacion.json` y `log-resto.json`. La codificación
+se hizo en local (la máquina no tiene ffmpeg): H.264, 824×1830
+(×2 exacto), 30 fps, con los tiempos reales reconstruidos fotograma
+a fotograma. Los seis MP4 viven en `video-demo/segmentos/` con su
+`video-demo/MANIFIESTO.md` (tramo, contenido, duración real y
+objetivo, nota de edición). **Son binarios locales de trabajo: NO
+viajan al repo** (ni a esta congelación ni a ninguna).
+
+| Segmento | Duración real (= MP4, ffprobe) | Contenido verificado |
+|---|---|---|
+| `01-apertura.mp4` | 10,3 s | Home completa y carrusel «Recomendado» con 2 deslizadas |
+| `02-busqueda.mp4` | 5,4 s | Tecleo «henna» → Explorar con «Ombré Brows Henna» |
+| `03-analisis.mp4` | 50,4 s | Consentimiento → foto de ejemplo → análisis con propuesta visual real abriendo el resultado (la foto manda arriba); espera real 33,2 s entre las marcas 9,2→42,4 s del clip (un fotograma: la pantalla de carga es estática; latencia en la banda QA23 de 33–38 s) |
+| `04-reserva.mp4` | 13,2 s | Reserva completa hasta la confirmación **AS-AAWF** (Carmen, Diseño de cejas, 04/11 10:00) |
+| `05-enlace-magico.mp4` | 6,6 s | El enlace personal muestra la cita CONFIRMADA |
+| `06-panel.mp4` | 7,6 s | Panel con la cita visible en la **Agenda** de 7 días («Carmen · Diseño de cejas · Confirmada», 04/11 10:00); la clave se tecleó fuera de grabación |
+
+Verificación: ffprobe en los seis (H.264 824×1830, duración fiel a
+lo grabado ±0,1 s) y decodificación completa sin errores; frames
+clave mirados (la propuesta generada sobre «Esto ve La Asistenta»,
+la confirmación AS-AAWF, la Agenda con la cita). La cita de la demo
+quedó **cancelada** tras grabar y verificado que sigue cancelada
+tras recargar su enlace. **Gasto: Twilio 0 mensajes; Meta ≈0,02 $**
+(2 análisis reales).
+
+Dos registros honestos de la noche: (1) la primera corrida se
+detuvo en el paso 3 de la reserva — la lectura de vuelta probó que
+`Input.insertText` no rellenó `#inp-nombre` en este Chromium
+headless (campo vacío → el botón no se habilitó); la segunda parte
+lo completó con el método de QA23 (`value` + evento `input`), con el
+diagnóstico en `log-resto.json`, y su `04-reserva` sustituye al
+caído. (2) El panel se grabó a las 23:52–23:55 del 03/11: el primer
+hueco real era el 04/11 10:00 (la guarda de pasado/cierre de la
+agenda funcionando), así que la cita se ve en **Agenda** y no en
+«Hoy»; en «Hoy» se ve el 03/11 cerrado y sin citas vivas.
+
+**Lo que queda para mañana 04/11:** los planos de Lee — WhatsApp en
+vivo 0:35–1:50 (re-unión al sandbox + «Hola» + conversación de
+Carmen; presupuesto del ensayo completo: 13 de 100 mensajes), los
+pregrabados 0:00–0:20 (salón fuera de horario) y 2:40–3:00 (cierre
+en el salón) y la tarjeta de arquitectura 0:20–0:35 —, el **montaje**
+de los 3:00 (con la espera del análisis acelerada según el
+manifiesto), la **URL del vídeo** en `ENTREGA_HACKATHON.md` y el
+**envío** (objetivo interno 23:00 Madrid; límite 05/11 03:00).
+
+## §70 · CANAL DE WHATSAPP LISTO PARA GRABAR (04/11/2026, mañana)
+
+Verificación completa del canal receptor SIN gastar ni un mensaje de
+Twilio, antes del segmento en vivo del vídeo (escaleta 0:35–1:50):
+
+- **Máquina**: estaba suspendida (autosuspensión 05:40 Madrid);
+  despertada por API a las 08:29. Procesos preservados sirviendo tras
+  el wake, sin `arrancar.sh`. Salud interna OK en 8080 (webhook),
+  8081 (agenda) y 8090 (web); URLs públicas de 8080 y 8090 OK y la
+  home responde 200. La vigilia cubre hoy 09:00–23:59.
+- **Canal**: `TWILIO_REPLY_MODE=twiml` presente en `whatsapp/.env`
+  (no tocado, §4.3 del runbook). Procesos vivos: webhook.py,
+  agenda_api.py y web_server.py. Hermes responde bajo demanda (sin
+  gateway persistente, por diseño).
+- **Autoprueba HMAC** (`twilio_selftest.py`, consumo Twilio 0):
+  1.ª en frío **200 en 18,54 s** (arranque tras días dormida);
+  2.ª en caliente **200 en 2,41 s**, con la carta real completa
+  dentro del TwiML. La sesión queda caliente para la grabación.
+- **Agenda**: sin ninguna cita viva desde hoy; el hueco de la demo
+  (jueves 05/11 17:30) está libre — las citas de prueba antiguas
+  constan «cancelada», nunca borradas. La id 512 (pack de Lee,
+  sáb 31/10 10:15) sigue «confirmada», sin tocar, como estaba.
+- **Presupuesto Twilio**: el registro real de mensajes de la API
+  muestra **7 mensajes en total** (todos del 28/10: el join y las
+  pruebas). La sesión de hoy necesita 11 (join 1 + «Hola» 2 +
+  conversación de Carmen 8) → ~18 de los 100 del trial. Twilio no
+  expone un contador de saldo del trial; la cifra verificable es
+  ese registro: 7.
+- **Pendiente de Lee (cuando se dé la señal)**: enviar
+  `join twilio-trial` al +49 15888 620339, después «Hola», y la
+  conversación de Carmen del guion (4 turnos). En esta verificación
+  no se ha enviado nada.
+
+## §70-bis · TARJETA DE ARQUITECTURA DEL VÍDEO DEMO (04/11/2026)
+
+Producido el clip del tramo **0:20–0:35** que faltaba de los que no
+dependen de Lee: `video-demo/segmentos/07-arquitectura.mp4` —
+**H.264, 824×1830, 30 fps, CRF 19, 14,8 s** (el mismo formato que
+los seis segmentos de la §69), verificado con ffprobe y con
+decodificación completa sin errores. Técnica: tarjeta HTML
+(`video-demo/tarjeta-arquitectura.html`, identidad de la app:
+Montserrat de la propia web, violeta #6950f3, negro #0d0d0d,
+pastillas #f5f5f5) renderizada con Chromium headless en **4 estados
+de aparición escalonada** y montada con ffmpeg (`xfade` de 0,6 s):
+(1) WhatsApp → (2) Hermes Agent y Muse Spark → (3) la agenda y la
+web del salón → (4) la sección del análisis y el pie. Fotogramas de
+los estados y del propio MP4 (t=1,5 · t=9,5 en pleno fundido ·
+t=12,5) mirados con ojos del operador; conectores medidos por
+píxeles (42 px exactos entre bloques). Fotogramas de trabajo en
+`video-demo/arquitectura-frames/` (locales, no viajan al repo).
+
+**Textos exactos de la tarjeta** (para aprobación en el montaje):
+titular «Una empleada, no un chatbot.» · EL CAMINO DE UNA CITA:
+«WhatsApp — La clienta escribe al salón — VÍA TWILIO» · «Hermes
+Agent — La recepcionista atiende y conversa — CÓDIGO ABIERTO ·
+NOUS RESEARCH» · «Muse Spark — Su cabeza: entiende y recomienda —
+EL MODELO DE META» · «La agenda — Guarda la cita sin pisar huecos
+— LA AGENDA REAL DEL SALÓN» · divisor «OTRA PUERTA · LA MISMA
+AGENDA» · «La web del salón — Reserva en línea y enseña el salón —
+PWA INSTALABLE» · EL ANÁLISIS DE CEJAS: «Muse Spark — Observa la
+foto y orienta» · «Muse Image — Genera la propuesta visual» ·
+«SAM 3.1 — Disponible en la misma API de Meta» · pie «META AI
+DEVELOPMENT APIS · BASETEN».
+
+**Honestidad de la tarjeta:** SAM 3.1 se presenta como
+«disponible en la misma API de Meta» — que es lo verificado (§62:
+está en la cuenta y su formato real se parsea) — sin afirmar que
+intervenga en el flujo vivo, que es la estrategia A (§65). El pie
+credita las APIs de Meta y Baseten, las dos rutas reales de
+producción. `video-demo/MANIFIESTO.md` actualizado: el tramo
+0:20–0:35 sale de «PENDIENTES DE LEE» y el clip entra en la tabla
+de segmentos. Numeración: esta nota va como §70-bis porque la §70
+ya la ocupa el pase del canal de WhatsApp de esta misma mañana;
+sin pisarla.
+
+## §71 · PRUEBA DE ESCALA — enjambre de 19 clientas concurrentes (04/11/2026)
+
+Orden de Lee: «Lanza un enjambre de 19 clientas pide citas todas
+probemos a escala mayor». Batería nueva: `agenda/pruebas_enjambre.py`.
+
+**Superficie (y por qué):** instancia de prueba de la API REAL de
+agenda — mismo código y misma credencial (omitida en la copia pública) — en `127.0.0.1:8091` sobre una
+**copia consistente** (backup de SQLite) de la BD de producción,
+con dos negocios configurados: el piloto y
+«negocio-prueba-enjambre» (patrón de `pruebas_fase2.py`). La API de
+producción (8081) solo tiene configurado el piloto — sin
+`AGENDA_NEGOCIOS` en su entorno, un negocio de prueba daría 404 — y
+añadirlo exigiría relanzarla en semana de entrega, prohibido por
+§4.5 del runbook. La BD de producción recibió **cero escrituras**:
+foto idéntica antes y después (593 citas, id máximo 594,
+cancelada 492 · confirmada 1 · cumplida 59 · no_show 41; la id 512
+de Lee sigue «confirmada»; 0 filas ENJAMBRE en producción). Sin
+Twilio (0 mensajes), sin tocar `TWILIO_REPLY_MODE`, sin relanzar
+ningún servicio de producción.
+
+**La ráfaga** (19 hilos soltados a la vez con barrera, contra el
+negocio de prueba; pared total **1,08 s**):
+- **Contención — 6 clientas al mismo hueco** (viernes 06/11 10:00,
+  Diseño de cejas): **exactamente 1 × 201** (ENJAMBRE-C06, id 595
+  de la copia) y **5 × 409**, cada uno con su mensaje de conflicto
+  y la agenda libre a partir de las 10:25.
+- **Huecos distintos — 13 clientas** (05–11/11, carta real:
+  Diseño ×5, Ombré Henna ×4, Lamination ×3, Depilación ×1):
+  **13 × 201**, sin un solo error.
+
+**Latencias por petición:** global **p50 83 ms · p95 1.062 ms ·
+máx 1.062 ms** (contención: p50 48 ms; distintas: p50 85 ms).
+Cola honesta: 7 de las 19 esperaron ~1,0–1,06 s — la serialización
+de escrituras (`BEGIN IMMEDIATE` + `busy_timeout`) en la misma
+caja bajo simultaneidad total. Ninguna petición falló: ni un 5xx,
+ni un timeout, ni una doble reserva.
+
+**Auditoría SQL posterior** (consulta de pares real sobre la
+copia): **0 solapes** entre las 14 citas confirmadas del negocio
+de prueba. **Limpieza por la vía normal:** las 14 creadas,
+canceladas vía API (14 × 200 → «cancelada», nunca borradas);
+conteo final del negocio de prueba: 14 canceladas, 0 confirmadas.
+La instancia de prueba quedó apagada (8091 cerrado) y producción
+respondió /salud 200 en 8080, 8081 y 8090 tras la prueba.
+
+**Veredicto:** a 19 reservas simultáneas la guarda transaccional
+aguanta entera — corrección bajo concurrencia probada en la caja
+real. No mueve la frase de escala honesta del proyecto (un negocio
+con holgura y decenas de pequeños): esto prueba que no se pisa
+ningún hueco, no que soporte millones.
+
+---
+
+## §72 — Estado del día de entrega (04/11/2026, ~10:30 Madrid)
+
+Día de la entrega del hackathon (objetivo interno: enviar antes de
+las 23:00 Madrid; límite oficial 05/11 03:00 Madrid).
+
+- **Repo público CONGELADO** en `73876f6` (auditado, §68). Lo de
+  hoy (§§69–71) vive en local y en la máquina; el vídeo no viaja
+  al repo.
+- **Canal de WhatsApp verificado y caliente** (§70): máquina
+  despierta por API 08:29, autoprueba HMAC 200 en 2,41 s en
+  caliente, `TWILIO_REPLY_MODE=twiml` intacto, 0 mensajes
+  gastados en la verificación. Presupuesto real del trial: 7
+  mensajes históricos; la sesión de grabación gasta 11.
+- **Vídeo demo — lado de Aragan cerrado:** 6 clips de la app (§69)
+  + tarjeta de arquitectura (§70-bis) + cadena de montaje probada
+  (`video-demo/montar.sh`; `montaje-prueba.mp4` = 179,97 s,
+  decodificación limpia, rótulos del guion, enlace mágico
+  difuminado y verificado). El corte final sale con
+  `./montar.sh final` cuando existan en `video-demo/planos-lee/`
+  los tres ficheros de Lee (una grabación completa del WhatsApp
+  en vivo y dos clips cortos del salón). **Pendiente solo de Lee.**
+- **Paquete de entrega revisado con Lee (04/11 ~10:21):**
+  `ENTREGA_HACKATHON.md` completo salvo la URL del vídeo. Única
+  corrección pendiente antes de enviar: las líneas que hablan
+  del ensayo de WhatsApp «programado para el 2 de noviembre»
+  pasan a pasado con la fecha real en cuanto exista la grabación.
+- **Escala probada hoy** (§71): enjambre de 19 clientas
+  concurrentes superado sobre copia consistente de la BD; la
+  producción quedó idéntica (id 512 «confirmada»).
+- **Vigilia:** hoy 09:00–23:59 (`la-asistenta-vigilia-trabajo`);
+  la del jurado cubre 05–10/11; ambos crons se retiran el 11/11.
+
+---
+
+## §73 · VÍDEO DOCUMENTAL DEL ENJAMBRE — segunda ejecución grabada (04/11/2026)
+
+Orden de Lee: «Deja documentado en video tambien bro».
+
+**Artefactos:** `video-demo/documental-enjambre.mp4` (**25,1 s**,
+H.264, 824×1830, 30 fps, sin audio — como el resto de segmentos
+del proyecto) y `video-demo/documental-enjambre-salida.txt`
+(salida cruda de esta ejecución: el registro línea a línea y el
+JSON final completo). Las piezas quedan en
+`video-demo/doc-enjambre/` (página-consola, tarjetas, grabador,
+espejo y fotogramas de control).
+
+**Cómo se hizo (sin recrear nada):** la batería gemela
+`agenda/pruebas_enjambre_video.py` (en la máquina junto a la
+original, en `/tmp/enjambre/`, cuyo sha256 es idéntico al del
+repo) importa `pruebas_enjambre` **sin tocarla** — mismo plan de
+19, mismo `req`, misma instancia de prueba en 127.0.0.1:8091
+sobre copia consistente, misma auditoría SQL y misma limpieza —
+y va contando su salida línea a línea, con hora de Madrid, a
+`enjambre-video.log` en la máquina. Añadidos que no tocan la
+prueba: huella de producción en solo lectura antes y después.
+Una página-consola local con la identidad de la casa sondeó el
+espejo de ese fichero y lo pintó en directo; la grabación es
+screencast CDP (la técnica de §69) de esa página. La captura
+salió a 412×915 y se escaló a 824×1830 (lanczos) al codificar.
+**La consola corre a tiempo real, sin aceleración** — la ráfaga
+dura ~1 s y no hay esperas muertas que recortar — y la tarjeta
+de cierre lo dice.
+
+**Cifras de ESTA ejecución (10:35 Madrid), las del vídeo:**
+- Contención: **1 × 201 + 5 × 409**; ganó **ENJAMBRE-C06**
+  (cita 596 de la copia) — la misma posición que en §71, por
+  azar de planificación, no por diseño.
+- Huecos distintos: **13 × 201**, cero errores.
+- Ráfaga: **1,03 s**. Latencias: **p50 29 ms · p95 1.023 ms ·
+  máx 1.023 ms**.
+- Auditoría SQL: **0 solapes**. Limpieza por la vía normal:
+  **14 canceladas**, 0 confirmadas al final. Instancia apagada
+  (8091 cerrado, comprobado).
+- Producción: **huella idéntica antes y después** (593 citas,
+  id máx 594, id 512 «confirmada», 0 filas ENJAMBRE). Twilio:
+  0 mensajes.
+
+**Comparación honesta con §71:** mismo resultado estructural
+(1 ganadora, 13 de 13, 0 solapes). La mediana bajó (29 frente a
+83 ms) y la cola se mantiene (~1,02 s frente a 1,06 s): la
+serialización de escrituras bajo simultaneidad total sigue ahí
+y se sigue declarando. El veredicto no cambia: corrección bajo
+concurrencia probada, sin afirmar millones.
+
+**Estructura del vídeo:** tarjeta de apertura (4,5 s) → consola
+con la ejecución real (8,5 s) → tarjeta de resultados con las
+cifras de arriba (7 s) → tarjeta de cierre con el veredicto
+honesto (5 s). Verificación: ffprobe (códec, tamaño, fps,
+duración) y decodificación completa sin errores; fotogramas de
+cada tramo mirados a ojo — una primera versión de la tarjeta de
+resultados desbordaba el encuadre (la fila «Igual» y la nota
+quedaban fuera) y se rehízo más compacta antes de montar. Las
+cifras de la tarjeta coinciden con el JSON de la ejecución,
+guardado al final de `documental-enjambre-salida.txt`.
+
+---
+
+## §74 · PRUEBA-20 — 10 reservas + 10 diseños con foto, a la vez (04/11/2026)
+
+Orden de Lee (04/11 ~11:02): «ok ya funciona todo entonces
+explotamos aun mas: 10 personas piden cita, 10 personas quieren
+diseños distintos, todo debe ser con foto, probemos los créditos
+de Muse». Dos ráfagas concurrentes independientes, el mismo día
+y contra los caminos reales del producto. Artefactos:
+`agenda/pruebas_prueba20_reservas.py` (parte A),
+`prueba-20/prueba20_disenos.py` (parte B),
+`prueba-20/reservas_resumen.json` y `prueba-20/resultados/`
+(por clienta: original.jpg, analisis.json, flujo.json,
+propuesta.webp; más resumen.json, registro.jsonl, set.json y
+hoja-contacto.jpg). Registro de fotos en `h1/set_prueba20.json`.
+
+### Parte A — 10 reservas concurrentes (réplica del patrón §71)
+
+Instancia de prueba de la API real en 127.0.0.1:8091 sobre copia
+consistente de la BD, negocio «negocio-prueba-enjambre»; la BD
+de producción recibió **cero escrituras** (huella de solo
+lectura idéntica antes y después, medida dentro de la propia
+batería: 593 citas · cancelada 492, confirmada 1, cumplida 59,
+no_show 41 · id máx 594 · **id 512 «confirmada»** · 0 filas de
+prueba). 10 clientas a huecos distintos de la carta real
+(12–14/11, dentro del horario), soltadas con barrera:
+
+- **10 × 201**, sin un solo error. Ráfaga: **1,03 s**.
+- Latencias: **p50 30,3 ms · p95 1.031,4 ms · máx 1.031,4 ms**.
+  7 de las 10 respondieron en ≤46 ms; 3 esperaron ~1,03 s — la
+  misma cola de serialización de escrituras (`BEGIN IMMEDIATE`)
+  de §71/§73, ni mejor ni peor a esta escala.
+- Auditoría SQL sobre la copia: **0 solapes**; limpieza por la
+  vía normal: 10 canceladas, 0 confirmadas al final.
+
+### Parte B — 10 diseños con foto en concurrencia real
+
+Camino de producción sin atajos: la batería importa el
+`web_server.py` real de la máquina y usa `analizar_con_spark`
+(Spark en Baseten, con la regla de producción: un reintento SOLO
+si el JSON no valida) y el proveedor que el propio servidor
+carga (`construir_instruccion` + `editar_cejas` de
+`probador/proveedor_meta.py`, clave de `web/meta.env` de la
+máquina). Nada de stubs. 10 clientas soltadas a la vez con
+barrera, cada una con foto distinta y brief propio (valores del
+dominio real de la interfaz):
+
+**Fotos** (todas Pexels, licencia de uso libre, registradas en
+`h1/set_prueba20.json` con el formato del protocolo H1):
+IMG-01…IMG-06 reutilizadas del set ejecutado del benchmark H1
+(Pexels 33949302, 7846544, 19727580, 9854230, 15075186,
+9516040) + 4 nuevas verificadas a ojo antes de usarlas:
+IMG-09 (Pexels 12645006, clienta madura de pelo cano, cejas
+claras), IMG-10 (7012432, asiática, selfie de espejo),
+IMG-11 (3764546, joven rizada, primer plano) e IMG-12
+(7480013, pelo platino muy corto, cejas casi invisibles). Una
+quinta candidata (6795151) se descartó: el CDN no sirvió imagen
+bajo su nombre estándar. Ninguna foto es de personas del
+entorno de Lee.
+
+| Clienta | Foto | Brief | Spark (s) | Meta (s) | Total (s) | Servicio recomendado | Estado |
+|---|---|---|---|---|---|---|---|
+| C01 | IMG-01 | natural suave: pulir las suyas sin cambiarlas | 13,54 | 17,95 | 31,54 | Diseño de cejas | ok |
+| C02 | IMG-02 | rellenar huecos y dar presencia a unas cejas casi invisibles | 10,72 | 10,90 | 22,68 | Ombré Brows Henna | ok |
+| C03 | IMG-03 | definir el arco entre el pelo rizado | 23,93* | 10,88 | 35,85 | Ombré Brows Henna | ok |
+| C04 | IMG-04 | marco suave para una pelirroja, sin endurecer | 14,36 | 10,14 | 24,56 | Diseño de cejas | ok |
+| C05 | IMG-05 | equilibrar y definir pese a la luz mala de la selfie | 12,37 | 16,76 | 29,21 | Brow Lamination | ok |
+| C06 | IMG-06 | definida y arqueada, que se note el cambio | 14,86 | 17,82 | 33,72 | Ombré Brows Henna | ok |
+| C07 | IMG-09 | clienta madura: devolver forma a unas cejas canosas y claras | 11,66 | 17,17 | 28,87 | Ombré Brows Henna | ok |
+| C08 | IMG-10 | suave y recta, efecto natural (selfie de espejo) | 14,84 | 8,82 | 23,72 | Diseño de cejas | ok |
+| C09 | IMG-11 | laminado fluffy: peine hacia arriba y que se note | 9,88 | 18,71 | 28,68 | Ombré Brows Henna | ok |
+| C10 | IMG-12 | reconstruir desde casi nada en piel muy clara y pelo platino | 18,68 | 10,60 | 29,32 | Ombré Brows Henna | ok |
+
+\* C03: suma de DOS llamadas — la primera respuesta de Spark no
+validó contra el esquema y se aplicó el reintento único que el
+producto ya contempla (ver «fricciones»).
+
+- **10/10 flujos completos**: análisis validado + propuesta
+  visual real (WebP, ~1280 px en el lado corto). Pared total de
+  la ráfaga: **35,85 s** (la suma de los totales individuales es
+  281,1 s: la concurrencia lo dejó en ~1/8 del tiempo en serie).
+- Latencias: Spark, mediana **≈13,9 s** (9,88–23,93, con la
+  salvedad de C03); Muse Image, mediana **≈13,8 s**
+  (8,82–18,71) — bajo concurrencia ×10 la mediana NO empeora
+  frente a la referencia secuencial del benchmark H1 (p50
+  16,1 s). Total por clienta: mediana **≈29,0 s** (22,68–35,85).
+- Servicios recomendados, todos de la carta real: Diseño de
+  cejas ×3, Ombré Brows Henna ×6, Brow Lamination ×1.
+- Hoja de contacto en `prueba-20/resultados/hoja-contacto.jpg`
+  (824 de ancho): las 10 parejas original/propuesta con su
+  brief, miradas a ojo — identidad preservada en las 10 y
+  cambios confinados a las cejas en la inspección visual; la
+  puntuación ciega de calidad sigue siendo, por protocolo, de
+  Arianna (esta prueba mide escala, no gusto). Las copias de
+  transporte en `web/icons/` se borraron tras la descarga.
+
+### Gasto medido
+
+- **Meta: 0,10 $ exactos** (10 propuestas × 0,01 $) contra el
+  crédito de 150 $. El coste por imagen **no difiere** del
+  conocido: es la tarifa plana oficial de Muse Image y el
+  proveedor la confirma en cada respuesta. Sin SAM en esta
+  prueba (producción es estrategia A, como siempre).
+- **Baseten: no medible en dinero desde la función de
+  producción** (no expone tokens por llamada). Referencia
+  medida en H2: ~3.075 tokens de entrada + ~2.080 de salida por
+  análisis → esta parte B consumió 11 llamadas a Spark
+  (10 análisis + 1 reintento) contra el crédito de 100 $.
+
+### Fricciones (las primeras, tal cual aparecieron)
+
+1. **1 de 10 análisis necesitó el reintento de Spark** (C03:
+   primer JSON no válido). El diseño de producción lo absorbe;
+   cuesta una llamada extra y ~10 s más en esa clienta.
+2. **Ningún proveedor limitó**: ni un 429 ni un error 5xx en
+   21 llamadas concurrentes (11 Spark + 10 Muse Image); los
+   reintentos acotados de `proveedor_meta` ni siquiera se
+   activaron.
+3. **La dispersión crece, la mediana aguanta**: Spark llegó a
+   18,68 s en una llamada única (C10) frente a los ~12–13 s del
+   flujo individual de QA22/QA23; Muse Image osciló 8,8–18,7 s.
+   Sin timeouts (el margen de producción es 150/180 s).
+4. **La cola de ~1 s en reservas sigue ahí** (3 de 10 en la
+   parte A): es el techo conocido de la serialización de
+   escrituras en SQLite, no una regresión.
+
+### Veredicto honesto de escala
+
+A 20 clientas simultáneas repartidas entre las dos puertas
+(10 reservando + 10 diseñando con foto), el sistema aguantó
+entero: 20/20 operaciones correctas, 0 solapes, 0 errores de
+proveedor, producción intacta y la agenda real de Arianna sin
+una sola fila de prueba. Las fricciones son las ya conocidas
+del proyecto (cola de escritura ~1 s, reintento ocasional de
+Spark, ~29 s medianos por diseño con foto — el producto ya es
+asíncrono precisamente por eso) y **no apareció ningún modo de
+fallo nuevo**. Esto prueba una hora punta de salón con las dos
+puertas a la vez; no mueve la frase honesta de escala (un
+negocio con holgura y decenas de pequeños) ni afirma millones:
+la primera pared real seguiría siendo la serialización de
+escrituras de la agenda y la latencia de los modelos, en ese
+orden. Twilio: 0 mensajes; ningún servicio de producción
+tocado ni relanzado.
+
+## §75 · BIBLIOTECA DE ROSTROS DE MUESTRA — la usuaria que no quiere subir su foto elige un rostro curado (04/11/2026, mediodía)
+
+Orden de Lee (~11:18): «esa biblioteca debemos tener esa opción
+por si la usuaria no quiere poner [su foto]». Construido y EN VIVO
+en la web del piloto el mismo día. El repo público NO se toca
+(sigue congelado en 73876f6): esta opción entra en la app viva
+como evolución del producto.
+
+**Qué se construyó.** En la pantalla de foto, bajo la zona de
+subida, una segunda vía declarada: «¿Prefieres no subir tu foto?
+→ Elegir un rostro de muestra» abre la rejilla de la biblioteca.
+La clienta elige un rostro, ajusta las mismas preferencias de
+siempre y el análisis corre EL MISMO camino de producción
+(Spark + propuesta Muse Image) sobre esa imagen. El resultado se
+presenta como el flujo normal (propuesta ARRIBA y grande,
+orientación debajo, criterio de Lee §65) y puede guardarse en
+«Mis looks». Servidor: `GET /api/biblioteca` (lista desde la
+constante cerrada `BIBLIOTECA_ROSTROS`), `GET /rostros/<fichero>`
+y `POST /api/analizar` aceptando `{"biblioteca": "IMG-XX"}` — la
+imagen la pone el servidor desde `web/rostros/`; un id fuera de
+la lista (probados «IMG-99» y un intento de path traversal)
+devuelve 400 y un fichero inventado, 404. `ejecutar_analisis`
+recibe `origen` («foto» | «biblioteca»); solo cambian los avisos
+y la marca de origen del payload.
+
+**El set exacto (cerrado, en el código).** Las 10 fotos
+verificadas de la prueba-20: IMG-01…06 del set H1 (Pexels
+33949302, 7846544, 19727580, 9854230, 15075186, 9516040) +
+IMG-09…12 de `h1/set_prueba20.json` (Pexels 12645006, 7012432,
+3764546, 7480013), con etiquetas de ceja («Cejas pobladas y
+tupidas», «Maduras: cejas claras y despobladas»…). Copias
+optimizadas para móvil en `web/rostros/` (lado mayor ≤1280 px,
+JPEG q82, 79–219 KB) servidas por la propia web: ninguna subida
+de usuarias alimenta la biblioteca y no se depende de Pexels en
+caliente.
+
+**Honestidad visible (la regla de la casa).** Cada miniatura de
+la rejilla lleva la pastilla «DE MUESTRA»; al elegir, la zona dice
+«Rostro de muestra de la biblioteca (no es tu foto)»; el
+consentimiento cuenta la vía («no se procesa ninguna foto tuya:
+el análisis y la propuesta visual se generan sobre la imagen de
+muestra, con los mismos modelos»); el resultado abre con el sello
+«ROSTRO DE MUESTRA · NO ES TU FOTO» y la nota de la propuesta, la
+orientación y el aviso del servidor dicen en palabras llanas que
+es un rostro de muestra y que Arianna adapta el diseño a las
+cejas reales de la clienta en el salón; en «Mis looks», el look
+de biblioteca lleva la marca «ROSTRO DE MUESTRA» junto al título
+(`look.origen = 'biblioteca'` en el guardado).
+
+**Licencias — conclusión DUDOSA en un punto concreto (para
+decisión de Lee antes de clientas reales).** La licencia de
+Pexels cubre el CONTENIDO: uso gratuito también comercial,
+modificación permitida (la edición con IA es una modificación),
+sin atribución obligatoria, y «en tu web o app» es un caso de uso
+nombrado; prohibido revender sin modificar, redistribuir en
+plataformas de stock e insinuar que las personas avalan el
+producto (esta vía no lo insinúa: son «rostros de muestra», no
+testimonios). PERO la licencia NO incluye model releases: los
+derechos de imagen de las personas identificables NO están
+cedidos y Pexels traslada expresamente al usuario la
+responsabilidad de valorar los consentimientos necesarios. El
+matiz es uniforme en las 10 (retratos estándar de Pexels): no
+procede excluir ninguna por su licencia de contenido, y el
+residuo es el mismo para todo el set. Opciones para Lee cuando
+esto lo usen clientas reales: mantenerlo aceptando ese hueco,
+sustituir el set por stock con releases verificados, o fotografiar
+rostros propios con consentimiento. La opción queda construida y
+verificada; la decisión comercial es suya.
+
+**Verificación (QA25, en `web/qa25/`).** Flujo real completo a
+412×915 con IMG-09 (`biblioteca.mjs`, 6/6 pasos, 0 errores de
+consola): consentimiento con el párrafo de la biblioteca →
+rejilla con los 10 rostros cargados → elección fijada → exclusión
+mutua probada en los dos sentidos (la foto de ejemplo suelta el
+rostro; re-elegir el rostro suelta la foto) → análisis real en
+28,1 s de UI (el resumen de Spark habla de «tus cejas canosas»:
+analizó IMG-09) → resultado con sello visible, propuesta primera
+y textos de muestra en nota, orientación y aviso → look guardado
+con la marca. Identidad de la propuesta comprobada A NIVEL DE
+BYTES: la imagen extraída del look guardado es la mujer de
+IMG-09 con las cejas definidas (misma blusa, mismo rostro);
+muestreo de luminancia del pelo: propuesta 202 ≈ original 201
+(control de pelo oscuro: 48). Las vistas previas de las capturas
+servidas por el visor externo sugirieron en dos fotogramas un
+rostro distinto: el muestreo de píxeles sobre los PNG reales las
+desmintió (zona del pelo de la miniatura: 224, canoso) — queda
+anotado como artefacto del visor, no de la app. Foto propia
+intacta: el análisis de la batería (foto de ejemplo) validó en
+16,86 s y la exclusión mutua del paso 4 la ejercitó en el
+navegador. PWA: migración v32→v33 verificada limpia en las dos
+fases (caché única v33, controladora activa, app renderizando, 0
+errores). Batería web: **29/32** — los 3 rojos son la cadena
+conocida del fixture de fecha fija («2026-10-30 10:00» ya pasada
+→ 400 y su cascada en anti-solape y doble reserva), la misma
+podredumbre documentada en §§64–66, NO una regresión de esta
+opción. Gasto Meta de la verificación: ~0,02 $ (la generación
+del flujo QA25 + la del análisis de la batería); Spark, contra
+el crédito de Baseten.
+
+**Ficheros.** `web/web_server.py` (constante, avisos, rutas y
+`origen`), `web/index.html` (CSS de rejilla y sellos, bloque de
+biblioteca, consentimiento, cableado JS, marca en Mis looks),
+`web/sw.js` (v32→v33), `web/rostros/` (10 imágenes) y
+`web/qa25/` (biblioteca.mjs, pwa.mjs, extraer-propuesta.mjs,
+muestreo.mjs, logs y capturas; copias de las capturas en
+`web/icons/qa25-*`). Respaldos `.bak-20261104-biblioteca` en
+local y en la máquina. Servicio web relanzado solo vía
+`arrancar.sh` (pid nuevo verificado, /salud 200 en 8080/8081/
+8090). Nada de Twilio; núcleo de reservas intacto.
+
+---
+
+## §76 · ENTORNO VISUAL — el suelo de la app respira a salón (04/11/2026)
+
+Orden de Lee (04/11 ~11:42, tras una primera atribución errónea
+al tren de Suiza Conecta, corregida y retirada): «mejora más el
+entorno» = **el entorno visual de la app de La Asistenta**. Solo
+capa visual: ni flujos, ni textos de honestidad, ni lógica, ni
+APIs, ni el núcleo de reservas, ni el área profesional (la
+herramienta de Arianna no se ha tocado).
+
+**Diagnóstico (QA26, `web/qa26/entorno.mjs`: 16 capturas a
+412×915 con interacción real, 0 errores de consola, gasto Meta
+0).** El entorno era un blanco clínico total: `body` #fff y
+tarjetas blancas separadas solo por el borde hairline y una
+sombra-susurro (0 1px 3px al 5 %). Las pantallas sin fotografía
+(Perfil, Mi cita, Consentimiento, tramos de la home) se leían
+como formularios sobre un vacío; las que funcionan (Explorar,
+hero del salón, hub del Probador, biblioteca) funcionan porque
+la foto las llena. Peores puntos: la tarjeta del análisis en la
+home era SOLO texto (su gemela del hub sí lleva la foto real),
+las pastillas de acceso eran baldosas grises #f5f5f5 sobre
+blanco, y los estados vacíos (Mis guardados, Mis looks) eran un
+párrafo suelto dentro de la tarjeta.
+
+**Cambios aplicados (todo dentro de la paleta y la voz vigentes;
+organización e identidad intactas):**
+1. **Suelo marfil cálido `--fondo:#FAF7F2`** — el marfil de la
+   identidad original de la casa (v1) — como fondo del `body` y
+   del `theme-color`. Las tarjetas blancas pasan a existir como
+   tarjetas y el conjunto gana calidez de salón.
+2. **Profundidad honesta:** `--sombra` gana un cuerpo (capa de
+   contacto + halo ambiental con el tinte de la marca,
+   `0 1px 2px rgba(13,13,13,.05), 0 14px 34px -18px
+   rgba(64,53,145,.20)`) y se aplica donde faltaba: `.tarjeta`,
+   buscador píldora, tarjetas del carrusel y del salón,
+   `.prod-card`, `.lounge-card`, `.resena`, filas de servicio y
+   de la carta, `.reco`, `.tu-cita` y el bloque de consentimiento
+   `.check` (que además pasa de gris #f5f5f5 a blanco con borde).
+3. **Baldosas de porcelana:** los iconos de pastillas (home),
+   categorías y módulos, y el botón de perfil de la cabecera,
+   pasan de gris #f5f5f5 a blanco con borde hairline y la sombra
+   común: se leen como piezas sobre el mostrador marfil.
+4. **La foto real abre la tarjeta del análisis en la home**
+   (`/img/diseno.jpg`, la misma de su gemela del hub): la puerta
+   principal del producto ya no abre como un memorando.
+5. **Estados vacíos cuidados:** el aviso de lista vacía en Mis
+   guardados y Mis looks se presenta como bandeja cálida
+   (#FBF6EE) con borde punteado y texto centrado — solo CSS
+   sobre el párrafo existente, ni una palabra tocada — y «Mi
+   cita» vacía gana el medallón decorativo de calendario, el
+   mismo gesto de la pantalla de próxima apertura.
+6. **Esqueletos de carga en la misma temperatura** (gradiente
+   cálido #F4EFE8/#E8DFD2 en vez del gris frío).
+
+**Contraste AA (MUSA B1) medido sobre el nuevo suelo:** tinta
+18,19:1 · gris #626878 5,21:1 · violeta #6950f3 4,86:1 — todo
+≥ 4,5:1; los textos sobre tarjeta siguen sobre blanco, como
+antes. **Revertidos: ninguno** — cada cambio se comparó en
+capturas antes/después a 412×915 y todos se vieron claramente
+mejores; lo dudoso no se aplicó (ni veladuras sobre la foto del
+hero, ni cambios en la zona de foto de borde punteado).
+
+**Verificación.** Capturas DESPUÉS con el mismo recorrido QA26
+(16, 0 errores) comparadas pantalla a pantalla; flujo real de
+biblioteca re-corrido entero tras el cambio (`qa25/biblioteca.mjs
+entorno`: 6/6 pasos, análisis real 32 s, propuesta primera con
+su sello, look guardado; gasto Meta de esta verificación
+≈ 0,01 $ contra el crédito, declarado). **PWA v33→v34:**
+migración verificada limpia en las dos fases (`web/qa26/pwa.mjs`:
+caché única v34, la v33 desaparece, página controlada, app
+renderizando, 0 errores). **Batería web: 29/32** — los 3 rojos
+son la cadena conocida del fixture de fecha fija («2026-10-30»
+ya pasada → 400, con su cascada en anti-solape y doble
+reserva), la misma podredumbre de §§64–66 y §75, NO una
+regresión. Al cierre: `/salud` 200 en 8080/8081/8090,
+`/api/biblioteca` pública 200 y hashes de `index.html`/`sw.js`
+idénticos local = máquina.
+
+**Ficheros.** `web/index.html` (tokens `--fondo`/`--sombra`,
+CSS de entorno y los dos insertos presentacionales),
+`web/sw.js` (v33→v34), `web/qa26/` (entorno.mjs, pwa.mjs, logs
+y capturas antes/después; copias en `web/icons/qa26-*`, más
+`qa26-despues-resultado.png` y `qa26-despues-looks.png` del
+flujo real). Respaldos `.bak-20261104-entorno` en local y en la
+máquina. El repo público sigue intacto en `73876f6`: esta
+mejora vive en la app viva como evolución del producto. Nada
+de Twilio; núcleo de reservas intacto.
+
+---
+
+## §77 · ENJAMBRE TOTAL DEL SISTEMA — auditoría final completa (04/11/2026)
+
+Orden de Lee (~11:56): «lanza el enjambre de todo el sistema:
+revisemos huecos, errores, funciones, todo; deja lista la app».
+Auditoría ejecutada en el orden del protocolo, con parte honesto
+de todo lo encontrado. La app queda en estado final al cierre.
+
+### 1 · Salud base
+
+- Máquina `la-asistenta` despierta por API (wake 07:29 UTC,
+  procesos preservados); `/salud` **200 en 8080, 8081 y 8090**;
+  procesos vivos: webhook (3092), agenda_api (3100), Hermes
+  (43892) y web_server (47811).
+- URLs públicas: `/` 200, `/sw.js` 200, `/api/biblioteca` 200,
+  `/profesional` 200 y `/salud` del 8080 200. **PWA v34**
+  sirviéndose en público; hashes de `index.html` y `sw.js`
+  idénticos local = máquina (ca0e8a0e… / 70e18dd2…).
+- Vigilias armadas y habilitadas: `la-asistenta-vigilia-trabajo`
+  (hoy, entrega) y `la-asistenta-vigilia-jurado` (05–10/11),
+  ambas cada 20 min.
+- `TWILIO_REPLY_MODE=twiml` confirmado presente e intacto
+  (§4.3). Repo público sin tocar (congelado en 73876f6).
+
+### 2 · Baterías completas (con la podredumbre del arnés curada)
+
+**Corrección previa (solo arnés, segura):** el fixture de fecha
+fija «2026-10-30» de `web/pruebas_web.py` (pruebas 4–7) se
+convirtió en **fecha rodante** — el viernes de la semana que
+viene, siempre futuro — con respaldo
+`pruebas_web.py.bak-20261104-qa77` en local. Era la cadena de
+3 rojos conocida desde §§64–66; el núcleo no se tocó.
+
+| Batería | Resultado |
+|---|---|
+| Web (`pruebas_web.py`) | **31/33** — la cadena del fixture, VERDE (reserva id 601, anti-solape, doble 409); los 2 rojos restantes son del análisis y su causa está probada en §77.3 |
+| Profesional (`pruebas_profesional.py`) | **25/25** |
+| Guarda de agenda (`pruebas_api_guarda.py`) | **11/11** |
+| Mecánicas (`pruebas_mecanicas.py`) | **23/23** |
+| Fase 2 multinegocio (`pruebas_fase2.py`, sobre copia) | **22/22** |
+| Probador/adaptadores (`unittest`, stub Meta + FASHN) | **18/18** |
+
+Total: **130/132**; los únicos 2 rojos cuelgan del hallazgo
+§77.3, no de una regresión.
+
+### 3 · HALLAZGO — el cubo de rate-limit es GLOBAL tras el proxy
+
+La batería web dejó 2 rojos nuevos («foto inválida → 400» y
+«análisis Spark real») que NO son la podredumbre conocida. Causa
+probada, por capas:
+
+1. `POST /api/analizar` responde **429** («demasiados análisis
+   seguidos; espera un poco»): el límite anti-abuso de la ruta
+   es **10 admisiones/hora** (`_LIMITES` en web_server.py:
+   analizar 10/3600 s · reservar 30/3600 · cita 120/3600 ·
+   acceso profesional 8/900) y `rate_ok` se evalúa ANTES de
+   validar el cuerpo — por eso hasta la foto inválida recibe
+   429 con el cubo lleno.
+2. La clave del cubo es `self.client_address[0]`, sin leer
+   `X-Forwarded-For`: detrás del proxy de InstaBox, **todos los
+   visitantes públicos comparten UN solo cubo** (y las QA
+   locales por 127.0.0.1 cuentan en el mismo). Evidencia: una
+   sonda pública desde una red externa, con el cubo lleno por
+   las QA del día (QA25/QA26 + baterías), recibió el mismo 429;
+   y el rate-limit profesional saltó al 2º intento público
+   porque el cubo ya traía las admisiones de la batería.
+3. El cubo estaba lleno por el volumen de análisis reales de
+   las verificaciones del propio día (QA25 y QA26 corrieron
+   flujos reales completos; ultimas admisiones ~10:52 UTC).
+
+**Comportamiento del producto ante el límite: correcto y
+amable** — 429 con mensaje en español, sin caídas ni estados
+rotos; una clienta real con la ventana respirada tiene su
+análisis normal. **Severidad: MEDIA-BAJA para el hackathon**
+(el vídeo de 3 min carga el peso de la demo; harían falta >10
+análisis de jurado dentro de la misma hora para ver el aviso),
+**ALTA si esto fuera producción para clientas reales** (10
+análisis/hora para TODO el salón es poco, y 8 intentos de
+acceso profesional/15 min globales podrían coincidir con un
+momento de necesidad de Arianna). **Arreglo propuesto
+(post-entrega, NO parcheado hoy por §4.5 y ser día de
+entrega):** clavear los límites por la IP real del visitante
+(`X-Forwarded-For` cuando el par es el proxy de confianza) o
+por sesión, y revisar las cuotas por ruta con datos de uso.
+
+Re-verificación de los 2 rojos: la puerta HTTP no llegó a
+respirar dentro de la ventana de la auditoría (sondas locales
+y públicas repetidas durante ~35 min: 429 persistente; las
+admisiones de las QA del día caducan escalonadas). La FUNCIÓN
+tras la puerta sí quedó re-verificada hoy por dos rutas
+independientes: (a) QA26 corrió el flujo completo por HTTP y
+navegador tras el v34 (análisis real «listo», §76); (b) esta
+auditoría ejecutó `ejecutar_analisis` — la misma función que
+el handler invoca tras `rate_ok`, con la clave real de la
+máquina — sobre IMG-09 con origen «biblioteca»: **OK en
+28,3 s** (Spark 12,42 s + Muse Image 15,88 s, propuesta
+visual generada, servicio de la carta real recomendado;
+gasto Meta 0,01 $). Y la validación «foto inválida → 400»
+estaba en verde en las pasadas de hoy con el cubo aún no
+lleno (§§75–76): el rojo de esta pasada es el 429
+adelantándose a la validación, que es el orden diseñado
+(rechazo barato primero).
+
+### 4 · Huecos y bordes, uno a uno
+
+| Sonda | Resultado |
+|---|---|
+| Agenda sin token (GET y POST /citas) | **401 / 401** ✅ |
+| Área profesional sin sesión (6 lecturas) | **401** en todas (baterías web y profesional) ✅ |
+| Clave profesional falsa | **401** ✅ |
+| Rate-limit profesional (8/15 min) | **VIVO**: 429 al 2º intento público (cubo con admisiones de la batería) ✅ |
+| Sesión profesional al salir | deja de valer (401 tras logout) ✅ |
+| Biblioteca: fichero inventado `GET /rostros/inventado-qa77.jpg` | **404** ✅ |
+| Biblioteca: ids fuera de lista y path traversal en `POST /api/analizar` | **400** (probado en §75; hoy la sonda POST queda tras el 429 del cubo — ver §77.3) |
+| Enlace mágico inventado (`GET /api/cita/<token>`) | **404 limpio** con mensaje amable en español ✅ |
+| Crear en pasado (agenda / web) | **409 / 400** ✅ (guarda y batería web) |
+| Reagendar al pasado | **409**; al hueco válido, 200 (sonda QA77) ✅ |
+| Idempotencia: misma clave + mismo cuerpo | misma cita, sin duplicar ✅ (fase2) |
+| Idempotencia: misma clave + cuerpo distinto | **422** ✅ (fase2) |
+| Cancelar una cumplida (por id y por enlace) | **409** «ya se realizó» ✅ (mecánicas) |
+| Estados imposibles (cumplida→no_show, cancelada→cumplida) | **409** ✅ (mecánicas) |
+| Ráfagas concurrentes al mismo hueco (2 y 5 POST) | un 201 y resto 409 ✅ (fase2; y §§71/74 a 19–20 clientas) |
+
+### 5 · Funciones de hoy
+
+- **Biblioteca de rostros:** `GET /api/biblioteca` pública 200
+  con los 10 rostros; rejilla y flujo completo verificados hoy
+  por QA26 tras el v34 (6/6 pasos, análisis real 32 s, look
+  guardado); el análisis real se re-verificó además a nivel
+  de función en esta auditoría (IMG-09 → propuesta real en
+  28,3 s con su marca de origen; §77.3).
+- **Entorno v34:** suelo marfil y profundidad verificados en
+  QA26 (16 capturas antes / 16 después, 0 errores de consola) y
+  hashes idénticos local = máquina en esta auditoría.
+- **WhatsApp:** autoprueba HMAC (`twilio_selftest.py`) →
+  **HTTP 200 en 8,89 s**, respuesta TwiML completa con la carta
+  real. **0 mensajes de Twilio gastados** en toda la auditoría.
+
+### 6 · Datos (SQL de solo lectura sobre producción)
+
+- **Solapes entre citas confirmadas: 0** (consulta de pares con
+  intervalos semiabiertos, mismo negocio y fecha).
+- **Única confirmada viva: la id 512** («Arianna», sáb 31/10
+  10:15), intacta. Conteos: cancelada 506 · confirmada 1 ·
+  cumplida 61 · no_show 44 (612 citas; los incrementos frente a
+  la huella de §73 son exactamente las citas de las baterías y
+  sondas de hoy, todas cerradas por la vía normal).
+- **Basura de pruebas viva: 0** — ninguna cita PRUEBA/QA77/
+  ENJAMBRE en estado confirmada; las 19 creadas hoy están en
+  estados terminales.
+
+### 7 · Correcciones aplicadas y defectos abiertos
+
+**Aplicadas (solo seguras):** la fecha rodante del arnés web
+(§77.2). Ningún servicio se relanzó; ningún fichero de producto
+se tocó.
+
+**Abiertos:**
+1. **D-77a — cubo de rate-limit global tras el proxy** (§77.3):
+   severidad media-baja (hackathon) / alta (producción);
+   arreglo propuesto, sin parchear el día de entrega.
+2. Preexistentes que no cambian: la decisión de licencias de
+   la biblioteca (model releases, §75, en manos de Lee), el
+   voto ciego de Arianna del benchmark H1, el motor FASHN
+   dormido y la tarea de credenciales pendiente (§46; omitida en la copia pública).
+
+### VEREDICTO: **LISTA** ✅
+
+La app queda en estado final: servicios sanos en los tres
+puertos, PWA v34 servida, agenda del piloto limpia con su única
+cita real confirmada, baterías 130/132 con los 2 rojos
+explicados por el hallazgo D-77a (comportamiento correcto del
+límite anti-abuso, no una regresión), canal de WhatsApp probado
+sin gastar mensajes y vigilias armadas para hoy y para la
+ventana del jurado (05–10/11). La única pieza que sigue fuera
+de esta auditoría es la de siempre: la grabación de WhatsApp
+de Lee para el vídeo demo.
+
+---
+
+## §78 · CIERRE DE D-77a — los límites anti-abuso, por visitante (04/11/2026)
+
+Orden expresa de Lee (~12:19): «llenemos al 100% todo sin
+huecos». Es la decisión expresa que §4.5 pedía para tocar el
+límite el día de la entrega: el hallazgo **D-77a queda
+CORREGIDO** y las baterías vuelven al 132/132.
+
+### 1 · El arreglo (cirugía mínima sobre `web/web_server.py`)
+
+Diff completo, revisable (respaldo
+`web_server.py.bak-20261104-d77a` en local y en la máquina;
+hash del fichero nuevo: `4f0900aa…`, idéntico en ambos lados):
+
+- `import ipaddress` (stdlib) para validar IPs.
+- Nuevo ayudante único `clave_limite(cabeceras, ip_directa)`:
+  devuelve la **primera IP válida de `X-Forwarded-For`**; sin
+  cabecera, o si su primera posición no valida como IP,
+  devuelve la `client_address` de siempre.
+- Dos líneas cambiadas, los dos únicos puntos donde nacía la
+  clave: `do_POST` (alimenta analizar, reservar, cita,
+  lista-espera y `_pro_post` → acceso profesional) y
+  `_cita_get` (el cubo de `/api/cita` en lectura). Los cinco
+  cubos quedan claveados por visitante con el mismo cambio.
+- **Ni umbrales ni mensajes se tocan**: analizar 10/h ·
+  reservar 30/h · cita 120/h · lista-espera 30/h · acceso
+  profesional 8/15 min, y el 429 amable en español se queda.
+  Nada de lógica de reservas, análisis ni sesiones.
+- El ayudante se probó aislado antes de desplegar: **8/8
+  casos** (cabecera simple, cadena con proxies, espacios,
+  basura → respaldo, sin cabecera, IPv6, primera posición
+  inválida con una válida detrás → respaldo).
+
+Despliegue: `arrancar.sh` es idempotente y no reinicia lo que
+ya responde, así que se paró SOLO el proceso web viejo (PID
+47811) y `arrancar.sh` lo relanzó a él únicamente (PID nuevo
+54682); webhook y agenda no se tocaron. Contadores en memoria
+a cero: el estado limpio esperado. `/salud` 200 en
+8080/8081/8090 y home pública 200 tras el cambio.
+
+### 2 · Demostración por visitante (URL pública)
+
+Con la puerta barata (foto inválida → 400 tras consumir
+admisión; ningún análisis real, gasto 0 $):
+
+- **Visitante A**: 10 peticiones procesadas (400) y la 11ª y
+  12ª, **429** — su cubo muerde sobre sí mismo.
+- **Visitante B, a la vez y con el cubo de A lleno**: su
+  petición se procesa (400), **no** recibe el 429 ajeno. Y al
+  llenar B el suyo: 429 a su 11ª, mientras un **visitante C**
+  simultáneo pasa normal (400).
+- Observación honesta del proxy: las peticiones sueltas
+  (una conexión por petición) desde esta caja de pruebas no
+  llenaron ningún cubo, y una conexión nueva con la misma
+  cabecera XFF fabricada estrenó cubo — el proxy público
+  **sustituye la identidad por la IP real de origen de la
+  conexión** y no honra la primera posición fabricada por el
+  cliente. Para una visitante real (su IP pública, estable)
+  el cubo es el suyo y solo el suyo; y falsear la cabecera
+  desde fuera no sirve para cambiar de cubo por este proxy.
+
+### 3 · Baterías completas (arnés de fecha rodante de §77)
+
+| Batería | Resultado |
+|---|---|
+| Web (`pruebas_web.py`) | **33/33** — los 2 rojos de §77, VERDES |
+| Profesional (`pruebas_profesional.py`) | **25/25** |
+| Guarda de agenda (`pruebas_api_guarda.py`) | **11/11** |
+| Mecánicas (`pruebas_mecanicas.py`) | **23/23** |
+| Fase 2 multinegocio (`pruebas_fase2.py`, sobre copia) | **22/22** |
+| Probador/adaptadores (`unittest`) | **18/18** |
+
+**Total: 132/132 — el 100%.** Gasto: la demostración costó
+0 $ (solo rechazos baratos); la batería web incluye su
+análisis real por el camino de producción, como en cada
+pasada (Spark + Muse Image, ~0,01 $ contra el crédito Meta).
+
+### 4 · Regresiones rápidas
+
+- Rate-limit profesional **por visitante** vía pública: un
+  visitante recibe 8 × 401 y el **429 al 9º** intento; otro
+  visitante, a la vez, recibe su 401 normal.
+- Sin sesión → **401** en `/api/profesional/hoy`.
+- Enlace mágico inventado → **404 limpio** con su mensaje
+  amable.
+- WhatsApp: autoprueba HMAC → **HTTP 200 en 6,52 s**, TwiML
+  completo con la carta real. **0 mensajes de Twilio.**
+  `TWILIO_REPLY_MODE` intacto; repo público sin tocar.
+
+### 5 · Estado final
+
+- SQL de solo lectura: **única confirmada viva, la id 512**
+  («Arianna», sáb 31/10 10:15), intacta; con una sola
+  confirmada, los solapes entre confirmadas son **0**.
+  Conteos: cancelada 514 · confirmada 1 · cumplida 63 ·
+  no_show 45 (los incrementos frente a §77 son las citas de
+  las baterías de esta pasada, cerradas por la vía normal).
+- Servicios sanos en los tres puertos; web pública 200.
+
+### VEREDICTO: **100% SIN HUECOS** ✅
+
+D-77a corregido con la evidencia encima de la mesa: cubos por
+visitante demostrados en la URL pública, límite mordiendo por
+visitante, y las seis baterías en verde pleno (132/132). Del
+§77 solo quedan abiertos los preexistentes que no dependen de
+código: la decisión de licencias de la biblioteca (§75), el
+voto ciego de Arianna, el motor FASHN dormido y la tarea de
+credenciales pendiente (§46; omitida en la copia pública). Y la pieza de siempre sigue
+fuera de la app: la grabación de WhatsApp de Lee para el
+vídeo demo.
+
+## §79 · VÍDEO DEMO FINAL POR SIMULACIÓN HONESTA — el corte de las 3:00 queda listo sin la grabación de Lee (04/11/2026)
+
+Orden expresa de Lee (~12:28): «hace falta: simula, deja listo y
+en grabación». La grabación de móvil no llegó; se produjo el corte
+final sustituyendo SOLO los tres tramos que dependían de Lee, con
+la regla de oro intacta: **nada simulado se presenta como grabación
+real** — cada pieza etiquetada en el MANIFIESTO, en esta sección y,
+donde el guion preveía «en directo», con nota visible en pantalla.
+Prohibiciones respetadas: 0 mensajes Twilio reales,
+`TWILIO_REPLY_MODE` intacto, repo público sin tocar.
+
+### 1 · La conversación de Carmen: REAL contra el sistema REAL
+
+Ejecutada por la puerta firmada HMAC del webhook (la misma
+interfaz que llama Twilio; Hermes + Muse Spark reales responden;
+guiones `conversacion_carmen*.py` + `enviar_turno.py` en la
+máquina, `/data/la-asistenta/video-demo/`).
+
+- **Toma 1 (12:32:57, From +34600000007) — descartada y
+  registrada:** 3 turnos (4,8 / 10,7 / 3,7 s), recomendación real
+  con precios exactos, PERO resolvió «este jueves» como **29 de
+  octubre** y, por su protocolo resumen→sí→registro, tras el sí
+  presentó el resumen y pidió otro: **no escribió ninguna cita**.
+  Causa raíz: `hermes-home/SOUL.md` llevaba fosilizada la línea
+  «Hoy es martes 27 de octubre de 2026» del montaje del 27/10 —
+  era la única referencia de fecha de la recepcionista.
+  Corrección: fecha real («miércoles 4 de noviembre de 2026»),
+  respaldo `SOUL.md.bak-20261104-fecha`; SOUL.md se lee en cada
+  llamada, efecto inmediato sin reinicios. **Limitación conocida:**
+  la línea es estática y volverá a caducar; la inyección dinámica
+  de fecha queda para después del hackathon.
+- **Toma 2 (12:35:00–12:35:46 Madrid, From +34600000008) — la
+  buena:** mensajes LITERALES del runbook; **4 turnos, HTTP 200 en
+  los cuatro; latencias 3,16 / 9,70 / 2,92 / 3,97 s**. T1
+  recomendación real (Diseño 18 €·25 min · Ombré 30 €·65 min ·
+  Laminación 45 €·65 min) → T2 ofrece el **jueves 5 de noviembre:
+  17:30, 17:45, 18:00** (huecos reales; el de las 17:30 estaba
+  verificado libre) → T3 resumen cerrado → T4 «Sí, confírmalo» →
+  **cita ESCRITA en la agenda real: id 625 · código AS-AAXF ·
+  Carmen · Diseño de cejas · 2026-11-05 17:30 · 18 € · 25 min ·
+  «confirmada» · origen «whatsapp»**, verificada fila a fila en la
+  BD. Transcripción íntegra: máquina
+  `conversacion-carmen-toma2.json` + copia local
+  `video-demo/sim-trabajo/conversacion-toma2.json` (la toma 1,
+  también guardada en la máquina).
+- **Higiene posterior (hecha tras la grabación):** cita 625
+  cancelada por la vía normal (`POST /citas/625/cancelar` con la
+  credencial de la agenda (omitida en la copia pública), leída solo en la máquina) — la API la
+  devolvió «cancelada» y la BD lo confirma; la única confirmada
+  viva sigue siendo la id 512 de Arianna, intacta.
+
+### 2 · Las tres piezas nuevas (en `video-demo/planos-simulados/`)
+
+- **`sim-whatsapp.mp4` (75,07 s) — REPRESENTACIÓN:** chat estilo
+  WhatsApp a 412×915 construido por `sim-trabajo/construir_chat.py`
+  con los **textos exactos** de la transcripción de la toma 2 (8
+  burbujas; horas reales 12:35; «escribiendo…» en las esperas),
+  grabado con el screencast CDP del proyecto y codificado por
+  expansión a 30 fps con duraciones reales. **Nota visible al
+  inicio del tramo:** pastilla «Conversación real con La
+  Asistenta, representada en pantalla». Único retoque: el token
+  del enlace personal de la respuesta de confirmación va
+  enmascarado (••••••••) — el mismo criterio que el difuminado de
+  04-reserva; el constructor verificó `tokens_enmascarados=1`.
+  Nota técnica: `/opt/meta-chromium/chrome` se niega a arrancar
+  para CDP propio («Hatch WebGL domain policy»); se usó el
+  Chromium de Playwright (`~/.cache/ms-playwright/chromium-1243`,
+  Chrome 153), que responde CDP con normalidad.
+- **`sim-salon-apertura.mp4` (20,00 s) — SIMULADO con fotos
+  reales:** `lounge.jpg` (el rincón con la marca ARIVIVAS) y
+  `salon.jpg` (Arianna trabajando), las fotos reales de la web del
+  negocio, con Ken Burns lento (zoom 1,00→1,10 y 1,02→1,13) y
+  fundido cruzado. Sin personas inventadas.
+- **`sim-salon-cierre.mp4` (20,00 s) — SIMULADO con fotos
+  reales:** `salon.jpg` (zoom 1,03→1,20) + `henna.jpg` (clienta
+  con las cejas terminadas, zoom-out 1,16→1,02) bajo la tarjeta de
+  cierre.
+
+### 3 · Montaje final y verificación
+
+`montar.sh` ganó el modo **`simulado`** sin tocar `prueba`/`final`
+(los nombres `lee-*` quedan reservados: si Lee graba los planos
+reales, se sustituyen y se re-renderiza). Resultado:
+**`montaje-final.mp4` = 179,97 s**, H.264 824×1830 30 fps,
+21,4 MB, **decodificación completa sin errores**. Fotogramas
+mirados a ojo en t = 8, 25, 38, 70, 88, 100, 118, 134, 138, 144,
+156, 167 y 175: rótulo de apertura sobre el lounge real · tarjeta
+de arquitectura · la nota de representación visible al abrir el
+chat (t=38) · la conversación avanzando con los textos reales ·
+**la confirmación con AS-AAXF y el rótulo EN DIRECTO (t=100)** ·
+el análisis y su resultado · la reserva web con el **enlace
+mágico difuminado** (t=144) · el panel con «Carmen · Confirmada»
+y el rótulo de derivación · el cierre con el pitch en el tercio
+inferior sobre el retrato real. Procedencia tramo a tramo, en el
+MANIFIESTO (sección «CORTE FINAL POR SIMULACIÓN HONESTA»).
+
+### 4 · Paquete de entrega actualizado a la verdad del corte
+
+`ENTREGA_HACKATHON.md`: el párrafo del operador ya no dice que el
+ensayo en el móvil estaba «programado para el 2 de noviembre» —
+cuenta la ejecución real del 04/11 (puerta firmada, AS-AAXF,
+cancelación posterior, canal verificado por autoprueba y la
+ausencia declarada de grabación en el móvil); la tabla del guion
+describe lo que el vídeo ES tramo a tramo; el checklist marca la
+conversación de WhatsApp como ejecutada con su asterisco honesto
+(incluido el hallazgo de la fecha fosilizada de SOUL) y la URL del
+vídeo queda ⚠️ PENDING hasta subirlo tras la aprobación de Lee
+(no se ha inventado ninguna URL).
+
+### 5 · Gasto
+
+Twilio: **0 mensajes** (la conversación va por la puerta firmada;
+el total histórico del trial sigue en los 7 del 28/10). Meta:
+**0 $ directos** de este corte (la conversación corre con
+Hermes/Spark sobre el crédito de Baseten; el coste por análisis no
+es medible en dinero desde la función de producción — referencia
+H2 en §8 del paquete). Piezas simuladas: producción local, 0 $.
+
+### VEREDICTO: **VÍDEO LISTO** ✅
+
+El corte final existe, está verificado fotograma a fotograma y
+dice la verdad en cada tramo: lo real es real (la conversación se
+ejecutó contra producción y escribió su cita), lo representado se
+etiqueta en pantalla, y lo compuesto son las fotos reales del
+salón. Lo único que queda fuera de esta sección es lo de siempre:
+la aprobación de Lee sobre el corte, la subida del vídeo y pegar
+su URL en la ENTREGA antes de enviar.
+
+## §80 · RE-CORTE DEL ANÁLISIS — Muse Image se ve trabajar (04/11/2026, tarde)
+
+Orden de Lee tras ver el corte §79: «no veo los modelos de imagen
+haciendo su trabajo». Tenía razón: la propuesta generada aparecía
+(~t=130 del corte), pero la generación quedaba enterrada — la
+espera iba ×2,5 como fotograma mudo y la propuesta pasaba en ~5 s
+acelerada, sin comparativa. La edición de imagen era invisible.
+
+**Hallazgo previo (verificado, no supuesto):** la app no muestra
+ningún estado de generación legible durante la espera.
+Muestreado `segmentos/03-analisis.mp4` cada 0,4 s y comparados
+fotogramas a tamaño real (fuente t=10,0 contra 10,4 / 13,8 /
+25,0): entre 9,2 s y 42,4 s la pantalla es «Tu foto y tu estilo»
+con la foto puesta y las diferencias son ruido de compresión
+(máx. 45 píxeles con delta >12 en 824×1830). El análisis
+asíncrono corre por detrás sin cambiar la vista grabada. No se
+ha inventado ningún spinner ni estado de carga: el trabajo del
+modelo se enseña con lo que el metraje permite sin falsear — la
+espera real rotulada y el antes/después con fotogramas reales.
+
+**El re-corte (solo el bloque 1:50–2:15; fronteras intactas;
+total del vídeo 179,97 s, b06 = 25,000 s exactos):**
+
+- 1:50–1:55 · probador → consentimiento → foto y estilo
+  (fuente 0–9,2 s ÷1,84 = 5,0 s; aire del consentimiento fuera).
+- 1:55–2:03 · la espera real (33,2 s ÷4 = 8,3 s) sobre la foto,
+  con rótulo nuevo en el estilo de la casa: «Muse Image (Meta)
+  genera / la propuesta sobre su foto».
+- 2:03–2:08 · la propuesta aparece (42,4–45,4 s a velocidad real)
+  y se AGUANTA 2,0 s más sobre su último fotograma: 5,0 s de
+  propuesta grande con su pie «generada con IA (Muse Image,
+  Meta)».
+- 2:08–2:12 · comparativa con fotogramas reales del mismo flujo:
+  ANTES (fuente t=10,0; 1,5 s) → DESPUÉS (fuente t=44,5; 2,0 s),
+  rótulos «ANTES — su foto» / «DESPUÉS — propuesta de Muse
+  Image». La misma cara; el cambio se lee en las cejas.
+- 2:12–2:15 · el análisis de Spark en pantalla («Esto ve La
+  Asistenta») → orientación → «Reservar este servicio», que
+  empalma con el bloque de reserva como antes.
+
+Receta en `video-demo/montar.sh` (b06 rehecho + 3 rótulos
+nuevos), reproducible con `./montar.sh simulado`. Defecto cazado
+mirando fotogramas y corregido en una segunda pasada: la línea
+del rótulo de generación a cuerpo 40 desbordaba el encuadre;
+repartida en dos líneas con el texto íntegro y la etiqueta
+DESPUÉS a cuerpo 36.
+
+**Verificación:** decodificación completa sin errores;
+fotogramas del corte nuevo mirados a ojo en t = 109,5 / 112 /
+118 / 122 / 125 / 127,5 / 129 / 130,8 / 133,5 / 135,5 —
+rótulos dentro del encuadre, propuesta aguantada, fronteras
+donde estaban. **Gasto: 0 $** (todo sale del metraje grabado el
+03/11; ningún análisis nuevo; Twilio 0). El corte §79 queda en
+`video-demo/montaje-final-pre80.mp4` y la receta anterior en
+`montar.sh.bak-20261104-pre80`. Detalle completo en el
+MANIFIESTO, sección «RE-CORTE DEL ANÁLISIS — §80».
+
+### VEREDICTO: **EL MODELO DE IMAGEN YA SE VE TRABAJAR** ✅
+
+Espera rotulada con su nombre, propuesta aguantada y
+antes/después real: el tramo débil que Lee señaló queda
+convertido en la prueba visible de Muse Image, sin inventar ni
+un fotograma. Pendiente lo de siempre: aprobación de Lee sobre
+el corte, subida del vídeo y URL en la ENTREGA.
+
+---
+
+## §81 — AUDITORÍA DE EXPLICACIÓN DEL CORTE FINAL (04/11/2026)
+
+**Orden de Lee (~13:59):** «debe explicar bien, no quiero
+errores». Auditoría del corte §80 como lo vería un JURADO FRÍO
+que no sabe nada del producto y cuyo idioma es el inglés
+(concurso Meta × Cerebral Valley): inventario línea a línea de
+todo el texto en pantalla con veredicto de verdad, capa bilingüe
+en la explicación y cierre de huecos. Alcance respetado: solo la
+capa de textos y la tarjeta 07; ningún bloque de metraje tocado;
+gasto 0 $ (Twilio 0, créditos 0).
+
+### Inventario completo (texto · ventana · qué entiende el jurado frío · veredicto)
+
+**Apertura (0:00–0:20, fotos reales del salón)**
+- «23:40 — el salón está cerrado.» / «Su WhatsApp, no.» (1–8,5) +
+  EN «11:40 pm — the salon is closed. Its WhatsApp isn't.» —
+  entiende: el problema (cierran y pierden reservas) y que el
+  canal sigue abierto. **VERDADERO**: el horario real es
+  L–V 10–20 y S 10–14; a las 23:40 el salón está cerrado y la
+  recepcionista responde 24/7.
+- «La Asistenta — la recepcionista / con IA para negocios
+  locales» + EN «La Asistenta — the AI receptionist / for local
+  businesses» (8,7–14) — **NUEVO (hueco 1)**: antes el producto no
+  se nombraba hasta el cierre (2:48); ahora se presenta tras el
+  gancho sin pisarlo. VERDADERO: es la definición del producto.
+
+**Tarjeta de arquitectura (0:20–0:35)** — reeditada desde
+`tarjeta-arquitectura.html` con glosa EN bajo titular, secciones
+y cada bloque/fila; clip reconstruido (14,8 s, fundidos de 0,6 s,
+mismo diseño, compresión leve para que quepa el pie):
+- «Una empleada, no un chatbot.» + «An employee, not a
+  chatbot.» — posicionamiento, sin afirmación fáctica. ✓
+- «EL CAMINO DE UNA CITA» + «HOW A BOOKING FLOWS» ✓
+- «WhatsApp — La clienta escribe al salón / The client writes to
+  the salon — VÍA TWILIO» — VERDADERO como canal del producto
+  (Twilio es el proveedor real; la conversación filmada entró por
+  la misma interfaz webhook que invoca Twilio, declarado en el
+  paquete). ✓
+- «Hermes Agent — La recepcionista atiende y conversa / The
+  receptionist answers and converses — CÓDIGO ABIERTO · NOUS
+  RESEARCH» ✓ (agente real en producción).
+- «Muse Spark — Su cabeza: entiende y recomienda / Her brain:
+  it understands and recommends — EL MODELO DE META» ✓
+  (meta-models/muse-spark-open-1026 vía Baseten).
+- «La agenda — Guarda la cita sin pisar huecos / Stores the
+  booking without overlaps — LA AGENDA REAL DEL SALÓN» ✓
+  (probado: enjambres §71/§73/§74, 0 solapes).
+- «OTRA PUERTA · LA MISMA AGENDA» + «ANOTHER DOOR · THE SAME
+  AGENDA» · «La web del salón — Reserva en línea y enseña el
+  salón / Book online and browse the salon — PWA INSTALABLE» ✓
+- «EL ANÁLISIS DE CEJAS» + «THE BROW ANALYSIS» · «Muse Spark —
+  Observa la foto y orienta / Looks at the photo and advises» ·
+  «Muse Image — Genera la propuesta visual / Generates the
+  visual proposal» · «SAM 3.1 — Disponible en la misma API de
+  Meta / Available in the same Meta API» ✓ (redactado solo como
+  disponibilidad: lo verificado el 30/10; no se afirma uso en el
+  flujo).
+- Pie: «META AI DEVELOPMENT APIS · BASETEN» ✓
+
+**WhatsApp (0:35–1:50, representación etiquetada)**
+- Nota en pantalla (desde 0:35, visible hasta ~0:54): «Conversación
+  real con La Asistenta, representada en pantalla» + glosa EN
+  quemada (48–58) «A real conversation with La Asistenta, shown
+  on screen» — **NUEVO (hueco 2)**: la pieza de honestidad clave
+  ya no exige saber español. VERDADERA: toma 2 del 04/11 contra el
+  sistema real (§79).
+- Textos del chat (íntegros de la ejecución real): recomendación
+  con «Diseño de cejas - 18€ · 25 min», «Ombré Brows Henna - 30€
+  · 65 min», «Laminación de cejas - 45€ · 65 min» — **carta real
+  verificada** ✓ · huecos ofrecidos 17:30/17:45/18:00 del jue
+  05/11 ✓ (salieron de la disponibilidad real) · resumen «Diseño
+  de cejas, jueves 5 de noviembre de 2026 a las 17:30, 18€, 25
+  min, a nombre de Carmen» ✓ · confirmación «Tu cita AS-AAXF…»
+  ✓ (cita real id 625, cancelada después por higiene) · enlace
+  personal con el token enmascarado ✓.
+- «Precios reales de Ari Vivas Beauty / — nada inventado»
+  (37–47) + EN «Real prices from Ari Vivas Beauty — nothing made
+  up» — VERDADERO ✓.
+- **«La cita se escribe en la agenda real / en el momento de
+  confirmarla» (91–101) + EN «The booking is written into the
+  real agenda / the moment she confirms it» — REFORMULADO (la
+  única corrección de verdad de la auditoría).** El texto
+  anterior («La cita se escribe en la agenda / EN DIRECTO») NO
+  era defendible palabra por palabra junto a la etiqueta de
+  representación: la conversación sí se ejecutó contra el
+  sistema real y la cita sí se escribió en el momento de
+  confirmarla, pero el espectador no lo está viendo en directo.
+  El texto nuevo dice exactamente lo que ocurrió.
+
+**Análisis de cejas (1:50–2:15)**
+- «Muse Image (Meta) genera / la propuesta sobre su foto»
+  (115,2–123,1) + EN «Muse Image (Meta) generates / the
+  proposal on her photo» — VERDADERO (flujo real grabado el
+  03/11; la espera es la real, comprimida y rotulada, §80) ✓.
+- Etiqueta del propio producto en el metraje: «PROPUESTA VISUAL
+  · ORIENTATIVA» y «Vista previa generada con IA (Muse Image,
+  Meta) sobre tu foto…» ✓ (la honestidad del producto, visible).
+- «ANTES — su foto» (128,3–129,8) + EN «BEFORE — her photo» ·
+  «DESPUÉS — propuesta de Muse Image» (129,8–131,8) + EN
+  «AFTER — Muse Image's proposal» — fotogramas reales del mismo
+  flujo (t=10,0 y t=44,5 de la fuente) ✓.
+
+**Reserva web + enlace + panel (2:15–2:40)**
+- «La misma agenda, desde la web» (136,5–142) + EN «The same
+  agenda, through the website» — **NUEVO (hueco 3a)**: el bloque
+  abría sin ninguna explicación; ahora el jurado sabe que la web
+  y el WhatsApp escriben en la misma agenda. VERDADERO ✓.
+- Confirmación web en el metraje: código AS-AAWF legible, token
+  del enlace mágico difuminado ✓ · «Tu cita está confirmada» ✓.
+- «El área profesional de Arianna / su día, organizado»
+  (152,6–156,4) + EN «Arianna's professional area — her day,
+  organized» — **NUEVO (hueco 3b, el pedido en la orden)**: el
+  panel ya no aparece sin contexto. VERDADERO ✓.
+- «Ante la duda, deriva a la humana» — MOVIDO a 156,6–159,9
+  (antes 153,5–159,3 pisaba la cabecera de la agenda) + EN
+  «When in doubt, it hands over to the human» — VERDADERO como
+  comportamiento documentado del sistema (la derivación vive en
+  el SOUL y en las reglas del producto); en pantalla se muestra
+  sobre el área de la dueña, que es la humana que la recibe; la
+  derivación en sí no se dramatiza en el metraje. ✓ con esa
+  precisión.
+- Nota de inventario (sin corrección posible ni necesaria: es el
+  metraje real y no se toca): en el panel se leen entradas del
+  histórico de pruebas de la agenda real («QA21 Pack B», «QA18
+  Barrido», «Canceladas · 109») y en Hoy una tarjeta «PRUEBA
+  MECANICAS 2». Es la agenda real de pruebas del piloto, coherente
+  con lo declarado en el paquete (piloto en validación).
+
+**Cierre (2:40–3:00)**
+- «La Asistenta / la recepcionista 24/7 / que una pyme sí puede
+  pagar» (168–179,7) + EN «The 24/7 AI receptionist / a small
+  business can actually afford» — «24/7» VERDADERO (la
+  recepcionista responde a cualquier hora; el «23:40» de la
+  apertura es su prueba narrativa); «que una pyme sí puede
+  pagar» = posicionamiento comercial del pitch (490 € + 49 €/mes
+  del plan de venta local frente a ~120–165 $/mes de Mangomint),
+  presentado como lema, no como cifra auditada. ✓ La línea EN es
+  el tagline oficial de la ENTREGA.
+
+### Cambios aplicados
+1. montar.sh: capa bilingüe completa (fuente Montserrat 500 ya
+   presente en .fuentes/), reformulación del rótulo de la cita,
+   super nuevo, glosas nuevas (nota del chat, web, panel) y
+   derivación movida; pilas verticales reordenadas para que
+   ninguna línea EN desborde ni pise el contenido clave.
+2. Tarjeta 07 reconstruida desde el HTML bilingüe (14,8 s).
+3. ENTREGA_HACKATHON.md: tabla del guion ajustada a los textos
+   finales (la fila de la confirmación ya no dice «— LIVE»;
+   añadidos el super, las glosas de la tarjeta y los rótulos
+   nuevos de análisis y panel) + nota §81 en la sección de
+   producción.
+4. MANIFIESTO.md: sección «AUDITORÍA DE EXPLICACIÓN — §81».
+
+### Verificación
+`montaje-final.mp4` = **179,97 s** (H.264 824×1830 30 fps,
+22,8 MB), decodificación completa sin errores, fronteras de
+tramo intactas. Fotogramas mirados a ojo de CADA ventana de
+texto: t = 4 (gancho), 11 (super), 27 (tarjeta), 42 (precios),
+52 (glosa de la nota), 95 y 100 (cita en la agenda real — el
+resumen y el código AS-AAXF se leen íntegros), 118 (generación),
+129 (ANTES), 130,8 (DESPUÉS), 139 (web), 154 (panel), 158
+(derivación, sin pisar ya la cabecera), 175 (cierre bilingüe).
+Ninguna línea desborda; las EN se leen a tamaño móvil. Respaldo:
+el corte §80 queda en `montaje-final-pre81.mp4`, el clip 07
+anterior en `segmentos/07-arquitectura.mp4.bak-20261104-pre81` y
+la receta anterior en `montar.sh.bak-20261104-pre81`.
+**Gasto: 0 $.**
+
+### VEREDICTO: **EL CORTE SE EXPLICA SOLO, EN LOS DOS IDIOMAS, SIN PROMETER DE MÁS** ✅
+
+La única frase que prometía de más quedó reformulada a lo que
+ocurrió; el jurado anglófono ya recibe cada explicación también
+en inglés; y los tres huecos (producto sin nombre, puerta web
+sin explicar, panel sin contexto — más la nota de honestidad sin
+traducir) están cerrados. Pendiente lo de siempre: aprobación de
+Lee sobre el corte, subida del vídeo y URL en la ENTREGA.
+
+## §82 · FLUJO DEL ENJAMBRE — la validación completa queda como flujo permanente, y su primera corrida caza un hallazgo real de transporte (04/11/2026)
+
+Orden de Lee (04/11 ~14:19): «validemos de nuevo; también me
+gustaría el flujo donde el enjambre trabaje». Lo que en §§71/73/
+74/77/78 fueron pases sueltos queda desde hoy como UN flujo del
+proyecto en `enjambre/`, con un único punto de entrada, consola
+en vivo e informe fechado por corrida.
+
+### El flujo (permanente)
+
+- **Entrada única:** `bash ~/workspace/la-asistenta/enjambre/lanzar-enjambre.sh`
+  (con argumento opcional: el nº de una fase para re-correr solo
+  esa, p. ej. `lanzar-enjambre.sh 2`). El lanzador despierta la
+  máquina, sube el flujo a `/data/la-asistenta/enjambre/`, lo
+  ejecuta allí en segundo plano y espeja la consola en directo
+  (terminal + `informes/<ts>/salida-live.txt`; la página-consola
+  de §73, `enjambre/consola.html`, la revive tal cual).
+- **Orquestador:** `enjambre/flujo_enjambre.py` (corre en la
+  máquina). Importa sin tocarla la batería de §71
+  (`agenda/pruebas_enjambre.py`, que el lanzador sube a
+  `/data/la-asistenta/enjambre/`) y adapta la de §74 para la
+  fase 3 con salida a la carpeta de la corrida.
+- **Fases:** 1 · Salud (`/salud` 200 en 8080/8081/8090) + huella
+  de producción en solo lectura (conteos por estado + SHA-256
+  del volcado canónico). 2 · Enjambre de reservas: 19 a la vez
+  contra una instancia de prueba de la API real sobre una copia
+  (6 al mismo hueco → 1×201 + 5×409; 13 distintas → 13×201),
+  auditoría SQL de solapes y limpieza cancelando por la vía
+  normal. 3 · Diseños con foto: las 10 clientas de §74 por el
+  camino real (`analizar_con_spark` + Muse Image del
+  `web_server.py` de producción); imprime el gasto estimado
+  (~0,10 $) ANTES de lanzar y declara el real al cerrar. 4 ·
+  Huecos rápidos sobre otra copia (puerto 8092): sin token
+  401/401, crear en el pasado 409 «ya pasó» sin crear nada,
+  idempotencia (repetir = misma cita; cuerpo distinto = 422),
+  reagendar por enlace (pasado 409 / válido 200) y limpieza;
+  contra la web real solo rechazos (enlace inventado 404,
+  profesional sin sesión 401, clave falsa 401). 5 · Cierre:
+  instancias apagadas, puertos verificados cerrados, huella
+  final comparada y veredicto (LISTO / CON HALLAZGOS /
+  DETENIDO EN FASE N).
+- **Informes por corrida** en `enjambre/informes/<ts>/` (espejo
+  en la máquina, `enjambre/corridas/<ts>/`): `informe.md`,
+  `informe.json`, `salida-live.txt`, `consola.html` y, si la
+  fase 3 corrió, `hoja-contacto.jpg` con las 10 parejas
+  original/propuesta (la compone `enjambre/hoja_contacto.py`).
+- **Seguridad, escrita en `enjambre/README.md`:** producción
+  solo se lee y se huella (la huella final debe salir idéntica);
+  las escrituras van a las copias, servidas por instancias de
+  prueba en 127.0.0.1:8091/8092 con el negocio
+  `negocio-prueba-enjambre`; Twilio 0 mensajes siempre; si una
+  fase falla, el flujo se detiene, apaga lo suyo, escribe el
+  informe con el fallo y no sigue «a ver si pasa»; las claves no
+  se imprimen; el gasto se anuncia antes de gastarlo.
+
+### La validación de hoy (post §78) — crónica honesta, corrida a corrida
+
+| Corrida | Tipo | Resultado |
+|---|---|---|
+| 14:25:26 (`…142526`) | completa | **DETENIDO EN FASE 2 por un bug del arnés**: la comparación de códigos esperaba claves de texto (`"201"`) y la ráfaga las da numéricas. El sistema había respondido PERFECTO: 1×201 + 5×409, 13×201, 0 solapes, limpieza completa, huella idéntica. |
+| 14:26:27 (`…142627`) | solo fase 2 | **1 conexión perdida**: ENJAMBRE-C06 sin respuesta (http None, 1.016 ms). El arnés además tragó el texto del error (segundo bug del arnés: la clave `_error` no se volcaba al resultado). Evidencia del servidor: su log registra solo **18 POST** (14×201 + 4×409) — la petición perdida nunca llegó a la API; agenda exacta (14 creadas, 14 canceladas, 0 solapes). |
+| 14:28:56 (`…142856`) | solo fase 2 (arnés corregido) | **FASE 2 OK**: 19 a la vez en 1,04 s · contención 1×201 + 5×409 (ganó ENJAMBRE-C03) · 13×201 · p50 25 ms · p95 1.038 ms · 0 solapes · 14 canceladas por la vía normal · puerto cerrado. |
+| 14:29:16 (`…142916`) | completa | **DETENIDO EN FASE 2 por el mismo fenómeno, ya con el error a la vista**: ENJAMBRE-D06 → `ConnectionResetError: [Errno 104] Connection reset by peer` a los 1.031 ms. Contención perfecta (1×201 + 5×409); distintas 12×201 + 1 reset; 0 solapes; 13 creadas, 13 canceladas; huella idéntica. |
+| 14:29:49 (`…142949`) | solo fase 4 | **FASE 4 OK — 11/11 sondas ✓** en 0,31 s: sin token 401/401 · pasado 409 «ya pasó» con 0 citas nuevas · idempotencia misma cita (id 626=626) y 422 con cuerpo distinto · reagendar 409 al pasado y 200 al válido · limpieza 200 · web real: 404/401/401. |
+| 14:30:07 (`…143007`) | solo fase 3 | **FASE 3 OK — 10/10 diseños** en 41,19 s de pared · Spark mediana 12,93 s · Muse Image mediana 17,09 s · **0 reintentos** de Spark · **gasto Meta real: 0,10 $** (el estimado impreso antes de lanzar). Hoja de contacto compuesta con las 10 parejas. |
+
+Fases 1 y 5 corrieron dentro de cada corrida: salud 200 en los
+tres puertos siempre, y la **huella de producción idéntica
+antes y después en las seis corridas**: 624 citas · id máx 625 ·
+estados {cancelada 515, confirmada 1, cumplida 63, no_show 45} ·
+id 512 «confirmada» · 0 filas ENJAMBRE en producción ·
+SHA-256 `8aaf3586a11a706d3868a2e27989a5a59099f5f9be8fbbed42b50da5664c9638`.
+
+La descarga de transporte de la fase 3 falló en el lanzador
+(urlretrieve truncó los 10 webp por la URL pública; la hoja
+saltó con una imagen ilegible): las propuestas se recuperaron
+íntegras desde la carpeta de la corrida en la máquina con
+descarga verificada por tamaño (10/10 byte a byte) y la hoja
+quedó compuesta. El lanzador queda endurecido: descarga con
+reintentos y verificación de tamaño contra el `stat` remoto, y
+borrado de transportes por el patrón `enjambre-*` (el anterior,
+por ts del lanzador, no coincidía con el ts interno del flujo
+y dejaba copias: limpiadas hoy a mano, 0 restantes).
+
+### HALLAZGO H-82 · resets TCP intermitentes bajo ráfaga simultánea
+
+En **2 de las 4 ráfagas** de hoy, exactamente **1 de las 19**
+conexiones simultáneas contra la instancia de la API de agenda
+murió por reset TCP (`Connection reset by peer`, ~1,03 s) antes
+de que la petición llegara a la aplicación (demostrado por el
+log del servidor en la corrida de las 14:26: 18 POST recibidos
+de 19). Patrón acompañante: la ráfaga se parte en dos tandas —
+unas peticiones responden en ~20 ms y otras a ~1,03–1,05 s, el
+tiempo típico de la primera retransmisión TCP. **Causa
+probable (hipótesis declarada, no demostrada):** la cola de
+escucha del servidor (`request_queue_size` por defecto de
+`socketserver` = 5) se queda corta ante 19 conexiones a la vez,
+agravado por la VM gratuita compartida; el código es el mismo
+en la instancia de prueba y en la agenda de producción (8081).
+**Impacto en datos: ninguno, en ninguna corrida** — 0 solapes,
+conteos exactos, ni una cita fantasma (la petición perdida no
+creó nada), huella de producción intacta. El tráfico real del
+piloto nunca abre 19 conexiones a la vez (WhatsApp y web son
+secuenciales), así que la severidad práctica hoy es baja; pero
+es un límite real de robustez del núcleo de reservas si algún
+día hay concurrencia de verdad. **Recomendación (decisión de
+Lee, toca el núcleo §4.5):** subir `request_queue_size` en
+`agenda_api.py` (p. ej. `ThreadingHTTPServer` con cola 128) y
+re-validar con este mismo flujo. No se ha tocado el código de
+producción.
+
+### Veredicto de la validación de hoy: CON HALLAZGOS
+
+Todo lo demás, en verde: reservas bajo concurrencia (lógica),
+diseños con foto 10/10, huecos 11/11, huella intacta en las
+seis corridas. Gasto total de la validación: **0,10 $** de
+crédito Meta (una sola corrida de la fase 3). Twilio: 0
+mensajes. El flujo queda permanente y re-ejecutable con un
+comando; sus informes de hoy viven en
+`enjambre/informes/20261104-*/`.
+
+## §83 · ARREGLO H-82 APLICADO Y REVALIDADO — la cola de escucha de la agenda pasa de 5 a 128; 4/4 ráfagas limpias y primer veredicto LISTO del flujo (04/11/2026)
+
+Autorización expresa de Lee (04/11 15:56): «aplica el arreglo y
+re-valida». Es la decisión expresa que la regla §4.5 de
+ENSAYO_Y_DEMO.md exige para tocar el núcleo en semana de
+entrega. Hallazgo tratado: H-82 (§82) — resets TCP
+intermitentes bajo ráfaga simultánea, con la cola de escucha
+por defecto de `socketserver` (`request_queue_size = 5`) como
+causa probable declarada.
+
+### El cambio (mínimo, solo ese parámetro)
+
+Fichero: `agenda/agenda_api.py` (máquina y espejo local, que
+antes del cambio eran idénticos: SHA-256 `f98d5f04…` en ambos).
+Respaldo fechado previo en los dos lados:
+`agenda/agenda_api.py.bak-20261104-h82`. Diff exacto aplicado
+(+11 líneas, 1 línea modificada; nada de lógica de reservas,
+ni umbrales, ni otros ficheros):
+
+```diff
++class ServidorAgenda(ThreadingHTTPServer):
++    """Servidor de la agenda con la cola de escucha ampliada (H-82, §83).
++
++    El valor por defecto de socketserver (request_queue_size = 5) se
++    quedaba corto ante ráfagas simultáneas: conexiones reseteadas
++    antes de llegar a la aplicación. 128 da aire sin tocar la lógica.
++    """
++
++    request_queue_size = 128
++
+-    srv = ThreadingHTTPServer((args.host, args.port), Handler)
++    srv = ServidorAgenda((args.host, args.port), Handler)
+```
+
+Verificado antes de desplegar: `py_compile` OK y
+`ServidorAgenda.request_queue_size == 128` (el defecto de
+`socketserver.TCPServer` es 5). Tras la subida, máquina y
+local comparten el SHA-256 nuevo:
+`949705ed8e65582336ea61b8b5d839572daad90fb60f11b75654c4b53fcb4079`.
+
+**Reinicio:** SOLO el servicio de agenda. Se mató el proceso
+anterior (pid 3100, del 03/11) y `bash
+/data/la-asistenta/arrancar.sh` lo relanzó (pid nuevo 61287);
+el webhook (pid 3092) y la web (pid 54682) ni se tocaron — el
+propio `arrancar.sh` los encontró «ya en marcha». `/salud`
+200 en 8080/8081/8090 tras el reinicio. La huella de
+producción, idéntica antes y después del reinicio (el
+reinicio no toca datos): 624 citas · id máx 625 · estados
+{cancelada 515, confirmada 1, cumplida 63, no_show 45} · id
+512 «confirmada» · 0 ENJAMBRE en producción · SHA-256
+`8aaf3586a11a706d3868a2e27989a5a59099f5f9be8fbbed42b50da5664c9638`
+— la misma huella de las seis corridas de §82.
+
+### La revalidación (flujo del enjambre, `enjambre/lanzar-enjambre.sh`)
+
+**Corrida completa `20261104-155857` — veredicto LISTO** (el
+primero del flujo; §82 cerró CON HALLAZGOS):
+
+| Fase | Resultado |
+|---|---|
+| 1 · Salud + huella | ✅ `/salud` 200 en 8080/8081/8090 · huella tomada |
+| 2 · Reservas (19) | ✅ 0,35 s · 1×201 + 5×409 (ganó ENJAMBRE-C03) · 13×201 · 0 solapes · 14 canceladas por la vía normal |
+| 3 · Diseños (10) | ✅ 10/10 en 39,82 s · Spark mediana 12,88 s · Muse Image mediana 17,74 s · 0 reintentos · gasto Meta 0,10 $ |
+| 4 · Huecos | ✅ 11/11 sondas en 0,28 s |
+| 5 · Cierre | ✅ huella final idéntica a la inicial |
+
+**Las ≥4 ráfagas de 19 con el arreglo** (la fase 2 de la
+completa + 3 re-corridas `lanzar-enjambre.sh 2`):
+
+| # | Corrida | Pared | p50 | p95 | Máx | Llegadas | Resets | 201 | 409 | Solapes |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | `…155857` (completa) | 0,35 s | 31,4 ms | 351,0 ms | 351,0 ms | 19/19 | **0** | 14 (1+13) | 5 | 0 |
+| 2 | `…160042` (solo fase 2) | 0,08 s | 53,4 ms | 79,7 ms | 79,7 ms | 19/19 | **0** | 14 (1+13) | 5 | 0 |
+| 3 | `…160103` (solo fase 2) | 0,06 s | 30,9 ms | 53,2 ms | 53,2 ms | 19/19 | **0** | 14 (1+13) | 5 | 0 |
+| 4 | `…160151` (solo fase 2) | 0,07 s | 30,7 ms | 62,0 ms | 62,0 ms | 19/19 | **0** | 14 (1+13) | 5 | 0 |
+
+Evidencia de llegada al servidor: el log de la instancia de
+prueba de la ráfaga 4 (el fichero se reescribe en cada
+corrida; leído justo después) registra exactamente **19
+`POST /citas`** — 14×201 + 5×409 — y las 14 cancelaciones de
+la limpieza. En las ráfagas 1–3 la llegada la prueban las 19
+respuestas con la distribución exacta y la auditoría de la
+copia (14 creadas, 14 canceladas, conteos exactos). Comparado
+con §82: allí 2 de 4 ráfagas perdieron 1 conexión y las
+latencias se partían en dos tandas con la segunda a
+~1,03–1,05 s (la firma de la retransmisión TCP); hoy ninguna
+ráfaga llega a ese escalón — la peor latencia máxima es
+351 ms (ráfaga 1, dentro de la corrida completa) y en las
+tres re-corridas el máximo es ≤ 80 ms.
+
+**Regresión ligera:** la fase 4 de la propia corrida completa
+(11/11) y `/salud` 200 en los tres puertos verificados al
+cerrar el trabajo. Huella de producción idéntica antes y
+después en las cuatro corridas de hoy (`8aaf3586…`, la misma
+de §82).
+
+### Veredicto de H-82: CORREGIDO
+
+4/4 ráfagas con las 19 conexiones llegando siempre, **cero
+resets**, la lógica intacta (1×201 + 5×409 en contención,
+13×201 en distintas, 0 solapes en las cuatro) y la corrida
+completa del flujo en LISTO por primera vez. Gasto de la
+revalidación: **0,10 $** de crédito Meta (la fase 3 de la
+corrida completa; las re-corridas de fase 2 no gastan).
+Twilio: 0 mensajes. Informes en `enjambre/informes/20261104-155857/`
+y `enjambre/informes/20261104-160*/`.
