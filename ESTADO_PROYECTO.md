@@ -6347,3 +6347,404 @@ revalidación: **0,10 $** de crédito Meta (la fase 3 de la
 corrida completa; las re-corridas de fase 2 no gastan).
 Twilio: 0 mensajes. Informes en `enjambre/informes/20261104-155857/`
 y `enjambre/informes/20261104-160*/`.
+
+## §85 · GITHUB PROFESIONAL — README-escaparate con imágenes del producto (04/11/2026, tarde)
+
+Orden de Lee (04/11 16:57): «el GitHub: documentación con
+imágenes, todo en orden, profesional, bien hecho todo paso a
+paso, sin errores». Ejecutada sobre el repo público
+(Blackleets/la-asistenta) DESPUÉS de la congelación final de
+hoy (commit 06308ea). La entrega del hackathon NO se tocó
+(sigue en espera, con el vídeo nuevo en producción en
+paralelo). Nota post-congelación: vive en local y máquina,
+como las secciones §§68–83; no se
+volvió a sincronizar el ESTADO al remoto por esta nota.
+
+### Inventario (lo que estaba mal en la portada)
+
+- Las 3 imágenes del README eran enlaces calientes a los
+  iconos de la máquina InstaBox: si la máquina duerme, la
+  portada amanece sin imágenes; y ninguna imagen vivía en el
+  repo.
+- Cifras viejas frente al estado final: baterías «web 32/32 ·
+  guarda 8/8 · adaptador FASHN 5/5 · QA16–QA18» cuando el
+  cierre real es **132/132** (§78); sin rastro del flujo del
+  enjambre (§§82–83), de la prueba-20 (§74), de la biblioteca
+  de rostros (§75), del entorno v34 (§76) ni del arreglo
+  D-77a (límites por visitante, §78).
+- Sin diagrama de arquitectura y sin mapa de documentación
+  (ENTREGA/ENSAYO/BENCHMARK/ACTIVACION no aparecían).
+
+### El mecanismo de imágenes (decisión registrada)
+
+El conector de GitHub publica snapshots de TEXTO UTF-8 (las 8
+syncs del historial: cero binarios — el «criterio de binarios»
+de la casa nace de ahí). Un PNG crudo no puede viajar por esa
+vía. Solución aplicada: cada captura viaja como **fichero
+SVG cuyo único contenido es la propia captura en JPEG
+(base64)** en `docs/img/` — texto publicable por el mecanismo
+de siempre, y GitHub lo renderiza como imagen en el README.
+El README lo declara en una nota al pie de la galería (el
+jurado puede comprobar que lo que ve es la captura íntegra).
+Compresión: JPEG q80 a 824 px — la galería completa pesa
+≈1,2 MB en 7 ficheros.
+
+### Selección (cada imagen mirada a ojo antes de elegirla)
+
+Subidas a `docs/img/`:
+`01-inicio` (home, QA26-después, entorno v34) · `02-salon`
+(la página del salón, QA26) · `03-explorar` (catálogo real,
+QA26) · `04-analisis` (la propuesta de Muse Image sobre un
+rostro DE MUESTRA de la biblioteca, con sus sellos visibles,
+QA26 — la corrida de biblioteca re-corrida tras v34) ·
+`05-reserva` (paso 2: calendario y huecos reales, QA24) ·
+`06-cita-confirmada` (la página del enlace mágico con la
+cita CONFIRMADA; recorte de la mitad «después» de la lámina
+B5: la página no imprime el token — el token solo vive en la
+URL, fuera de la captura) · `07-profesional` (el «Hoy» de la
+dueña; recorte equivalente B5; solo datos de prueba QA18) ·
+`arquitectura.svg` (diagrama dibujado para la portada:
+dos puertas, una agenda, Spark + Muse Image/SAM).
+
+Descartadas, con motivo: `vista-b5-confirmada.png` (la
+lámina de confirmación B5 IMPRIME dos URL completas de
+enlace mágico con sus tokens legibles — prohibido) ·
+`b8-d-prof-hoy.png` (capturó el estado de error «Tu agenda
+no responde») · `qa26-despues-micita.png` (estado vacío: no
+enseña ninguna cita) · las láminas antes/después B3/B5 como
+fichero entero (formato de comparativa, no captura de
+producto; de B5 se rescataron las mitades «después») ·
+`qa26-despues-foto-biblioteca.png` e `inicio-reco`/`salon-*`
+extra (redundantes: la biblioteca ya se cuenta en
+`04-analisis` y sus sellos).
+
+### Commits (hacia adelante, sin reescribir historia)
+
+1. `ee59b8be56c3d02479002b1b6847e2863fdc23cb` — «docs:
+   product captures and architecture diagram in docs/img»
+   (8 ficheros).
+2. `d74f2abf230a81eb2cc7395804c0dd4dc34a1d5c` —
+   «Professional docs — README with product images».
+
+### Verificación (paso a paso, antes de darlo por hecho)
+
+- **Bytes**: los SHA de blob remotos de los 8 SVG y del
+  README coinciden EXACTAMENTE con los ficheros locales
+  (8/8 + 1/1, leídos de vuelta por la API tras cada push).
+- **Auditoría de secretos, dos vías**: local (grep sobre
+  todo lo nuevo: teléfonos de Lee en todas sus formas,
+  email, fragmentos de token, NIE, asignaciones con valor)
+  = 0 resultados; remota (búsqueda de código en GitHub:
+  los cinco términos prohibidos de siempre — omitidos en la
+  copia pública) = **0 en las cinco**. Las imágenes, auditadas
+  A OJO (arriba): sin datos de clientas, sin tokens, sin la
+  clave profesional.
+- **Enlaces**: los 17 destinos `.md` del README nuevo y el
+  directorio `h1/resultados/` existen en el remoto
+  (verificados uno a uno contra el inventario y la API);
+  las 8 imágenes referenciadas existen con SHA verificado.
+- **En vivo**: la página del blob de `docs/img/01-inicio.svg`
+  responde en github.com (176 KB, el fichero íntegro). La
+  portada del repo servida por el rastreador de texto quedó
+  en una copia anterior al push (15:59 UTC); la confirmación
+  a nivel de píxel de la portada nueva queda como simple
+  vistazo humano pendiente — el contenido servido es
+  byte-idéntico al auditado y el mecanismo (ruta relativa a
+  SVG del propio repo) es el estándar de GitHub.
+- El registro de syncs adyacente al staging queda con 10
+  entradas (las dos de hoy añadidas a mano con el SHA
+  confirmado de cada push, porque la CLI no las anexó).
+
+### Qué NO se hizo (a propósito)
+
+- Sin enlace al vídeo demo en el README: la URL que hoy
+  tiene el formulario es del corte anterior y el corte nuevo
+  está en producción; el README remite al paquete
+  ENTREGA_HACKATHON.md. Cuando exista la URL final
+  verificada, enlazarla es un commit de una línea.
+- Sin tocar código de la app, ni la entrega, ni el staging
+  de publicación de este ESTADO (la copia pública sigue en
+  §83; esta nota es post-congelación).
+
+---
+
+## §84 · NUEVO CORTE DEL VÍDEO DEMO — RECORRIDO COMPLETO CON ZOOMS (04/11/2026)
+
+**Orden de Lee (04/11 16:04):** «Bro el video muéstrame como funciona la app
+de pie a cabeza bien hecho 👏 con efectos de zoom como lo hacen las grandes
+startups». Este corte **sustituye al §81** como vídeo de la entrega (la
+entrega aún no se había enviado; no hay nada que deshacer). El §81 queda en
+`video-demo/montaje-final-pre84.mp4` y la receta anterior en
+`video-demo/montar.sh.bak-20261104-pre84`.
+
+### El rodaje (grabación nueva contra la app viva, estado post-§83)
+
+- **Hallazgo de red:** el Chromium local no puede cargar la URL pública
+  (`ERR_TUNNEL_CONNECTION_FAILED`; todo el egress del sandbox va por un
+  proxy que Chromium no puede usar, y la salida directa tampoco funciona).
+  La grabación se ejecutó **dentro de la máquina** contra `127.0.0.1:8090`,
+  con la técnica de screencast CDP de §69 (`grabar-recorrido84-maquina.mjs`,
+  subido a `/data/la-asistenta/video-demo/`).
+- Viewport 412×915; los fotogramas del screencast son **412×915 (px CSS)**;
+  **toques táctiles reales** (`Input.dispatchTouchEvent`) registrados con
+  rectángulo e instante en el `meta.json` de cada paso (el registro del que
+  salen los zooms). La clave profesional se tecleó fuera de grabación.
+- **Corrida 1:** murió en el paso 03 (un toque en la zona baja golpeó la
+  barra de navegación fija). Arreglo: `tap()` desplaza el elemento a la
+  banda segura antes de tocar. Sin gasto y sin reserva creada.
+- **Corrida 2 — completa, 0 errores de consola:**
+  - 01-hogar 10,7 s · 02-buscar 7,2 s («henna» tecleado; tarjeta Ombré
+    Brows Henna verificada por su título; toque en «Probar con mi foto») ·
+    03-analisis 54,9 s con **espera real de 34,1 s** (marcas 9,4 → 43,5),
+    **un solo intento, sin reintento**; recomienda **Diseño de cejas**; la
+    propuesta de Muse Image queda primera del resultado (`primera: true`)
+    y el look se guarda en «Mis looks» · 04-reserva 19,8 s → **AS-AAXG,
+    Diseño de cejas, miércoles 04/11/2026 16:45** · 05-enlace 14,5 s (cita
+    CONFIRMADA en su enlace; panel de reagendar con huecos reales; diálogo
+    de cancelar abierto y salida con «No, mantener mi cita»; la cita siguió
+    confirmada) · 06-panel 6,5 s (vista «hoy»; AS-AAXG primera del Hoy de
+    Arianna).
+- **Higiene:** AS-AAXG **cancelada al terminar por la vía normal** y
+  verificado que seguía cancelada tras recargar. La huella de producción
+  queda como tras §83 (la única cita viva sigue siendo la id 512 de Lee).
+- **Gasto total del rodaje: Twilio 0 mensajes. Meta: 1 análisis real**
+  (Spark + 1 imagen de Muse Image), sin reintentos, **≈ 0,01 $** de
+  crédito — cifra del precedente §69 (~0,01 $/análisis); **no hay contador
+  exacto por llamada y se declara así**.
+
+### La edición (craft de zoom)
+
+- `render-recorrido.py` + `recorrido84/plan84.json`: cada paso se
+  renderiza a 30 fps desde un mapa de piezas (tramo fuente → duración de
+  salida) y keyframes de zoom `{t, z, cx, cy}` en **px CSS** (el espacio
+  del registro) interpolados con easing smoothstep: punch-in de ~0,5 s,
+  sostén durante la acción y vuelta a plano general entre pasos. Zooms de
+  1,2–1,7× sobre: carrusel, buscador, tarjeta, consentimiento, foto,
+  bloque de carga, propuesta, orientación, guardar look, calendario,
+  horas, paso 3, código, cita en el enlace, diálogo de cancelar y la cita
+  en el panel. Ampliación a 824×1830 (Lanczos) al codificar cada paso.
+- **Difuminado:** la caja del enlace personal de la confirmación
+  (rect CSS [8, 425, 396, 74], ventana fuente 16,1–19,85 s del paso 04) se
+  difumina **en espacio fuente, antes del recorte**, para que siga al
+  zoom. Verificado a ojo: el código AS-AAXG se lee entero y el enlace es
+  ilegible en todos los fotogramas de la confirmación.
+- **Escaleta final (179,0 s):** apertura §79 acelerada a 10,0 ·
+  WhatsApp §79 comprimido con factor uniforme a 54,0 (75,07 → 54; esperas
+  incluidas, sin cortes de contenido) · **recorrido 93,5** (10,0 + 8,5 +
+  33,5 + 20,5 + 13,5 + 7,5; la espera de 34,1 s va a 8 s **rotulada con su
+  duración real**) · arquitectura §81 a 11,0 · cierre §79 a 10,5. Receta:
+  `montar84.sh` (la pasada final, desacoplable, en `montar84-final.sh`).
+- **Rótulos:** los textos auditados de §81 con dos novedades — la nota de
+  la espera («La espera real fue de 34 s — aquí, acelerada» / «The real
+  wait was 34 s — sped up here») y el rótulo del enlace («Su enlace
+  personal: ver, reagendar o cancelar» / «Her personal link: view,
+  reschedule or cancel»). SAM 3.1 solo como «disponible», como manda §81.
+
+### Verificación (fotogramas mirados a ojo en cada latido y cada frontera)
+
+- **Defecto cazado en la primera pasada:** el primer render salió con las
+  coordenadas en espacio 824×1830 sobre fotogramas de 412×915 (relleno
+  negro y zooms desplazados). Causa: el screencast CDP entrega 412×915,
+  no ×2. Corregido pasando plan y renderizador a px CSS (la ampliación se
+  hace al codificar) y **re-renderizado todo**; ese primer fichero nunca
+  fue válido y quedó sobrescrito.
+- **Tres correcciones tras mirar los fotogramas del corte ya montado:**
+  (1) el rótulo ANTES caía sobre el selector de foto → reventanado a
+  91,2–93,0 s, sobre la foto de ejemplo ya cargada; (2) las horas de la
+  reserva quedaban fuera del encuadre (solo se leía el precio) → centro
+  del zoom de huecos desplazado a la izquierda (16:30/16:45/17:00 se leen
+  enteras) y zoom del paso 3 suavizado a 1,2×; (3) la pila de seis líneas
+  de la generación se partió en dos ventanas (generación 93,4–97,6 /
+  espera 97,8–100,8). Las tres re-verificadas a ojo tras el remontaje.
+- **Resultado final:** `montaje-final.mp4` = **179,000 s exactos**,
+  H.264 824×1830 30 fps, 37.269.729 bytes, **decodificación completa sin
+  errores**. Fotogramas comprobados: gancho, super, precios, nota EN,
+  confirmación del WhatsApp bajo su rótulo (AS-AAXF visible, token
+  enmascarado por la propia app), y del recorrido: hogar ampliado,
+  buscador, tarjeta, consentimiento, ANTES, carga con contador real,
+  DESPUÉS (la propuesta generada a pantalla completa), orientación,
+  guardar look, calendario, horas, paso 3, confirmación con el enlace
+  difuminado, cita en su enlace, panel de reagendar, diálogo de cancelar,
+  el Hoy de Arianna con AS-AAXG y la derivación; tarjeta de arquitectura
+  y cierre. Fronteras 10/64/157,5/168,5 limpias.
+- Documentación: sección §84 en `video-demo/MANIFIESTO.md` y tabla del
+  guion de `ENTREGA_HACKATHON.md` reescrita para este corte (sin tocar
+  los textos del formulario salvo la nota del vídeo).
+
+### ⚠️ Coordinación con la entrega (para el agente padre)
+
+La tarea de navegador que rellena el formulario estaba subiendo a YouTube
+(no listado) el corte **§81**. **Ese vídeo debe sustituirse por este §84
+antes de pulsar Submit** (la URL del formulario apunta al fichero
+subido). El formulario sigue sin enviar, como ordenó Lee.
+
+
+## §86 · ADAPTACIÓN DEL VÍDEO A 9:16 — MÁSTER FINAL 1080×1920 (04/11/2026)
+
+Orden de Lee (17:46, tras ver el §84): «adapta el vídeo 9:16, así se ve
+feo». El §84 vive a 824×1830 — el formato de pantalla del S25, MÁS alto
+que 9:16 — y los reproductores lo encajan mal. Adaptación hecha como
+post-producción pura sobre el fichero, sin tocar un solo tramo:
+
+- **Método (sin perder ni un píxel):** el contenido se escala por
+  ALTURA (1830→1920 → 864 px de ancho) y se centra sobre un lienzo
+  1080×1920; los laterales (108 px por lado) se rellenan con el propio
+  fotograma escalado a cubrir, con blur fuerte (gblur sigma=50) y
+  oscurecido al 75% (relleno «cristal» estándar). Prohibido y no hecho:
+  recortar arriba/abajo (cabecera y navegación enteras), deformar la
+  relación de aspecto, barras negras.
+- **Ficheros:** fuente preservada `video-demo/montaje-final-pre916.mp4`
+  (el §84, 824×1830, 37.269.729 bytes); máster nuevo
+  `video-demo/montaje-final.mp4` — **1080×1920, H.264, 30 fps,
+  179,000 s exactos, 44.020.006 bytes**. Receta reproducible:
+  `video-demo/montar916.sh`.
+- **Verificación:** decodificación completa sin errores; fotogramas
+  mirados a ojo en `video-demo/verif916/` — t=5 (apertura), t=30
+  (WhatsApp), t=97 (zoom del análisis), t=106 (propuesta DESPUÉS),
+  t=133 (confirmación de reserva) y t=153 (panel). En los seis:
+  contenido íntegro y centrado, relleno limpio y uniforme, sin
+  franjas ni bordes raros. Todo lo demás — tramos, rótulos, zooms,
+  duración — idéntico al §84.
+- Documentación: sección §86 en `video-demo/MANIFIESTO.md` y nota del
+  vídeo de `ENTREGA_HACKATHON.md` actualizada al formato final
+  1080×1920 (9:16), sin tocar ningún otro texto del formulario.
+- Gasto: 0 $ · Twilio: 0 mensajes.
+
+### ⚠️ Coordinación con la entrega (para el agente padre)
+
+El vídeo que debe subirse al formulario es **este máster 9:16**
+(`montaje-final.mp4`), no la subida anterior del §81 ni el §84 a
+824×1830: mismo contenido que el §84, lienzo nuevo. El formulario
+sigue sin enviar, como ordenó Lee.
+
+
+## §87 · ÚLTIMO REPASO AL 199% — AUDITORÍA FINAL PREVIA AL ENVÍO (04/11/2026)
+
+Orden de Lee (17:54): «hagamos el último repaso y al 199%, sube todo…
+dejemos listo el hackathon documentado, explicado, todo como ellos
+mandan». Auditoría de VERIFICACIÓN ejecutada 18:05–18:25: no se ha
+arreglado nada; lo encontrado se reporta, no se maquilla. Gasto: 0 $ ·
+Twilio: 0 mensajes.
+
+### Hallazgos (primero, por pequeños que sean)
+
+1. **MENOR — marca documental atrasada en `ENTREGA_HACKATHON.md`:** el
+   ítem «Final repo freeze (Nov 4)» de la lista ⚠️ PENDING sigue con
+   la casilla `[ ]` sin marcar, pero su sustancia está COMPLETA y
+   verificada en este repaso (congelación `06308ea` + §85 `ee59b8b` y
+   `d74f2ab`; head remoto = `d74f2ab`). La casilla se marca en el
+   paso 3 de la secuencia de envío preparada (abajo), junto con la
+   URL del vídeo. No se ha tocado en esta auditoría.
+2. **NOTA — huella de la agenda = §83 + 1 fila documentada:** total
+   **625** (no 624), cancelada **516** (no 515), id máx **626** (no
+   625). La fila extra es la id 626 = la reserva del rodaje §84
+   (AS-AAXG, «Carmen», Diseño de cejas, 04/11 16:45, origen web),
+   creada para grabar y **cancelada por la vía normal**, tal como §84
+   declara. Todo lo demás, idéntico a §83: cumplida 63 · no_show 45 ·
+   confirmada 1 (la id 512, intacta: pack de Arianna, 31/10 10:15,
+   48 €) · filas vivas en estado «confirmada» aparte de la 512: **0**.
+3. **OBSERVACIÓN — historial de producción del vídeo en ENTREGA:** el
+   párrafo «How the final cut was actually produced» conserva la
+   redacción del render §79 («180 s») seguida de la nota §84
+   («179.00 s»). La descripción operativa vigente es la tabla del
+   guion + las notas §84/§86 (máster 9:16, 179,0 s). Sin contradicción
+   material.
+
+### Tabla de veredictos
+
+| Frente | Veredicto | Evidencia |
+|---|---|---|
+| 1 · La app viva | ✅ | Máquina `running` (API de InstaBox; encendida desde las 16:44 Madrid). `/salud` con `ok: true` en 8080 (webhook), 8081 (agenda) y 8090 (web) por curl interno. Home pública cargada desde fuera (17:06 UTC) con la UI vigente — incluida la biblioteca de rostros de §75. Vigilia del jurado ARMADA: cron `la-asistenta-vigilia-jurado` habilitado, intervalo 20 min desde el 05/11 14:00, cuerpo con ventana 05–10/11 de 14:00 a 02:00 y caducidad declarada el 11/11 02:00 (retiro previsto el 11/11). Huella de la agenda según la NOTA 2. El ESTADO de la máquina antes de esta sección: SHA `faf6e76d…` = local. |
+| 2 · El vídeo final | ✅ | `video-demo/montaje-final.mp4`: ffprobe = **1080×1920, H.264, 30 fps, 179,000 s, 44.020.006 bytes**; decodificación completa (`ffmpeg -f null`) sin errores; fotogramas `verif916/` (t=5/30/97/106/133/153) presentes. MANIFIESTO §86 (línea 414) y la nota del campo «Demo video» de ENTREGA describen ESTE máster 9:16. |
+| 3 · El paquete | ✅ (con el hallazgo 1) | ENTREGA leída entera: textos COPY-PASTE intactos. Contrastes contra el sistema: precios 30/45/18 € = carta real (y fila id 626: Diseño 18 €); baterías 33+25+11+23+22+18 = **132** = §78; benchmark H1 (12 propuestas · p50 16,1 s · identidad 5,0/5 · confinamiento 5,0/5 · 0 fugas · 0,12 $) = registro §§62–65 y README; AS-AAXF = fila id 625 (origen whatsapp, Diseño, 05/11 17:30, **cancelada**). Ítems ⚠️ PENDING: solo queda abierto el de la **URL del vídeo** (+ la marca del freeze, hallazgo 1). |
+| 4 · El repo | ✅ | Head remoto = `d74f2abf230a81eb2cc7395804c0dd4dc34a1d5c` (= §85), leído por `git ls-remote`. README en crudo leído: sin contradicciones (precios y horario reales; H1 con calidad 4,33/5; enjambre y H-82 = §§82–83; baterías 132/132; el vídeo se remite al paquete, sin URL prometida). Árbol remoto (API de GitHub): presentes los **17 documentos** del mapa de documentación + el directorio `h1/resultados/` + las **8 imágenes** `docs/img/*.svg`; blobs de ESTADO (`d008b54a…`) y ENTREGA (`e14e78ab…`) = los auditados en la congelación. |
+| 5 · Requisitos del concurso | ✅ | Vídeo demo de 3 min: **179,0 s** ✅ · Repo público: acceso anónimo en crudo y por API verificado en este repaso ✅ · Construido en la ventana del hackathon (27/10–04/11: §§1–87 y el historial del repo) ✅ · Track Indie: «Indie Developer Track» seleccionado en el formulario en espera ✅ · Formulario: relleno con los textos exactos y RETENIDO antes de Submit por orden de Lee ✅ · Fecha límite 05/11 03:00 Madrid: **margen a las 18:05 = 8 h 55 min** (al objetivo interno de las 23:00: 4 h 55 min) ✅. |
+| 6 · Cierre documental | ✅ PREPARADO | Secuencia exacta del envío escrita abajo, SIN ejecutar. |
+
+### Secuencia exacta del envío — PREPARADA, NO EJECUTADA
+
+Para cuando Lee dé la palabra (y sus dos respuestas de la encuesta):
+
+1. Subir `video-demo/montaje-final.mp4` (máster 9:16 §86: 1080×1920,
+   179,0 s) a YouTube como **NO listado**, en la cuenta de Lee (canal
+   «Lee renmos», el mismo de la subida del §81), con la descripción
+   corta del paquete como descripción. Anotar la URL resultante.
+2. En el formulario ya relleno y en espera (cerebralvalley.ai, sesión
+   de Lewis Renteria), **sustituir** el campo «3-Minute Demo Video»
+   — hoy apunta al Shorts del corte §81 (ID omitido en la copia pública) — por la URL
+   nueva, y verificar que ningún otro campo cambió.
+3. Pegar la misma URL en `ENTREGA_HACKATHON.md`: campo «Demo video»
+   de Links (cierra su ⚠️ PENDING URL) y marcar `[x]` el ítem «Demo
+   video URL» de la lista ⚠️; en el mismo paso, marcar `[x]` el ítem
+   «Final repo freeze (Nov 4)» (hallazgo 1: sustancia ya completada).
+4. Marcar la casilla de consentimiento (Meta y Cerebral Valley
+   pueden usar, publicar, compartir y promocionar los materiales
+   enviados) — solo con el OK expreso de Lee.
+5. Responder las 2 preguntas obligatorias de la encuesta con las
+   palabras de Lee (probabilidad de seguir construyendo con la Meta
+   Model API; opinión general de la API) — jamás inventadas. Las
+   opcionales quedan en blanco salvo que Lee diga otra cosa.
+6. Pulsar **Submit** y guardar la confirmación (captura + texto/URL
+   de la pantalla de confirmación).
+7. Registrar el cierre en una sección nueva de este ESTADO (§88):
+   fecha/hora del envío, URL del vídeo y confirmación; sincronizar
+   ESTADO + ENTREGA al repo público con el mecanismo de snapshot
+   auditado de siempre (auditoría de secretos por las dos vías) como
+   commit «Submission sent — closing sync».
+8. Tras el envío, comprobar `/salud` una vez más: la app queda
+   despierta para el jurado con la vigilia armada (05–10/11).
+
+**Conclusión del repaso: TODO LISTO salvo la palabra de Lee y sus dos
+respuestas de la encuesta. Nada se ha enviado.**
+
+## §88 · ENVÍO REALIZADO — «Project Submitted» (04/11/2026)
+
+Orden de Lee (19:00): «Publica bro ya es hora». Ejecutados los pasos
+1–6 de la secuencia preparada en §87 y el cierre documental (7–8).
+
+- **Confirmación:** la plataforma (cerebralvalley.ai — Meta Global
+  AI Developer Hackathon) mostró **«Project Submitted»** el
+  04/11/2026, ~19:07 Madrid: **7 h 53 min antes** del límite oficial
+  (05/11 03:00 Madrid) y ~3 h 53 min antes del objetivo interno
+  (23:00). Submission ID:
+  `a5b0574a-edaa-45d6-ac9a-564c681a0348`. Página del envío:
+  https://cerebralvalley.ai/e/meta-ai-developer-hackathon/hackathon/a5b0574a-edaa-45d6-ac9a-564c681a0348/edit
+- **Vídeo enviado:** el máster 9:16 de §86, subido a YouTube como
+  **NO listado**: https://youtube.com/shorts/ejwBkEfCe1k
+  («La Asistenta — Demo», 2:59). Sustituyó en el campo «3-Minute
+  Demo Video» a la subida del corte §81, como mandaba la secuencia.
+- **Formulario:** los textos del paquete tal cual, con UNA desviación
+  forzada por la plataforma: dos campos están limitados a **3.000
+  caracteres** — la Descripción (3.099) y «Describe your use of Meta
+  products» (3.794) entraron recortados **solo en redacción**
+  (2.916 y 2.889 caracteres), con todos los datos, precios y notas
+  de honestidad intactos. Los textos exactos enviados quedan
+  archivados en el anexo interno de `ENTREGA_HACKATHON.md`
+  («As-submitted field texts»); las versiones íntegras siguen en
+  sus secciones COPY-PASTE.
+- **Encuesta obligatoria:** probabilidad de seguir construyendo con
+  la Meta Model API = **«Very likely»**; opinión general =
+  **«Very favorable»** (el campo resultó ser de escala: la
+  redacción libre preparada no se usó). Consentimiento marcado.
+  Opcionales en blanco; sin enlace de X (no existe) y sin feedback
+  de partners (sin texto preparado).
+- **Cierre documental (pasos 7–8 de §87):** ENTREGA actualizado
+  (URL del vídeo pegada y su ⚠️ cerrado; ítems «Demo video URL» y
+  «Final repo freeze (Nov 4)» marcados [x] — este último cerraba
+  también el hallazgo 1 de §87 —; nota de cierre y anexo con los
+  textos enviados). Sync al repo público con el mensaje «Submission
+  sent — closing sync» (ENTREGA + la copia pública de este ESTADO
+  con las redacciones habituales), con la auditoría de secretos de
+  dos vías en limpio; el SHA del commit consta en el registro de
+  sync adyacente al staging y se verificó por lectura de vuelta de
+  los blobs.
+- **Salud final (paso 8):** tras el envío, `/salud` con `ok: true`
+  en 8080 (webhook), 8081 (agenda) y 8090 (web) por curl interno, y
+  la vigilia del jurado `la-asistenta-vigilia-jurado` habilitada
+  (cada 20 min, ventana 05–10/11): la app queda despierta para el
+  jurado. Gasto del cierre: 0 $ · Twilio: 0 mensajes.
+
+**Estado del proyecto tras el envío: ENTREGADO. Lo que queda es del
+jurado (ganadores 09–10/11) y los pendientes ya conocidos que no
+bloqueaban: B7 (decisión de Lee), la tarea de credenciales pendiente (§46)
+y el voto ciego de Arianna sobre el benchmark H1.**
